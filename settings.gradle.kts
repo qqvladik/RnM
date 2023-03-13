@@ -14,3 +14,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "RnM"
 include(":app")
+include(":sources:base:network")
+include(":sources:base:core")
