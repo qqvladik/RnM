@@ -16,17 +16,28 @@ object Libs {
             "androidx.lifecycle:lifecycle-runtime-compose:${Versions.lifecycleRuntimeCompose}"
     }
 
-    object DI {
+    object Hilt { //Don't forget about using kotlin-kapt
         const val hiltAndroid = "com.google.dagger:hilt-android:${Versions.hilt}"
         const val hiltCompiler = "com.google.dagger:hilt-compiler:${Versions.hilt}"
         const val czerwinskiHiltExt = "it.czerwinski.android.hilt:hilt-extensions:${Versions.czerwinskiHilt}"
         const val czerwinskiHiltProcessor = "it.czerwinski.android.hilt:hilt-processor:${Versions.czerwinskiHilt}"
     }
 
-    object Network {
+    object Dagger { //Don't forget about using kotlin-kapt
+        const val daggerDependency = "com.google.dagger:dagger:${Versions.dagger}"
+        const val daggerCompiler = "com.google.dagger:dagger-compiler:${Versions.dagger}"
+    }
+
+    object Network { //Don’t forget to add INTERNET permissions
+        const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
+        const val converterGson = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
+        const val loggingInterceptor = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttp}"
+
+        //Don't forget about additional apollo settings
         const val apolloKotlin = "com.apollographql.apollo3:apollo-runtime:${Versions.apolloKotlin}"
-        const val chuckerDebug = "com.github.chuckerteam.chucker:library:3.5.2"
-        const val chuckerRelease = "com.github.chuckerteam.chucker:library-no-op:3.5.2"
+
+        const val chuckerDebug = "com.github.chuckerteam.chucker:library:${Versions.chucker}"
+        const val chuckerRelease = "com.github.chuckerteam.chucker:library-no-op:${Versions.chucker}"
     }
 
     object Compose {
