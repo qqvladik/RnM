@@ -3,6 +3,7 @@ import pl.mankevich.rnm.*
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -37,4 +38,9 @@ android {
 dependencies {
 
     implementation(Libs.Kotlin.coreKtx)
+
+    implementation(Libs.Dagger.dagger)
+    kapt(Libs.Dagger.compiler)
+
+    implementation(Libs.Network.retrofit)
 }

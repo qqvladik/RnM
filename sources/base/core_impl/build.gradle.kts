@@ -44,12 +44,5 @@ dependencies {
     implementation(Libs.Dagger.dagger)
     kapt(Libs.Dagger.compiler)
 
-    implementation(Libs.Network.retrofit)
-    implementation(Libs.Network.converterGson)
-    implementation(Libs.Network.loggingInterceptor)
-
-    releaseImplementation(Libs.Network.chuckerRelease)
-    debugImplementation(Libs.Network.chuckerDebug)
-
     implementation(project(":core"))
 }

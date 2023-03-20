@@ -24,8 +24,8 @@ object Libs {
     }
 
     object Dagger { //Don't forget about using kotlin-kapt
-        const val daggerDependency = "com.google.dagger:dagger:${Versions.dagger}"
-        const val daggerCompiler = "com.google.dagger:dagger-compiler:${Versions.dagger}"
+        const val dagger = "com.google.dagger:dagger:${Versions.dagger}"
+        const val compiler = "com.google.dagger:dagger-compiler:${Versions.dagger}"
     }
 
     object Network { //Don’t forget to add INTERNET permissions

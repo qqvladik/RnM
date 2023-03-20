@@ -14,5 +14,11 @@ dependencyResolutionManagement {
 }
 rootProject.name = "RnM"
 include(":app")
-include(":sources:base:network")
-include(":sources:base:core")
+
+include(":network")
+include(":core")
+include(":core-impl")
+
+project(":network").projectDir = File(rootDir, "sources/base/network")
+project(":core").projectDir = File(rootDir, "sources/base/core")
+project(":core-impl").projectDir = File(rootDir, "sources/base/core_impl")

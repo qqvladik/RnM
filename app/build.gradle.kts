@@ -3,6 +3,7 @@ import pl.mankevich.rnm.*
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -61,6 +62,12 @@ dependencies {
     implementation(Libs.Compose.preview)
     implementation(Libs.Compose.activity)
 
-    debugImplementation(Libs.DebugCompose.uiTooling)
-    debugImplementation(Libs.DebugCompose.uiTestManifest)
+    implementation(Libs.Dagger.dagger)
+    kapt(Libs.Dagger.compiler)
+
+    implementation(Libs.Network.retrofit)
+
+    implementation(project(":core-impl"))
+    implementation(project(":core"))
+    implementation(project(":network"))
 }
