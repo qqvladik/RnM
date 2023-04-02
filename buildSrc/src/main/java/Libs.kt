@@ -1,4 +1,4 @@
-package pl.mankevich.rnm
+import org.gradle.kotlin.dsl.DependencyHandlerScope
 
 object Libs {
 
@@ -31,6 +31,7 @@ object Libs {
     object Network { //Don’t forget to add INTERNET permissions
         const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
         const val converterGson = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
+        const val converterScalars = "com.squareup.retrofit2:converter-scalars:${Versions.retrofit}"
         const val loggingInterceptor = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttp}"
 
         //Don't forget about additional apollo settings
@@ -70,4 +71,20 @@ object Libs {
         const val uiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
         const val uiTestManifest = "androidx.compose.ui:ui-test-manifest:${Versions.compose}"
     }
+}
+
+fun DependencyHandlerScope.applyDagger() {
+    dependencies.add("implementation", Libs.Dagger.dagger)
+    dependencies.add("kapt", Libs.Dagger.compiler)
+}
+
+fun DependencyHandlerScope.applyChucker() {
+    dependencies.add("releaseImplementation", Libs.Network.chuckerRelease)
+    dependencies.add("debugImplementation", Libs.Network.chuckerDebug)
+}
+
+fun DependencyHandlerScope.applyBaseCompose() {
+    dependencies.add("implementation", Libs.Compose.ui)
+    dependencies.add("implementation", Libs.Compose.preview)
+    dependencies.add("implementation", Libs.Compose.material3)
 }

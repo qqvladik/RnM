@@ -1,5 +1,3 @@
-package pl.mankevich.rnm
-
 object Configs {
     private const val versionMajor = 1
     private const val versionMinor = 0

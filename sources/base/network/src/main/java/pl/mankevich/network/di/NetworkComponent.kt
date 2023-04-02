@@ -19,7 +19,7 @@ interface NetworkComponent : NetworkProvider {
 
         fun init(
             androidDependenciesProvider: AndroidDependenciesProvider
-        ) : NetworkProvider {
+        ): NetworkProvider {
             return DaggerNetworkComponent.factory()
                 .create(androidDependenciesProvider)
         }

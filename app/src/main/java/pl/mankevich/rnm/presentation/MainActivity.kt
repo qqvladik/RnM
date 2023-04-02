@@ -1,4 +1,4 @@
-package pl.mankevich.rnm
+package pl.mankevich.rnm.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

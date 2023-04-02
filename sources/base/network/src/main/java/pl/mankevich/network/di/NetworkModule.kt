@@ -9,6 +9,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import pl.mankevich.core.di.qualifiers.ApplicationContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.concurrent.TimeUnit
 
 @Module
@@ -24,6 +25,7 @@ object NetworkModule {
     ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(baseUrl)
+            .addConverterFactory(ScalarsConverterFactory.create()) //TODO remove
             .addConverterFactory(gsonConverterFactory)
             .client(okHttpClient)
             .build()

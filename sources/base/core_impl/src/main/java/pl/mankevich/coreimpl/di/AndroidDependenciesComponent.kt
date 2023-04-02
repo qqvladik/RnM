@@ -1,4 +1,4 @@
-package pl.mankevich.core_impl.di
+package pl.mankevich.coreimpl.di
 
 import android.content.Context
 import dagger.Component

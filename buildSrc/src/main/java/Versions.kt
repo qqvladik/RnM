@@ -1,5 +1,3 @@
-package pl.mankevich.rnm
-
 object Versions {
 
     const val androidGradlePlugin = "7.2.2"

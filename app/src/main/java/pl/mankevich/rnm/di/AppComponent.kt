@@ -6,7 +6,7 @@ import dagger.Component
 import pl.mankevich.core.di.providers.DependenciesProvider
 import pl.mankevich.core.di.providers.AndroidDependenciesProvider
 import pl.mankevich.core.di.providers.NetworkProvider
-import pl.mankevich.core_impl.di.AndroidDependenciesComponent
+import pl.mankevich.coreimpl.di.AndroidDependenciesComponent
 import pl.mankevich.network.di.NetworkComponent
 
 @Component(
@@ -21,7 +21,7 @@ interface AppComponent : DependenciesProvider {
 
         fun init(
             context: Context
-        ): AppComponent {
+        ): AppComponent { //TODO узнать почему здесь не DependenciesProvider
             val androidDependenciesProvider = AndroidDependenciesComponent.init(context)
             val networkProvider = NetworkComponent.init(androidDependenciesProvider)
             return DaggerAppComponent.factory()
@@ -39,5 +39,4 @@ interface AppComponent : DependenciesProvider {
     }
 
     fun inject(app: Application)
-
 }

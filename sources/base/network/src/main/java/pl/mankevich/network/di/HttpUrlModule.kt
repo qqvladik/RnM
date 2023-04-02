@@ -8,7 +8,10 @@ class HttpUrlModule {
 
     companion object {
 
-        private const val REST_API_URL = "http://rickandmprtyapi.com/api/" //TODO мб в конфиги какие запихать
+        //TODO мб в конфиги какие запихать для того, чтобы этот модуль можно было и в других прилах юзать а базовую урлу
+        // задавать через конфиги. Но если нужно будет добавлять свои интерсепторы то можно сделать также отдельный
+        // модуль для своих интерсепторов
+        private const val REST_API_URL = "https://rickandmortyapi.com/api/"
     }
 
     @BaseUrl
