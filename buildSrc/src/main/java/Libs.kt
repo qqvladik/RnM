@@ -12,8 +12,7 @@ object Libs {
         const val lifecycleViewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
         const val lifecycleRuntime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}"
         const val lifecycleViewModelCompose = "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.lifecycle}"
-        const val lifecycleRuntimeCompose =
-            "androidx.lifecycle:lifecycle-runtime-compose:${Versions.lifecycleRuntimeCompose}"
+        const val lifecycleRuntimeCompose = "androidx.lifecycle:lifecycle-runtime-compose:${Versions.lifecycle}"
     }
 
     object Hilt { //Don't forget about using kotlin-kapt
@@ -26,6 +25,12 @@ object Libs {
     object Dagger { //Don't forget about using kotlin-kapt
         const val dagger = "com.google.dagger:dagger:${Versions.dagger}"
         const val compiler = "com.google.dagger:dagger-compiler:${Versions.dagger}"
+    }
+
+    object Room { //Don't forget about using kotlin-kapt
+        const val ktx = "androidx.room:room-ktx:${Versions.room}"
+        const val runtime = "androidx.room:room-runtime:${Versions.room}"
+        const val compiler = "androidx.room:room-compiler:${Versions.room}"
     }
 
     object Network { //Don’t forget to add INTERNET permissions
@@ -43,7 +48,8 @@ object Libs {
 
     object Compose {
         const val ui = "androidx.compose.ui:ui:${Versions.compose}"
-        const val preview = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
+        const val tooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
+        const val toolingPreview = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
         const val material = "androidx.compose.material:material:${Versions.materialCompose}"
         const val material3 = "androidx.compose.material3:material3:${Versions.materialCompose3}"
 
@@ -73,9 +79,15 @@ object Libs {
     }
 }
 
-fun DependencyHandlerScope.applyDagger() {
+fun DependencyHandlerScope.applyDagger() {//TODO проверить всегда ли нужны все зависимости, например в core
     dependencies.add("implementation", Libs.Dagger.dagger)
     dependencies.add("kapt", Libs.Dagger.compiler)
+}
+
+fun DependencyHandlerScope.applyRoom() {
+    dependencies.add("implementation", Libs.Room.ktx)
+    dependencies.add("implementation", Libs.Room.runtime)
+    dependencies.add("kapt", Libs.Room.compiler)
 }
 
 fun DependencyHandlerScope.applyChucker() {
@@ -85,6 +97,7 @@ fun DependencyHandlerScope.applyChucker() {
 
 fun DependencyHandlerScope.applyBaseCompose() {
     dependencies.add("implementation", Libs.Compose.ui)
-    dependencies.add("implementation", Libs.Compose.preview)
+    dependencies.add("debugImplementation", Libs.Compose.tooling)
+    dependencies.add("implementation", Libs.Compose.toolingPreview)
     dependencies.add("implementation", Libs.Compose.material3)
 }

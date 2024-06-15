@@ -1,3 +1,3 @@
 package pl.mankevich.core.di.providers
 
-interface DependenciesProvider: NetworkProvider, AndroidDependenciesProvider
+interface DependenciesProvider: NetworkProvider, AndroidDependenciesProvider, StorageProvider

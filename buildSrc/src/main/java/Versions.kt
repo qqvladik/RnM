@@ -1,20 +1,20 @@
 object Versions {
 
-    const val androidGradlePlugin = "7.2.2"
-
     //Kotlin
     const val kotlin = "1.8.0"
     const val coreKtx = "1.8.0"
     const val coroutines = "1.6.4"
 
     //Lifecycle
-    const val lifecycle = "2.5.1"
-    const val lifecycleRuntimeCompose = "2.6.0-rc01"
+    const val lifecycle = "2.6.1"
 
     //DI
     const val hilt = "2.44"
     const val czerwinskiHilt = "1.3.0"
     const val dagger = "2.45"
+
+    //Room
+    const val room = "2.5.1"
 
     //Network
     const val retrofit = "2.9.0"

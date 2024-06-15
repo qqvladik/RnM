@@ -18,6 +18,7 @@ include(":app")
 includeBase("network")
 includeBase("core")
 includeBase("core_impl")
+includeBase("storage")
 
 fun includeBase(name: String) {
     include(":$name")
