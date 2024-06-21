@@ -3,9 +3,8 @@ plugins {
 }
 
 dependencies {
-//    applyDagger()
     implementation(Libs.Kotlin.coreKtx)
-    implementation(Libs.Dagger.dagger)//only for @ApplicationContext, so TODO remove
+    implementation(Libs.Dagger.dagger)//only for @ApplicationContext, so TODO remove in future
     implementation(Libs.Room.ktx)
     implementation(Libs.Network.retrofit)
 }

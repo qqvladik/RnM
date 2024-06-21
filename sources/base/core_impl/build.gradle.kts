@@ -5,5 +5,6 @@ plugins {
 dependencies {
     applyDagger()
     implementation(Libs.Kotlin.coreKtx)
+
     implementation(project(":core"))
 }

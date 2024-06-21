@@ -2,6 +2,11 @@ package scripts
 
 import Configs
 import com.android.build.gradle.BaseExtension
+import gradle.kotlin.dsl.accessors._8524fec7ee509201879a0215515451b6.kotlin
+
+plugins {
+    id("org.jetbrains.kotlin.android")
+}
 
 android {
     defaultConfig {
@@ -28,6 +33,10 @@ android {
             isMinifyEnabled = false
         }
     }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 fun Project.android(configure: BaseExtension.() -> Unit) {
