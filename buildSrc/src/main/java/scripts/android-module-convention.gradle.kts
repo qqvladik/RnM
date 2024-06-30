@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "${Configs.applicationPackage.substringBeforeLast('.')}.${name.replace("_", "")}" //namespace must be the same as packageName
-    defaultConfig {
-        consumerProguardFiles("consumer-rules.pro")
-    }
+//    defaultConfig {
+//        consumerProguardFiles("consumer-rules.pro")
+//    }
 }
