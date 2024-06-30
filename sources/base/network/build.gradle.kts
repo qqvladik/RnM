@@ -13,6 +13,6 @@ dependencies {
     implementation(Libs.Network.converterScalars)
     implementation(Libs.Network.loggingInterceptor)
 
+    api(project(":network_api"))
     implementation(project(":core"))
-    implementation(project(":network_api"))
 }

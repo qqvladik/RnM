@@ -16,7 +16,8 @@ android {
 }
 
 dependencies {
-    file("${rootProject.projectDir}/sources").listFiles()?.filter { it.isDirectory }
+    file("${rootProject.projectDir}/sources").listFiles()
+        ?.filter { it.isDirectory && !it.name.contains("api") }
         ?.forEach { source ->
             source.listFiles()?.filter { it.isModule() }?.forEach { module ->
                 implementation(project(":${module.name}"))

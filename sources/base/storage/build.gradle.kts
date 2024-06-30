@@ -8,6 +8,6 @@ dependencies {
 
     implementation(Libs.Kotlin.coreKtx)
 
+    api(project(":storage_api"))
     implementation(project(":core"))
-    implementation(project(":storage_api"))
 }

@@ -17,7 +17,7 @@ dependencies {
     implementation(Libs.Network.retrofit)
     implementation(Libs.Network.converterGson)
 
+    api(project(":characters_list_api"))
     implementation(project(":core"))
     implementation(project(":dependencies"))
-    implementation(project(":characters_list_api"))
 }
