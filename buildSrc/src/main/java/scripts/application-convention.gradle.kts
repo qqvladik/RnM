@@ -16,20 +16,14 @@ android {
 }
 
 dependencies {
-    file("${project.rootDir}/sources").listFiles()?.forEach { source -> //TODO make app module NOT implement features/
-        if (source.isDirectory) {
-            source.listFiles()?.forEach {
-                if (it.isDirectory && it.isModule()) {
-                    implementation(project(":${it.name}"))
-                }
+    file("${rootProject.projectDir}/sources").listFiles()?.filter { it.isDirectory }
+        ?.forEach { source ->
+            source.listFiles()?.filter { it.isModule() }?.forEach { module ->
+                implementation(project(":${module.name}"))
             }
         }
-    }
 }
 
-fun File.isModule(): Boolean {
-    val buildGradleFiles = this.listFiles { _, name ->
-        name.contains("build.gradle")
-    }
-    return buildGradleFiles?.isNotEmpty() ?: false
-}
+fun File.isModule(): Boolean = this.isDirectory && this.listFiles()?.any { file ->
+    file.name.contains("build.gradle")
+} ?: false

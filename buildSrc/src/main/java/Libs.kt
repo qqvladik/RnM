@@ -9,7 +9,7 @@ object Libs {
     }
 
     object Lifecycle {
-        const val lifecycleViewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
+        const val lifecycleViewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}" //TODO remove?
         const val lifecycleRuntime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}"
         const val lifecycleViewModelCompose = "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.lifecycle}"
         const val lifecycleRuntimeCompose = "androidx.lifecycle:lifecycle-runtime-compose:${Versions.lifecycle}"
@@ -78,4 +78,6 @@ fun DependencyHandlerScope.applyBaseCompose() {
     dependencies.add("debugImplementation", Libs.DebugCompose.uiTooling)
     dependencies.add("implementation", Libs.Compose.toolingPreview)
     dependencies.add("implementation", Libs.Compose.material3)
+    dependencies.add("implementation", Libs.Compose.activity)
+    dependencies.add("implementation", Libs.Compose.navigation)
 }

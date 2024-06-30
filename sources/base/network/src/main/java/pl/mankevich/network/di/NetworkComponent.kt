@@ -1,8 +1,8 @@
 package pl.mankevich.network.di
 
 import dagger.Component
-import pl.mankevich.core.di.providers.AndroidDependenciesProvider
-import pl.mankevich.core.di.providers.NetworkProvider
+import pl.mankevich.core.di.AndroidDependenciesProvider
+import pl.mankevich.networkapi.di.NetworkProvider
 
 @Component(
     dependencies = [
@@ -10,7 +10,9 @@ import pl.mankevich.core.di.providers.NetworkProvider
     ],
     modules = [
         HttpUrlModule::class,
-        NetworkModule::class
+        NetworkModule::class,
+        ApiModule::class,
+        NetworkDataSourceModule::class
     ]
 )
 interface NetworkComponent : NetworkProvider {

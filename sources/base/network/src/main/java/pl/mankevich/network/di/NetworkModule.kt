@@ -6,7 +6,6 @@ import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import pl.mankevich.core.di.qualifiers.ApplicationContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
@@ -56,7 +55,7 @@ object NetworkModule {
 
     @Provides
     fun provideChuckerInterceptor(
-        @ApplicationContext context: Context
+        context: Context
     ): ChuckerInterceptor {
         return ChuckerInterceptor.Builder(context).build()
     }

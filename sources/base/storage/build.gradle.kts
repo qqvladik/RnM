@@ -3,9 +3,11 @@ plugins {
 }
 
 dependencies {
-    implementation(Libs.Kotlin.coreKtx)
-    applyRoom()
     applyDagger()
+    applyRoom()
+
+    implementation(Libs.Kotlin.coreKtx)
 
     implementation(project(":core"))
+    implementation(project(":storage_api"))
 }

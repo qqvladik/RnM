@@ -1,15 +1,16 @@
 package pl.mankevich.storage.di
 
 import dagger.Component
-import pl.mankevich.core.di.providers.AndroidDependenciesProvider
-import pl.mankevich.core.di.providers.StorageProvider
+import pl.mankevich.core.di.AndroidDependenciesProvider
+import pl.mankevich.core.di.FeatureScope
+import pl.mankevich.storageapi.di.StorageProvider
 
-@StorageScope
+@FeatureScope
 @Component(
     dependencies = [AndroidDependenciesProvider::class],
     modules = [
         DatabaseModule::class,
-        DataSourceModule::class,
+        StorageDataSourceModule::class,
     ]
 )
 interface StorageComponent : StorageProvider {

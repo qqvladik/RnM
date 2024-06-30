@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    applyChucker()
     applyDagger()
+    applyChucker()
 
     implementation(Libs.Kotlin.coreKtx)
 
@@ -14,4 +14,5 @@ dependencies {
     implementation(Libs.Network.loggingInterceptor)
 
     implementation(project(":core"))
+    implementation(project(":network_api"))
 }

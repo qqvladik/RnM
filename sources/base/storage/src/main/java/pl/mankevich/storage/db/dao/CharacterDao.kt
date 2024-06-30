@@ -22,8 +22,8 @@ interface CharacterDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCharactersList(characters: List<CharacterEntity>)
 
-    @Query("SELECT * FROM $CHARACTER_TABLE_NAME WHERE $ID_COLUMN=(:id)")//todo check if we need null
-    suspend fun getCharacterById(id: Int): CharacterEntity?
+    @Query("SELECT * FROM $CHARACTER_TABLE_NAME WHERE $ID_COLUMN=(:id)")
+    suspend fun getCharacterById(id: Int): CharacterEntity
 
     @Query("SELECT * FROM $CHARACTER_TABLE_NAME WHERE $ID_COLUMN in (:ids)")
     suspend fun getCharactersByIds(ids: List<Int>): List<CharacterEntity>

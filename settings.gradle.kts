@@ -15,17 +15,14 @@ dependencyResolutionManagement {
 rootProject.name = "RnM"
 include(":app")
 
-includeBase("network")
-includeBase("core")
-includeBase("core_impl")
-includeBase("storage")
+file("${rootProject.projectDir}/sources").listFiles()?.filter { it.isDirectory }
+    ?.forEach { source ->
+        source.listFiles()?.filter { it.isModule() }?.forEach { module ->
+            include(":${module.name}")
+            project(":${module.name}").projectDir = module
+        }
+    }
 
-fun includeBase(name: String) {
-    include(":$name")
-    project(":$name").projectDir = File(rootDir, "sources/base/$name")
-}
-
-fun includeFeature(name: String) {
-    include(":$name")
-    project(":$name").projectDir = File(rootDir, "sources/feature/$name")
-}
+fun File.isModule(): Boolean = this.isDirectory && this.listFiles()?.any { file ->
+    file.name.contains("build.gradle")
+} ?: false

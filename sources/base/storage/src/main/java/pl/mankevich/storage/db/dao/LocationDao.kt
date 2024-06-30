@@ -17,8 +17,8 @@ interface LocationDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertLocationsList(locations: List<LocationEntity>)
 
-    @Query("SELECT * FROM $LOCATION_TABLE_NAME WHERE $ID_COLUMN=(:id)")//todo check if we need null
-    suspend fun getLocationById(id: Int): LocationEntity?
+    @Query("SELECT * FROM $LOCATION_TABLE_NAME WHERE $ID_COLUMN=(:id)")
+    suspend fun getLocationById(id: Int): LocationEntity
 
 //    @Query("SELECT * FROM $LOCATION_TABLE_NAME WHERE ID_COLUMN in (:ids)")
 //    suspend fun getLocationsByIds(ids: List<Int>): List<LocationEntity>

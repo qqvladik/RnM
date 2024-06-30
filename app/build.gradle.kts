@@ -15,5 +15,4 @@ dependencies {
     implementation(Libs.Kotlin.coreKtx)
     implementation(Libs.Lifecycle.lifecycleRuntime)
     implementation(Libs.Network.retrofit)
-    implementation(Libs.Compose.activity)
 }

@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room.databaseBuilder
 import dagger.Module
 import dagger.Provides
-import pl.mankevich.core.di.qualifiers.ApplicationContext
+import pl.mankevich.core.di.FeatureScope
 import pl.mankevich.storage.db.RnmDatabase
 import pl.mankevich.storage.db.dao.CharacterDao
 import pl.mankevich.storage.db.dao.EpisodeDao
@@ -13,9 +13,9 @@ import pl.mankevich.storage.db.dao.RelationsDao
 
 @Module
 class DatabaseModule {
-    @StorageScope
+    @FeatureScope
     @Provides
-    fun provideDataBase(@ApplicationContext context: Context): RnmDatabase {
+    fun provideDataBase(context: Context): RnmDatabase {
         return databaseBuilder(
             context,
             RnmDatabase::class.java,

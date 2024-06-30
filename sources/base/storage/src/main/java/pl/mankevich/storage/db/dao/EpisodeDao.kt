@@ -16,8 +16,8 @@ interface EpisodeDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertEpisodesList(episodes: List<EpisodeEntity>)
 
-    @Query("SELECT * FROM $EPISODE_TABLE_NAME WHERE $ID_COLUMN=(:id)")//todo check if we need null
-    suspend fun getEpisodeById(id: Int): EpisodeEntity?
+    @Query("SELECT * FROM $EPISODE_TABLE_NAME WHERE $ID_COLUMN=(:id)")
+    suspend fun getEpisodeById(id: Int): EpisodeEntity
 
     @Query("SELECT * FROM $EPISODE_TABLE_NAME WHERE $ID_COLUMN in (:ids)")
     suspend fun getEpisodesByIds(ids: List<Int>): List<EpisodeEntity>
