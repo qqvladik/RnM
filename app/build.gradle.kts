@@ -1,18 +1,14 @@
-import extensions.addComposeConfig
+import extensions.applyDagger
 
 plugins {
-    scripts.`application-convention`
-}
-
-android {
-    addComposeConfig()
+    id("scripts.application-convention")
+    id("scripts.compose-ui-convention")
 }
 
 dependencies {
-    applyBaseCompose()
     applyDagger()
 
-    implementation(Libs.Kotlin.coreKtx)
-    implementation(Libs.Lifecycle.lifecycleRuntime)
-    implementation(Libs.Network.retrofit)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtimeCompose)
+    implementation(libs.retrofit.core)
 }

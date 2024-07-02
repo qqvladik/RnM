@@ -2,11 +2,12 @@ package scripts
 
 import Configs
 import com.android.build.gradle.BaseExtension
-import gradle.kotlin.dsl.accessors._8524fec7ee509201879a0215515451b6.kotlin
 
 plugins {
     id("org.jetbrains.kotlin.android")
 }
+
+fun android(configuration: BaseExtension.() -> Unit) = configure(configuration)
 
 android {
     defaultConfig {
@@ -16,10 +17,10 @@ android {
 
         testInstrumentationRunner = Configs.androidJunitRunner
 
-//        proguardFiles(
-//            getDefaultProguardFile("proguard-android-optimize.txt"),
-//            "proguard-rules.pro"
-//        )
+        proguardFiles(
+            getDefaultProguardFile("proguard-android-optimize.txt"),
+            "proguard-rules.pro"
+        )
     }
 
     buildTypes {
@@ -37,8 +38,4 @@ android {
 
 kotlin {
     jvmToolchain(17)
-}
-
-fun Project.android(configure: BaseExtension.() -> Unit) {
-    extensions.configure("android", configure)
 }

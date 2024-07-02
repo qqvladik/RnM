@@ -1,12 +1,15 @@
+import extensions.applyDagger
+import extensions.applyRoom
+
 plugins {
-    scripts.`android-module-convention`
+    id("scripts.android-module-convention")
 }
 
 dependencies {
     applyDagger()
     applyRoom()
 
-    implementation(Libs.Kotlin.coreKtx)
+    implementation(libs.androidx.core.ktx)
 
     api(project(":storage_api"))
     implementation(project(":core"))

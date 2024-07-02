@@ -1,10 +1,10 @@
 plugins {
-    scripts.`android-module-convention`
+    id("scripts.android-module-convention")
 }
 
 dependencies {
-    implementation(Libs.Kotlin.coreKtx)
-    implementation(Libs.Compose.navigation)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.navigation.compose)
 
     implementation(project(":core"))
     implementation(project(":network_api"))

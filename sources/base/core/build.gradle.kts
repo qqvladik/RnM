@@ -1,18 +1,14 @@
-import extensions.addComposeConfig
+import extensions.applyDagger
 
 plugins {
-    scripts.`android-module-convention`
-}
-
-android{
-    addComposeConfig()
+    id("scripts.android-module-convention")
+    alias(libs.plugins.compose)
 }
 
 dependencies {
     applyDagger()
 
-    implementation(Libs.Kotlin.coreKtx)
-    implementation(Libs.Network.retrofit)
-    implementation(Libs.Compose.navigation)
-    implementation(Libs.Lifecycle.lifecycleViewModelCompose)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.viewModelCompose)
+    implementation(libs.androidx.navigation.compose)
 }

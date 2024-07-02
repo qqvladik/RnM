@@ -1,7 +1,7 @@
 plugins {
-    scripts.`android-module-convention`
+    id("scripts.android-module-convention")
 }
 
 dependencies {
-    implementation(Libs.Kotlin.coreKtx)
+    implementation(libs.androidx.core.ktx)
 }

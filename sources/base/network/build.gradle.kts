@@ -1,17 +1,19 @@
+import extensions.applyChucker
+import extensions.applyDagger
+
 plugins {
-    scripts.`android-module-convention`
+    id("scripts.android-module-convention")
 }
 
 dependencies {
     applyDagger()
     applyChucker()
 
-    implementation(Libs.Kotlin.coreKtx)
-
-    implementation(Libs.Network.retrofit)
-    implementation(Libs.Network.converterGson)
-    implementation(Libs.Network.converterScalars)
-    implementation(Libs.Network.loggingInterceptor)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.retrofit.converter.scalars)
+    implementation(libs.okhttp.logging.interceptor)
 
     api(project(":network_api"))
     implementation(project(":core"))
