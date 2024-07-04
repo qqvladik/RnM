@@ -1,44 +1,43 @@
 package extensions
 
+import org.gradle.accessors.dm.LibrariesForLibs
 import org.gradle.api.Project
-import org.gradle.api.artifacts.VersionCatalog
-import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 
 internal val Project.libs
-    get(): VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
+    get(): LibrariesForLibs = extensions.getByType()
 
 fun Project.applyDagger() {
     dependencies {
-        add("implementation", libs.findLibrary("dagger-core").get())
-        add("kapt", libs.findLibrary("dagger-compiler").get())
+        add("implementation", libs.dagger.core)
+        add("kapt", libs.dagger.compiler)
     }
 }
 
 fun Project.applyRoom() {
     dependencies {
-        add("implementation", libs.findLibrary("androidx-room-ktx").get())
-        add("implementation", libs.findLibrary("androidx-room-runtime").get())
-        add("kapt", libs.findLibrary("androidx-room-compiler").get())
+        add("implementation", libs.androidx.room.ktx)
+        add("implementation", libs.androidx.room.runtime)
+        add("kapt", libs.androidx.room.compiler)
     }
 }
 
 fun Project.applyChucker() {
     dependencies {
-        add("releaseImplementation", libs.findLibrary("chucker-library-release").get())
-        add("debugImplementation", libs.findLibrary("chucker-library-debug").get())
+        add("releaseImplementation", libs.chucker.library.release)
+        add("debugImplementation", libs.chucker.library.debug)
     }
 }
 
 fun Project.applyBaseCompose() {
     dependencies {
-        add("implementation", platform(libs.findLibrary("androidx-compose-bom").get()))
-        add("implementation", libs.findLibrary("androidx-compose-ui").get())
-        add("debugImplementation", libs.findLibrary("androidx-compose-ui-tooling").get())
-        add("implementation", libs.findLibrary("androidx-compose-ui-tooling-preview").get())
-        add("implementation", libs.findLibrary("androidx-compose-material3").get())
-        add("implementation", libs.findLibrary("androidx-activity-compose").get())
-        add("implementation", libs.findLibrary("androidx-navigation-compose").get())
+        add("implementation", platform(libs.androidx.compose.bom))
+        add("implementation", libs.androidx.compose.ui)
+        add("debugImplementation", libs.androidx.compose.ui.tooling)
+        add("implementation", libs.androidx.compose.ui.tooling.preview)
+        add("implementation", libs.androidx.compose.material3)
+        add("implementation", libs.androidx.activity.compose)
+        add("implementation", libs.androidx.navigation.compose)
     }
 }
