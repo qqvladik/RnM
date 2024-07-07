@@ -1,15 +1,13 @@
 import extensions.applyChucker
-import extensions.applyDagger
 
 plugins {
     id("scripts.android-module-convention")
+    id("scripts.dagger-convention")
 }
 
 dependencies {
-    applyDagger()
     applyChucker()
 
-    implementation(libs.androidx.core.ktx)
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.retrofit.converter.scalars)

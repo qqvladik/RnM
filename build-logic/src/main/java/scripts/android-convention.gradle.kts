@@ -1,13 +1,12 @@
 package scripts
 
 import Configs
-import com.android.build.gradle.BaseExtension
+import extensions.android
+import extensions.libs
 
 plugins {
     id("org.jetbrains.kotlin.android")
 }
-
-fun android(configuration: BaseExtension.() -> Unit) = configure(configuration)
 
 android {
     defaultConfig {
@@ -38,4 +37,8 @@ android {
 
 kotlin {
     jvmToolchain(17)
+}
+
+dependencies {
+    add("implementation", libs.androidx.core.ktx)
 }
