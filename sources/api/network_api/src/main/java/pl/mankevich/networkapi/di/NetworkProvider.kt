@@ -1,14 +1,14 @@
 package pl.mankevich.networkapi.di
 
-import pl.mankevich.networkapi.datasource.CharacterNetworkDataSource
-import pl.mankevich.networkapi.datasource.EpisodeNetworkDataSource
-import pl.mankevich.networkapi.datasource.LocationNetworkDataSource
+import pl.mankevich.networkapi.api.CharacterApi
+import pl.mankevich.networkapi.api.EpisodeApi
+import pl.mankevich.networkapi.api.LocationApi
 
 interface NetworkProvider {
 
-    fun provideCharacterNetworkDataSource(): CharacterNetworkDataSource
+    fun provideCharacterApi(): CharacterApi
 
-    fun provideEpisodeNetworkDataSource(): EpisodeNetworkDataSource
+    fun provideEpisodeApi(): EpisodeApi
 
-    fun provideLocationNetworkDataSource(): LocationNetworkDataSource
+    fun provideLocationApi(): LocationApi
 }

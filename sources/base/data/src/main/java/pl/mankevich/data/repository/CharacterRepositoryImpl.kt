@@ -15,14 +15,14 @@ import pl.mankevich.data.paging.character.CharacterRemoteMediatorCreator
 import pl.mankevich.dataapi.repository.CharacterRepository
 import pl.mankevich.model.Character
 import pl.mankevich.model.Filter
-import pl.mankevich.storageapi.datasource.CharacterStorageDataSource
+import pl.mankevich.storageapi.dao.CharacterDao
 import javax.inject.Inject
 
 private const val ITEMS_PER_PAGE = 20
 
 class CharacterRepositoryImpl
 @Inject constructor(
-    private val characterStorageDataSource: CharacterStorageDataSource,
+    private val characterDao: CharacterDao,
     private val characterPagingSourceCreator: CharacterPagingSourceCreator,
     private val characterRemoteMediatorFactory: CharacterRemoteMediatorCreator
 ) : CharacterRepository {
@@ -54,7 +54,7 @@ class CharacterRepositoryImpl
         val invalidatingPagingSourceFactory = InvalidatingPagingSourceFactory(pagingSourceFactory)
 
         onTableUpdateListener = { invalidatingPagingSourceFactory.invalidate() }
-        characterStorageDataSource.addTableUpdateWeakListener(onTableUpdateListener)
+        characterDao.addTableUpdateWeakListener(onTableUpdateListener)
 
         return invalidatingPagingSourceFactory
     }

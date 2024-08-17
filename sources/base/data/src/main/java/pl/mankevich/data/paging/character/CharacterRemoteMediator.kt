@@ -11,16 +11,16 @@ import pl.mankevich.data.mapper.mapToFilterDto
 import pl.mankevich.data.mapper.mapToFilterQuery
 import pl.mankevich.model.Character
 import pl.mankevich.model.Filter
-import pl.mankevich.networkapi.datasource.CharacterNetworkDataSource
-import pl.mankevich.storageapi.datasource.CharacterStorageDataSource
-import pl.mankevich.storageapi.datasource.Transaction
+import pl.mankevich.networkapi.api.CharacterApi
+import pl.mankevich.storageapi.dao.CharacterDao
+import pl.mankevich.storageapi.dao.Transaction
 import pl.mankevich.storageapi.dto.CharacterPageKeyDto
 
 @OptIn(ExperimentalPagingApi::class)
 class CharacterRemoteMediator @AssistedInject constructor( //TODO create base mediator
     private val transaction: Transaction,
-    private val characterStorageDataSource: CharacterStorageDataSource,
-    private val characterNetworkDataSource: CharacterNetworkDataSource,
+    private val characterDao: CharacterDao,
+    private val characterApi: CharacterApi,
     @Assisted private val filter: Filter
 ) : RemoteMediator<Int, Character>() {
 
@@ -36,20 +36,20 @@ class CharacterRemoteMediator @AssistedInject constructor( //TODO create base me
 
                 LoadType.PREPEND -> {
                     val remoteKey = state.firstItemOrNull()?.let {
-                        characterStorageDataSource.getPageKey(it.id, filter.mapToFilterDto())
+                        characterDao.getPageKey(it.id, filter.mapToFilterDto())
                     }
                     remoteKey?.previousPageKey ?: return MediatorResult.Success(remoteKey != null)
                 }
 
                 LoadType.APPEND -> {
                     val remoteKey = state.lastItemOrNull()?.let {
-                        characterStorageDataSource.getPageKey(it.id, filter.mapToFilterDto())
+                        characterDao.getPageKey(it.id, filter.mapToFilterDto())
                     }
                     remoteKey?.nextPageKey ?: return MediatorResult.Success(remoteKey != null)
                 }
             }
 
-            val charactersListResponse = characterNetworkDataSource.fetchCharactersList(
+            val charactersListResponse = characterApi.fetchCharactersList(
                 page = currentPage,
                 filter = filter.mapToFilterQuery()
             )
@@ -69,8 +69,8 @@ class CharacterRemoteMediator @AssistedInject constructor( //TODO create base me
                 )
             }
             transaction {
-                characterStorageDataSource.insertPageKeysList(idPageKeys)
-                characterStorageDataSource.insertCharactersList(characters = charactersListResponse.charactersResponse.map { it.mapToCharacterDto() })
+                characterDao.insertPageKeysList(idPageKeys)
+                characterDao.insertCharactersList(characters = charactersListResponse.charactersResponse.map { it.mapToCharacterDto() })
             }
 
             //TODO add insert list of episodes id

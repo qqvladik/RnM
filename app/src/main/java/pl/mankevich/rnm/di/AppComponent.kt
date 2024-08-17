@@ -9,8 +9,8 @@ import pl.mankevich.core.di.FeatureScope
 import pl.mankevich.data.di.DataComponent
 import pl.mankevich.dataapi.di.DataProvider
 import pl.mankevich.dependencies.DependenciesProvider
-import pl.mankevich.network.di.NetworkComponent
-import pl.mankevich.storage.di.StorageComponent
+import pl.mankevich.network.di.NetworkRetrofitComponent
+import pl.mankevich.storage.di.StorageRoomComponent
 
 @FeatureScope
 @Component(
@@ -28,8 +28,8 @@ interface AppComponent : DependenciesProvider {
             context: Context
         ): AppComponent {
             val androidDependenciesProvider = AndroidDependenciesComponent.init(context)
-            val networkProvider = NetworkComponent.init(androidDependenciesProvider)
-            val storageProvider = StorageComponent.init(androidDependenciesProvider)
+            val networkProvider = NetworkRetrofitComponent.init(androidDependenciesProvider)
+            val storageProvider = StorageRoomComponent.init(androidDependenciesProvider)
             val dataProvider = DataComponent.init(storageProvider, networkProvider)
             return DaggerAppComponent.factory()
                 .create(

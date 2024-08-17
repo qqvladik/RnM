@@ -1,20 +1,20 @@
 package pl.mankevich.storageapi.di
 
-import pl.mankevich.storageapi.datasource.CharacterStorageDataSource
-import pl.mankevich.storageapi.datasource.EpisodeStorageDataSource
-import pl.mankevich.storageapi.datasource.LocationStorageDataSource
-import pl.mankevich.storageapi.datasource.RelationsStorageDataSource
-import pl.mankevich.storageapi.datasource.Transaction
+import pl.mankevich.storageapi.dao.CharacterDao
+import pl.mankevich.storageapi.dao.EpisodeDao
+import pl.mankevich.storageapi.dao.LocationDao
+import pl.mankevich.storageapi.dao.RelationsDao
+import pl.mankevich.storageapi.dao.Transaction
 
 interface StorageProvider {
 
-    fun provideCharacterStorageDataSource(): CharacterStorageDataSource
+    fun provideCharacterDao(): CharacterDao
 
-    fun provideEpisodeStorageDataSource(): EpisodeStorageDataSource
+    fun provideEpisodeDao(): EpisodeDao
 
-    fun provideLocationStorageDataSource(): LocationStorageDataSource
+    fun provideLocationDao(): LocationDao
 
-    fun provideRelationsStorageDataSource(): RelationsStorageDataSource
+    fun provideRelationsDao(): RelationsDao
 
     fun provideTransaction(): Transaction
 }
