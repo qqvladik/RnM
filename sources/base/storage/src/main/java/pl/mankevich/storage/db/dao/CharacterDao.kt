@@ -51,7 +51,23 @@ interface CharacterDao {
         gender: String = "",
         origin: String = "",
         location: String = "",
-        limit: Int = 20,
-        offset: Int = 0 //TODO check
+        limit: Int,
+        offset: Int
     ): List<CharacterEntity>
+
+    @Query(
+        "SELECT COUNT(*) FROM ( $CHARACTER_TABLE_NAME )" +//todo add to lower case
+                "WHERE $NAME_COLUMN LIKE '%' || (:name) || '%' " +
+                "AND $STATUS_COLUMN LIKE '%' || (:status) || '%' " +
+                "AND $SPECIES_COLUMN LIKE '%' || (:species) || '%' " +
+                "AND $TYPE_COLUMN LIKE '%' || (:type) || '%' " +
+                "AND $GENDER_COLUMN LIKE '%' || (:gender) || '%' "
+    )
+    suspend fun getCount(
+        name: String = "",
+        status: String = "",
+        species: String = "",
+        type: String = "",
+        gender: String = "",
+    ): Int
 }

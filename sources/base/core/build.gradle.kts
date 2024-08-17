@@ -7,4 +7,5 @@ plugins {
 dependencies {
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.paging.runtime)
 }

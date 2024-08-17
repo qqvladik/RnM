@@ -1,6 +1,7 @@
 package pl.mankevich.networkapi.datasource
 
 import pl.mankevich.networkapi.dto.EpisodeResponseDto
+import pl.mankevich.networkapi.dto.EpisodesListResponseDto
 
 interface EpisodeNetworkDataSource {
 
@@ -8,5 +9,5 @@ interface EpisodeNetworkDataSource {
 
     suspend fun getEpisodesByIds(ids: List<Int>): List<EpisodeResponseDto>
 
-    suspend fun getEpisodesList(): List<EpisodeResponseDto>
+    suspend fun getEpisodesList(): EpisodesListResponseDto
 }

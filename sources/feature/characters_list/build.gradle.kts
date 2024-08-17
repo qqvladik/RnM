@@ -5,6 +5,9 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+
     api(project(":characters_list_api"))
     implementation(project(":core"))
     implementation(project(":dependencies"))

@@ -33,7 +33,7 @@ data class CharacterEntity(
 }
 
 data class LocationEmbedded(
-    @ColumnInfo(name = ID_COLUMN) var id: Int,
+    @ColumnInfo(name = ID_COLUMN) var id: Int?,
     @ColumnInfo(name = NAME_COLUMN) var name: String
 ) {
     companion object {

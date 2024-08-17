@@ -14,7 +14,7 @@ data class CharacterResponseDto(
 )
 
 data class LocationShortResponseDto(
-    var id: Int,
+    var id: Int?,
     var name: String
 )
 

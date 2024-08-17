@@ -8,9 +8,6 @@ import pl.mankevich.dependencies.DependenciesProvider
 @FeatureScope
 @Component(
     dependencies = [DependenciesProvider::class],
-    modules = [
-        CharactersListDataModule::class,
-    ]
 )
 interface CharactersListComponent {
 

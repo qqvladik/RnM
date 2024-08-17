@@ -13,7 +13,7 @@ data class CharacterDto(
 )
 
 data class LocationShortDto(
-    var id: Int,
+    var id: Int?,
     var name: String
 )
 

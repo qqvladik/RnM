@@ -2,7 +2,6 @@ package scripts
 
 plugins {
     id("com.android.application")
-    id("kotlin-kapt")
     id("scripts.android-convention")
 }
 

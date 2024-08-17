@@ -6,6 +6,5 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     implementation(project(":core"))
-    implementation(project(":network_api"))
-    implementation(project(":storage_api"))
+    api(project(":data_api")) //TODO think about api, maybe it is better to use implementation in every module
 }

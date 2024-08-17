@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6d4311611148a19d608c7fc425d9407f",
+    "identityHash": "349477b0f5b8d385f94cffec3e604db3",
     "entities": [
       {
         "tableName": "character",
@@ -213,12 +213,58 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "CharacterPageKeyEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`characterId` INTEGER NOT NULL, `filter` TEXT NOT NULL, `value` INTEGER NOT NULL, `previousPageKey` INTEGER, `nextPageKey` INTEGER, PRIMARY KEY(`characterId`, `filter`, `value`))",
+        "fields": [
+          {
+            "fieldPath": "characterId",
+            "columnName": "characterId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "filter",
+            "columnName": "filter",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "previousPageKey",
+            "columnName": "previousPageKey",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nextPageKey",
+            "columnName": "nextPageKey",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "characterId",
+            "filter",
+            "value"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6d4311611148a19d608c7fc425d9407f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '349477b0f5b8d385f94cffec3e604db3')"
     ]
   }
 }
