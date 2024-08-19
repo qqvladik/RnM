@@ -30,7 +30,8 @@ import pl.mankevich.characterslist.presentation.view.SearchField
 
 @Composable
 fun CharactersListScreen(
-    viewModel: CharactersListViewModel
+    viewModel: CharactersListViewModel,
+    onCharacterItemClick: (Int) -> Unit
 ) {
 //    Text("CharactersList")
 //}
@@ -49,6 +50,13 @@ fun CharactersListScreen(
             onClearClick = { viewModel.updateSearchQuery("") },
             hint = "Search..."
         )
+
+        val isOnline by rememberFlowWithLifecycle(viewModel.isOnline).collectAsState(initial = true) //TODO remove
+        if (!isOnline) {
+            Text("No internet connection")
+        } else {
+            Text("Internet connection is available")
+        }
 
         if (pagingCharacterItems.loadState.refresh is LoadState.Loading) {
             LoadingView()
@@ -93,7 +101,8 @@ fun CharactersListScreen(
                                 .fillMaxWidth()
                                 .padding(vertical = 12.dp)
                                 .clickable {
-//                                    navController.navigate("rnm/characters/${item.id}")
+                                    onCharacterItemClick(character.id)
+//                                    navController.navigate("rnm/characters/${character.id}")
                                 }
                         )
                     }

@@ -45,7 +45,7 @@ interface AggregateFeatureEntry : FeatureEntry {
 
 
 inline fun <reified T : FeatureEntry> FeatureEntries.find(): T =
-    findOrNull() ?: error("Unable to find '${T::class.java}' destination.")
+    findOrNull() ?: error("Unable to find '${T::class.java}' in feature entries map.")
 
 inline fun <reified T : FeatureEntry> FeatureEntries.findOrNull(): T? =
     this[T::class.java] as? T

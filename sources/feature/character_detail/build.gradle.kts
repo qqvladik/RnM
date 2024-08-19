@@ -8,7 +8,6 @@ dependencies {
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
 
-    api(project(":characters_list_api"))
     api(project(":character_detail_api"))
     implementation(project(":core"))
     implementation(project(":dependencies"))
