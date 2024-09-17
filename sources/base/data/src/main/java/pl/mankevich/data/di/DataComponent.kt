@@ -1,6 +1,7 @@
 package pl.mankevich.data.di
 
 import dagger.Component
+import pl.mankevich.core.di.DispatchersModule
 import pl.mankevich.core.di.FeatureScope
 import pl.mankevich.dataapi.di.DataProvider
 import pl.mankevich.networkapi.di.NetworkProvider
@@ -13,6 +14,7 @@ import pl.mankevich.storageapi.di.StorageProvider
         NetworkProvider::class
     ],
     modules = [
+        DispatchersModule::class,
         DataModule::class
     ]
 )

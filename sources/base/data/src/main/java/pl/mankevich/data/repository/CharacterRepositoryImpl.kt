@@ -24,13 +24,15 @@ class CharacterRepositoryImpl
 @Inject constructor(
     private val characterDao: CharacterDao,
     private val characterPagingSourceCreator: CharacterPagingSourceCreator,
-    private val characterRemoteMediatorFactory: CharacterRemoteMediatorCreator
+    private val characterRemoteMediatorFactory: CharacterRemoteMediatorCreator,
+    private val networkManager: NetworkManager
 ) : CharacterRepository {
 
     private lateinit var onTableUpdateListener: () -> Unit
 
     @OptIn(ExperimentalPagingApi::class)
-    override fun getCharactersPageFlow(isOnline: Boolean, filter: Filter): Flow<PagingData<Character>> {
+    override suspend fun getCharactersPageFlow(filter: Filter): Flow<PagingData<Character>> {
+        val isOnline = networkManager.isOnline()
         val characterPagingSourceFactory = createPagingSourceFactory {
             characterPagingSourceCreator.create(isOnline, filter)
         }

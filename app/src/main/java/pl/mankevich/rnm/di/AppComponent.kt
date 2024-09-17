@@ -9,6 +9,8 @@ import pl.mankevich.core.di.FeatureScope
 import pl.mankevich.data.di.DataComponent
 import pl.mankevich.dataapi.di.DataProvider
 import pl.mankevich.dependencies.DependenciesProvider
+import pl.mankevich.domain.di.DomainComponent
+import pl.mankevich.domainapi.di.DomainProvider
 import pl.mankevich.network.di.NetworkRetrofitComponent
 import pl.mankevich.storage.di.StorageRoomComponent
 
@@ -16,7 +18,7 @@ import pl.mankevich.storage.di.StorageRoomComponent
 @Component(
     dependencies = [
         AndroidDependenciesProvider::class,
-        DataProvider::class
+        DomainProvider::class
     ],
     modules = [NavigationModule::class]
 )
@@ -31,10 +33,11 @@ interface AppComponent : DependenciesProvider {
             val networkProvider = NetworkRetrofitComponent.init(androidDependenciesProvider)
             val storageProvider = StorageRoomComponent.init(androidDependenciesProvider)
             val dataProvider = DataComponent.init(storageProvider, networkProvider)
+            val domainProvider = DomainComponent.init(dataProvider)
             return DaggerAppComponent.factory()
                 .create(
                     androidDependenciesProvider,
-                    dataProvider
+                    domainProvider
                 )
         }
     }
@@ -44,7 +47,7 @@ interface AppComponent : DependenciesProvider {
 
         fun create(
             androidDependenciesProvider: AndroidDependenciesProvider,
-            dataProvider: DataProvider
+            domainProvider: DomainProvider
         ): AppComponent
     }
 

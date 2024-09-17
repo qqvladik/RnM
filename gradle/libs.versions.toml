@@ -1,8 +1,8 @@
 [versions]
 androidGradlePlugin = "8.5.2"
+atomicfu = "0.25.0"
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
-coroutines = "1.8.1"
 ksp = "2.0.0-1.0.22"
 lifecycle = "2.8.4"
 dagger = "2.51.1"
@@ -42,6 +42,8 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 
+atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
+
 dagger-core = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
 
@@ -64,6 +66,7 @@ room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", vers
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

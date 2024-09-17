@@ -1,7 +1,7 @@
 package pl.mankevich.characterslist.di
 
 import dagger.Component
-import pl.mankevich.characterslist.presentation.CharactersListViewModel
+import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
 import pl.mankevich.core.di.FeatureScope
 import pl.mankevich.dependencies.DependenciesProvider
 

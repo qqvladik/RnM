@@ -4,7 +4,7 @@ import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
 
-@Component()
+@Component
 interface AndroidDependenciesComponent : AndroidDependenciesProvider {
 
     companion object {

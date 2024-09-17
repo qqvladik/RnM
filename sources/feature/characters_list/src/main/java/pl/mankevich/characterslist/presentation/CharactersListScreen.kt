@@ -10,53 +10,57 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import kotlinx.coroutines.flow.Flow
 import pl.mankevich.characterslist.presentation.view.EmptyView
 import pl.mankevich.characterslist.presentation.view.ErrorView
 import pl.mankevich.characterslist.presentation.view.LoadingView
 import pl.mankevich.characterslist.presentation.view.SearchField
+import pl.mankevich.characterslist.presentation.viewmodel.CharactersListAction
+import pl.mankevich.characterslist.presentation.viewmodel.CharactersListSideEffect
+import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
+import pl.mankevich.core.util.cast
+import pl.mankevich.model.Filter
 
 @Composable
 fun CharactersListScreen(
     viewModel: CharactersListViewModel,
     onCharacterItemClick: (Int) -> Unit
 ) {
-//    Text("CharactersList")
-//}
+    val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
+    val state = stateWithEffects.state
 
-    val pagingCharacterItems =
-        rememberFlowWithLifecycle(viewModel.pagedData).collectAsLazyPagingItems()
-    val query by rememberFlowWithLifecycle(viewModel.displayedSearchQuery).collectAsState(initial = "")
+    stateWithEffects.sideEffects.forEach { sideEffect ->
+        when (sideEffect) {
+            is CharactersListSideEffect.OnCharacterItemClick -> onCharacterItemClick(sideEffect.characterId)
+        }
+    }
 
-//    Column(modifier = modifier) {
+    LaunchedEffect(Unit) {
+        viewModel.initializeWithAction(CharactersListAction.LoadCharacters(true, Filter(name = "")))
+    }
+
+    val pagingCharacterItems = state.characters.collectAsLazyPagingItems()
+
     Column(modifier = Modifier) {
         SearchField(
-            value = query, //TODO create filter
+            value = state.filter.name,
             onValueChange = {
-                viewModel.updateSearchQuery(it)
+                viewModel.sendAction(CharactersListAction.LoadCharacters(false, Filter(name = it)))
             },
-            onClearClick = { viewModel.updateSearchQuery("") },
+            onClearClick = {
+                viewModel.sendAction(
+                    CharactersListAction.LoadCharacters(false, Filter(name = ""))
+                )
+            },
             hint = "Search..."
         )
-
-        val isOnline by rememberFlowWithLifecycle(viewModel.isOnline).collectAsState(initial = true) //TODO remove
-        if (!isOnline) {
-            Text("No internet connection")
-        } else {
-            Text("Internet connection is available")
-        }
 
         if (pagingCharacterItems.loadState.refresh is LoadState.Loading) {
             LoadingView()
@@ -101,8 +105,11 @@ fun CharactersListScreen(
                                 .fillMaxWidth()
                                 .padding(vertical = 12.dp)
                                 .clickable {
-                                    onCharacterItemClick(character.id)
-//                                    navController.navigate("rnm/characters/${character.id}")
+                                    viewModel.sendAction(
+                                        CharactersListAction.CharacterItemClick(
+                                            character.id
+                                        )
+                                    )
                                 }
                         )
                     }
@@ -138,32 +145,4 @@ fun CharactersListScreen(
             }
         }
     }
-}
-
-@Composable
-fun <T> rememberFlowWithLifecycle(
-    flow: Flow<T>,
-    lifecycle: Lifecycle = LocalLifecycleOwner.current.lifecycle,
-    minActiveState: Lifecycle.State = Lifecycle.State.STARTED
-): Flow<T> = remember(flow, lifecycle) {
-    flow.flowWithLifecycle(
-        lifecycle = lifecycle,
-        minActiveState = minActiveState
-    )
-}
-
-@Composable
-fun <T> rememberSavableFlowWithLifecycle(
-    flow: Flow<T>,
-    lifecycle: Lifecycle = LocalLifecycleOwner.current.lifecycle,
-    minActiveState: Lifecycle.State = Lifecycle.State.STARTED
-): Flow<T> = rememberSaveable(flow, lifecycle) {
-    flow.flowWithLifecycle(
-        lifecycle = lifecycle,
-        minActiveState = minActiveState
-    )
-}
-
-inline fun <reified T : Any> Any.cast(): T {
-    return this as T
 }

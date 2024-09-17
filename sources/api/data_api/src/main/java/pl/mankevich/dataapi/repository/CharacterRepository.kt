@@ -7,5 +7,5 @@ import pl.mankevich.model.Filter
 
 interface CharacterRepository {
 
-    fun getCharactersPageFlow(isOnline: Boolean, filter: Filter): Flow<PagingData<Character>>
+    suspend fun getCharactersPageFlow(filter: Filter): Flow<PagingData<Character>>
 }

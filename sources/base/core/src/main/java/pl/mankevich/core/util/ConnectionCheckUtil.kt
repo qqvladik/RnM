@@ -1,14 +1,13 @@
 package pl.mankevich.core.util
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.SocketAddress
 
-suspend fun isOnline(dispatcher: CoroutineDispatcher): Boolean {
+suspend fun checkConnection(dispatcher: CoroutineDispatcher): Boolean {
     return withContext(dispatcher) {
         try {
             val timeoutMs = 1500
