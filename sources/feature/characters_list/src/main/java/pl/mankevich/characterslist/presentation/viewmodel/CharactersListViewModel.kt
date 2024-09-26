@@ -20,13 +20,13 @@ class CharactersListViewModel
         state = CharactersListState()
     )
 ) {
-    private var loadJob: Job? = null
+    private var loadJob: Job? = null //TODO move this logic to MviViewModel using mvi Reducer by adidas as example
 
     override fun executeAction(action: CharactersListAction) { //execute external actions(f.e. usecase call)
         when (action) {
             is CharactersListAction.LoadCharacters -> {
                 loadJob?.cancel()
-                loadJob = viewModelScope.launch {
+                loadJob = viewModelScope.launch { //TODO move this logic to MviViewModel using mvi Reducer by adidas as example
                     if (!action.instantRefresh) {
                         delay(QUERY_INPUT_DELAY_MILLIS)
                     }

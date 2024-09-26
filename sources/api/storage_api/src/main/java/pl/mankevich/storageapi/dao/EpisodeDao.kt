@@ -1,5 +1,6 @@
 package pl.mankevich.storageapi.dao
 
+import kotlinx.coroutines.flow.Flow
 import pl.mankevich.storageapi.dto.EpisodeDto
 
 interface EpisodeDao {
@@ -8,7 +9,7 @@ interface EpisodeDao {
 
     suspend fun getEpisodeById(id: Int): EpisodeDto?
 
-    suspend fun getEpisodesByIds(ids: List<Int>): List<EpisodeDto>
-
     suspend fun getEpisodesList(): List<EpisodeDto>
+
+    fun getEpisodesByIds(ids: List<Int>): Flow<List<EpisodeDto>>
 }

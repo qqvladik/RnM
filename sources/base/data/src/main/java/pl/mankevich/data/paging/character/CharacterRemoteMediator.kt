@@ -13,6 +13,7 @@ import pl.mankevich.model.Character
 import pl.mankevich.model.Filter
 import pl.mankevich.networkapi.api.CharacterApi
 import pl.mankevich.storageapi.dao.CharacterDao
+import pl.mankevich.storageapi.dao.RelationsDao
 import pl.mankevich.storageapi.dao.Transaction
 import pl.mankevich.storageapi.dto.CharacterPageKeyDto
 
@@ -20,6 +21,7 @@ import pl.mankevich.storageapi.dto.CharacterPageKeyDto
 class CharacterRemoteMediator @AssistedInject constructor( //TODO create base mediator
     private val transaction: Transaction,
     private val characterDao: CharacterDao,
+    private val relationsDao: RelationsDao,
     private val characterApi: CharacterApi,
     @Assisted private val filter: Filter
 ) : RemoteMediator<Int, Character>() {
@@ -54,27 +56,27 @@ class CharacterRemoteMediator @AssistedInject constructor( //TODO create base me
                 filter = filter.mapToFilterQuery()
             )
             val responseInfo = charactersListResponse.info
-            val endOfPaginationReached = responseInfo.next == null
-
-            val prevPage = responseInfo.prev
-            val nextPage = responseInfo.next
 
             val idPageKeys = charactersListResponse.charactersResponse.map {
                 CharacterPageKeyDto(
                     characterId = it.id,
                     filter = filter.mapToFilterDto(),
                     value = currentPage,
-                    previousPageKey = prevPage,
-                    nextPageKey = nextPage
+                    previousPageKey = responseInfo.prev,
+                    nextPageKey = responseInfo.next
                 )
             }
-            transaction {
-                characterDao.insertPageKeysList(idPageKeys)
-                characterDao.insertCharactersList(characters = charactersListResponse.charactersResponse.map { it.mapToCharacterDto() })
-            }
 
-            //TODO add insert list of episodes id
-            MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
+            transaction {
+                val characters = charactersListResponse.charactersResponse.map { characterResponse ->
+                    relationsDao.insertCharacterEpisodes(characterResponse.id, characterResponse.episodeIds)
+                    characterResponse.mapToCharacterDto()
+                }
+
+                characterDao.insertPageKeysList(idPageKeys)
+                characterDao.insertCharactersList(characters)
+            }
+            MediatorResult.Success(endOfPaginationReached = responseInfo.next == null)
         } catch (e: Exception) {
             e.printStackTrace()
             return MediatorResult.Error(e)

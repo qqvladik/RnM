@@ -1,13 +1,18 @@
 package pl.mankevich.characterslist.di
 
 import dagger.Component
-import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
 import pl.mankevich.core.di.FeatureScope
+import pl.mankevich.core.viewmodel.ViewModelFactory
+import pl.mankevich.core.viewmodel.di.ViewModelFactoryModule
 import pl.mankevich.dependencies.DependenciesProvider
 
 @FeatureScope
 @Component(
     dependencies = [DependenciesProvider::class],
+    modules = [
+        ViewModelFactoryModule::class,
+        CharactersListViewModelModule::class
+    ]
 )
 interface CharactersListComponent {
 
@@ -27,5 +32,5 @@ interface CharactersListComponent {
         fun create(dependenciesProvider: DependenciesProvider): CharactersListComponent
     }
 
-    fun getViewModel(): CharactersListViewModel
+    fun getViewModelFactory(): ViewModelFactory
 }

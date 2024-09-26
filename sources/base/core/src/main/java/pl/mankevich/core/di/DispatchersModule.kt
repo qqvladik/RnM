@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 
 @Module
 object DispatchersModule {
+
     @Provides
     @Dispatcher(RnmDispatchers.IO)
     fun providesIODispatcher(): CoroutineDispatcher = Dispatchers.IO

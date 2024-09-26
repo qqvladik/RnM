@@ -25,7 +25,7 @@ abstract class CharacterDetailEntry : ComposableFeatureEntry {
     fun destination(characterId: Int) =
         "$APP_ROUTE/$CHARACTER_RELATIVE_PATH/$characterId"
 
-    protected companion object {
+    companion object {
         const val ARG_CHARACTER_ID = "characterId"
     }
 }

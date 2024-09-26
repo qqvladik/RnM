@@ -21,7 +21,7 @@ class CharacterPagingSourceOnline @AssistedInject constructor(
     }
 
     override suspend fun getData(limit: Int, offset: Int): List<Character> {
-        val characterIds = characterDao.getCharacterIdsByFilter(
+        val characterIds = characterDao.getCharacterIds(
             filter.mapToFilterDto(),
             limit,
             offset

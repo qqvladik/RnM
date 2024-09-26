@@ -17,11 +17,11 @@ abstract class MviViewModel<in TAction, TState, TSideEffect>(
 
     private val actionFlow = MutableSharedFlow<TAction>(replay = 0, extraBufferCapacity = 64)
     val stateWithEffects: StateFlow<StateWithEffects<TState, TSideEffect>> = actionFlow
-            .scan(initialStateWithEffects) { stateWithEffects, action ->
-                executeAction(action)
-                stateWithEffects.reduce(action)
-            }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, initialStateWithEffects)
+        .scan(initialStateWithEffects) { stateWithEffects, action ->
+            executeAction(action)
+            stateWithEffects.reduce(action)
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialStateWithEffects)
 
     fun sendAction(action: TAction) {
         if (!actionFlow.tryEmit(action)) {
@@ -29,9 +29,11 @@ abstract class MviViewModel<in TAction, TState, TSideEffect>(
         }
     }
 
-    fun initializeWithAction(initialAction: TAction) {
+    fun initializeWithActions(vararg initialActions: TAction) {
         if (!isInitialized) {
-            sendAction(initialAction)
+            initialActions.forEach { initialAction ->
+                sendAction(initialAction)
+            }
             isInitialized = true
         }
     }

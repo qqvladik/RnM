@@ -1,4 +1,4 @@
-package pl.mankevich.data.mapper
+ package pl.mankevich.data.mapper
 
 import pl.mankevich.model.Character
 import pl.mankevich.model.LocationShort

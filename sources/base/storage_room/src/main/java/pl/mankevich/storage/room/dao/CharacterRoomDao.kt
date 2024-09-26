@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import pl.mankevich.storage.room.entity.CharacterEntity
 import pl.mankevich.storage.room.entity.CharacterEntity.Companion.CHARACTER_TABLE_NAME
 import pl.mankevich.storage.room.entity.CharacterEntity.Companion.GENDER_COLUMN
@@ -19,11 +20,14 @@ import pl.mankevich.storage.room.entity.LocationEmbedded
 @Dao
 interface CharacterRoomDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCharacter(character: CharacterEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCharactersList(characters: List<CharacterEntity>)
 
     @Query("SELECT * FROM $CHARACTER_TABLE_NAME WHERE $ID_COLUMN=(:id)")
-    suspend fun getCharacterById(id: Int): CharacterEntity
+    fun getCharacterById(id: Int): Flow<CharacterEntity>
 
     @Query("SELECT * FROM $CHARACTER_TABLE_NAME WHERE $ID_COLUMN in (:ids)")
     suspend fun getCharactersByIds(ids: List<Int>): List<CharacterEntity>

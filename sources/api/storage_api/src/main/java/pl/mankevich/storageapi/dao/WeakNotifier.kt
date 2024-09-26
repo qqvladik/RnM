@@ -2,7 +2,7 @@ package pl.mankevich.storageapi.dao
 
 import java.lang.ref.WeakReference
 
-class WeakNotifier { //TODO think about moving to core or util module
+class WeakNotifier { //TODO think about moving to core or util module, also replace java on kotlin
 
     private val listeners = mutableListOf<WeakReference<() -> Unit>>()
 

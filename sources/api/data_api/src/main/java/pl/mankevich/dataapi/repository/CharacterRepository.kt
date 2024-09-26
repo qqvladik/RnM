@@ -8,4 +8,10 @@ import pl.mankevich.model.Filter
 interface CharacterRepository {
 
     suspend fun getCharactersPageFlow(filter: Filter): Flow<PagingData<Character>>
+
+    fun getCharacterDetail(characterId: Int): Flow<Character>
+//
+//    fun getCharactersByLocationId(locationId: Int): Flow<Character>
+//
+//    fun getCharactersByEpisodeId(episodeId: Int): Flow<Character>
 }

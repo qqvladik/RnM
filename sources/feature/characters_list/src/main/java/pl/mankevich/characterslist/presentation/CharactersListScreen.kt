@@ -43,7 +43,7 @@ fun CharactersListScreen(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.initializeWithAction(CharactersListAction.LoadCharacters(true, Filter(name = "")))
+        viewModel.initializeWithActions(CharactersListAction.LoadCharacters(true, Filter(name = "")))
     }
 
     val pagingCharacterItems = state.characters.collectAsLazyPagingItems()

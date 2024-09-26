@@ -1,5 +1,6 @@
 package pl.mankevich.storage.dao
 
+import kotlinx.coroutines.flow.Flow
 import pl.mankevich.storage.room.dao.RelationsRoomDao
 import pl.mankevich.storage.room.entity.EpisodeCharacterEntity
 import pl.mankevich.storage.room.entity.LocationCharacterEntity
@@ -8,9 +9,10 @@ import javax.inject.Inject
 
 class RelationsDaoImpl
 @Inject constructor(
-    private val relationsRoomDao: RelationsRoomDao
+    private val relationsRoomDao: RelationsRoomDao,
 ) : RelationsDao {
-    override fun insertCharacterEpisodes(characterId: Int, episodeIds: List<Int>) {
+
+    override fun insertCharacterEpisodes(characterId: Int, episodeIds: List<Int>) { //TODO make it as one query?
         val list: MutableList<EpisodeCharacterEntity> = mutableListOf()
         for (episodeId in episodeIds) {
             list.add(
@@ -48,4 +50,7 @@ class RelationsDaoImpl
         }
         relationsRoomDao.insertEpisodeCharacterList(list)
     }
+
+    override fun getEpisodeIdsByCharacterId(characterId: Int): Flow<List<Int>> =
+        relationsRoomDao.getEpisodeIdsByCharacterId(characterId)
 }

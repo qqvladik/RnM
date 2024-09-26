@@ -11,5 +11,5 @@ interface DependenciesProvider :
     DomainProvider
 
 val LocalDependenciesProvider = staticCompositionLocalOf<DependenciesProvider> {
-    error("No data provider found!")
+    error("No dependencies provider found!")
 }

@@ -23,8 +23,8 @@ class CharacterPagingSourceOffline @AssistedInject constructor(
     override suspend fun getData(limit: Int, offset: Int): List<Character> {
         return characterDao.getCharactersList(
             filter.mapToFilterDto(),
-            limit = limit,
-            offset = offset
+            limit,
+            offset
         ).map { it.mapToCharacter() }
     }
 

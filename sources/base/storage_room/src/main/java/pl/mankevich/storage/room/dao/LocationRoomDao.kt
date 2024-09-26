@@ -14,7 +14,7 @@ import pl.mankevich.storage.room.entity.LocationEntity.Companion.LOCATION_TABLE_
 @Dao
 interface LocationRoomDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLocationsList(locations: List<LocationEntity>)
 
     @Query("SELECT * FROM $LOCATION_TABLE_NAME WHERE $ID_COLUMN=(:id)")
@@ -23,14 +23,13 @@ interface LocationRoomDao {
 //    @Query("SELECT * FROM $LOCATION_TABLE_NAME WHERE ID_COLUMN in (:ids)")
 //    suspend fun getLocationsByIds(ids: List<Int>): List<LocationEntity>
 
-//    @Query("SELECT * FROM $LOCATION_TABLE_NAME")
-//    fun getAllLocations(): Flow<List<LocationEntity>>
-
-    @Query("SELECT * FROM $LOCATION_TABLE_NAME " +//todo add to lowercase
-            "WHERE $NAME_COLUMN LIKE '%' || (:name) || '%' " +
-            "AND $TYPE_COLUMN LIKE '%' || (:type) || '%' " +
-            "AND $DIMENSION_COLUMN LIKE '%' || (:dimension) || '%' " +
-            "ORDER BY id ASC LIMIT (:limit) OFFSET (:offset)")
+    @Query(
+        "SELECT * FROM $LOCATION_TABLE_NAME " +//todo add to lowercase
+                "WHERE $NAME_COLUMN LIKE '%' || (:name) || '%' " +
+                "AND $TYPE_COLUMN LIKE '%' || (:type) || '%' " +
+                "AND $DIMENSION_COLUMN LIKE '%' || (:dimension) || '%' " +
+                "ORDER BY id ASC LIMIT (:limit) OFFSET (:offset)"
+    )
     suspend fun getLocationsList(
         name: String = "",
         type: String = "",

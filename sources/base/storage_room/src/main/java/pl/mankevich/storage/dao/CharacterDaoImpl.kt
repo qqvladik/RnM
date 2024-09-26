@@ -1,35 +1,27 @@
 package pl.mankevich.storage.dao
 
-import androidx.room.withTransaction
-import pl.mankevich.storage.room.RnmDatabase
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import pl.mankevich.storage.mapper.mapToCharacterDto
+import pl.mankevich.storage.mapper.mapToCharacterEntity
+import pl.mankevich.storage.mapper.mapToCharacterPageKeyDto
+import pl.mankevich.storage.mapper.mapToCharacterPageKeyEntity
 import pl.mankevich.storage.room.dao.CharacterPageKeyRoomDao
 import pl.mankevich.storage.room.dao.CharacterRoomDao
-import pl.mankevich.storage.room.entity.CharacterEntity
-import pl.mankevich.storage.room.entity.CharacterPageKeyEntity
-import pl.mankevich.storage.room.entity.LocationEmbedded
 import pl.mankevich.storageapi.dao.CharacterDao
 import pl.mankevich.storageapi.dto.CharacterDto
 import pl.mankevich.storageapi.dto.CharacterPageKeyDto
 import pl.mankevich.storageapi.dto.FilterDto
-import pl.mankevich.storageapi.dto.LocationShortDto
 import javax.inject.Inject
 
 class CharacterDaoImpl
 @Inject constructor(
-    private val rnmDatabase: RnmDatabase,
     private val characterRoomDao: CharacterRoomDao,
     private val characterPageKeyRoomDao: CharacterPageKeyRoomDao
 ) : CharacterDao() {
 
-    override suspend fun insertCharactersAndPageKeys( //TODO remove in future
-        characters: List<CharacterDto>,
-        pageKeys: List<CharacterPageKeyDto>
-    ) {
-        rnmDatabase.withTransaction {
-            insertCharactersList(characters)
-            insertPageKeysList(pageKeys)
-        }
-        tableUpdateNotifier.notifyListeners()
+    override suspend fun insertCharacter(character: CharacterDto) {
+        characterRoomDao.insertCharacter(character.mapToCharacterEntity())
     }
 
     override suspend fun insertCharactersList(characters: List<CharacterDto>) {
@@ -40,8 +32,8 @@ class CharacterDaoImpl
     }
 
 
-    override suspend fun getCharacterById(id: Int): CharacterDto =
-        characterRoomDao.getCharacterById(id).mapToCharacterDto()
+    override suspend fun getCharacterById(id: Int): Flow<CharacterDto> =
+        characterRoomDao.getCharacterById(id).map { it.mapToCharacterDto() }
 
     override suspend fun getCharactersByIds(ids: List<Int>): List<CharacterDto> =
         characterRoomDao.getCharactersByIds(ids).map { it.mapToCharacterDto() }
@@ -77,7 +69,7 @@ class CharacterDaoImpl
         tableUpdateNotifier.notifyListeners()
     }
 
-    override suspend fun getCharacterIdsByFilter(
+    override suspend fun getCharacterIds(
         filterDto: FilterDto,
         limit: Int,
         offset: Int
@@ -90,54 +82,3 @@ class CharacterDaoImpl
     override suspend fun getPageKeysCount(filterDto: FilterDto): Int =
         characterPageKeyRoomDao.getCount(filterDto)
 }
-
-private fun CharacterDto.mapToCharacterEntity() =
-    CharacterEntity(
-        id = id,
-        name = name,
-        status = status,
-        species = species,
-        type = type,
-        gender = gender,
-        origin = origin.mapToLocationEmbedded(),
-        location = location.mapToLocationEmbedded(),
-        image = image
-    )
-
-private fun LocationShortDto.mapToLocationEmbedded() = LocationEmbedded(
-    id = id,
-    name = name,
-)
-
-private fun CharacterEntity.mapToCharacterDto() = CharacterDto(
-    id = id,
-    name = name,
-    status = status,
-    species = species,
-    type = type,
-    gender = gender,
-    origin = origin.mapToLocationShortDto(),
-    location = location.mapToLocationShortDto(),
-    image = image
-)
-
-private fun LocationEmbedded.mapToLocationShortDto() = LocationShortDto(
-    id = id,
-    name = name,
-)
-
-private fun CharacterPageKeyEntity.mapToCharacterPageKeyDto() = CharacterPageKeyDto(
-    characterId = characterId,
-    filter = filter,
-    value = value,
-    previousPageKey = previousPageKey,
-    nextPageKey = nextPageKey
-)
-
-private fun CharacterPageKeyDto.mapToCharacterPageKeyEntity() = CharacterPageKeyEntity(
-    characterId = characterId,
-    filter = filter,
-    value = value,
-    previousPageKey = previousPageKey,
-    nextPageKey = nextPageKey
-)
