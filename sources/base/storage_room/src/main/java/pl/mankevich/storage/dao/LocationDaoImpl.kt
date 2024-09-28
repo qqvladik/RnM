@@ -19,5 +19,5 @@ class LocationDaoImpl
         locationRoomDao.getLocationById(id).mapToLocationDto()
 
     override suspend fun getLocationsList(): List<LocationDto> =
-        locationRoomDao.getLocationsList().map { it.mapToLocationDto() }
+        locationRoomDao.getLocationsList(limit = 20, offset = 0).map { it.mapToLocationDto() } //TODO add refactor and filter
 }

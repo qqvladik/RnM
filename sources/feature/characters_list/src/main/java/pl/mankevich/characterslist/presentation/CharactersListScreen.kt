@@ -22,7 +22,7 @@ import pl.mankevich.characterslist.presentation.view.EmptyView
 import pl.mankevich.characterslist.presentation.view.ErrorView
 import pl.mankevich.characterslist.presentation.view.LoadingView
 import pl.mankevich.characterslist.presentation.view.SearchField
-import pl.mankevich.characterslist.presentation.viewmodel.CharactersListAction
+import pl.mankevich.characterslist.presentation.viewmodel.CharactersListIntent
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListSideEffect
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
 import pl.mankevich.core.util.cast
@@ -38,12 +38,12 @@ fun CharactersListScreen(
 
     stateWithEffects.sideEffects.forEach { sideEffect ->
         when (sideEffect) {
-            is CharactersListSideEffect.OnCharacterItemClick -> onCharacterItemClick(sideEffect.characterId)
+            is CharactersListSideEffect.OnCharacterItemClicked -> onCharacterItemClick(sideEffect.characterId)
         }
     }
 
     LaunchedEffect(Unit) {
-        viewModel.initializeWithActions(CharactersListAction.LoadCharacters(true, Filter(name = "")))
+        viewModel.initializeWithIntents(CharactersListIntent.Refresh(Filter(name = "")))
     }
 
     val pagingCharacterItems = state.characters.collectAsLazyPagingItems()
@@ -52,12 +52,10 @@ fun CharactersListScreen(
         SearchField(
             value = state.filter.name,
             onValueChange = {
-                viewModel.sendAction(CharactersListAction.LoadCharacters(false, Filter(name = it)))
+                viewModel.sendIntent(CharactersListIntent.LoadCharacters(Filter(name = it)))
             },
             onClearClick = {
-                viewModel.sendAction(
-                    CharactersListAction.LoadCharacters(false, Filter(name = ""))
-                )
+                viewModel.sendIntent(CharactersListIntent.LoadCharacters(Filter(name = "")))
             },
             hint = "Search..."
         )
@@ -105,10 +103,8 @@ fun CharactersListScreen(
                                 .fillMaxWidth()
                                 .padding(vertical = 12.dp)
                                 .clickable {
-                                    viewModel.sendAction(
-                                        CharactersListAction.CharacterItemClick(
-                                            character.id
-                                        )
+                                    viewModel.sendIntent(
+                                        CharactersListIntent.CharacterItemClick(character.id)
                                     )
                                 }
                         )

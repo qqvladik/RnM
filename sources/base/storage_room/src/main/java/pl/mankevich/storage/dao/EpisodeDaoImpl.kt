@@ -21,7 +21,7 @@ class EpisodeDaoImpl
         episodeRoomDao.getEpisodeById(id).mapToEpisodeDto()
 
     override suspend fun getEpisodesList(): List<EpisodeDto> =
-        episodeRoomDao.getEpisodesList().map { it.mapToEpisodeDto() }
+        episodeRoomDao.getEpisodesList(limit = 20, offset = 0).map { it.mapToEpisodeDto() } //TODO add refactor and filter
 
     override fun getEpisodesByIds(ids: List<Int>): Flow<List<EpisodeDto>> =
         episodeRoomDao.getEpisodesByIds(ids).map { list -> list.map { it.mapToEpisodeDto() } }

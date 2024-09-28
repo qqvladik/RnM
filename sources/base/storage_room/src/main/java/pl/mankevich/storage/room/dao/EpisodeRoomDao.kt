@@ -32,7 +32,7 @@ interface EpisodeRoomDao {
     suspend fun getEpisodesList(
         name: String = "",
         episode: String = "",
-        limit: Int = 20,
-        offset: Int = 0 //TODO check
+        limit: Int,
+        offset: Int
     ): List<EpisodeEntity>
 }

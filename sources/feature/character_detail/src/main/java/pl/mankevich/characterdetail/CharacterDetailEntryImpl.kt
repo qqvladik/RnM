@@ -21,12 +21,11 @@ class CharacterDetailEntryImpl @Inject constructor() : CharacterDetailEntry() {
         featureEntries: FeatureEntries,
         backStackEntry: NavBackStackEntry
     ) {
-        val characterId = backStackEntry.arguments?.getInt(ARG_CHARACTER_ID)!!
         val dependenciesProvider = LocalDependenciesProvider.current
         val viewModel = daggerViewModel<CharacterDetailViewModel>(
             factory = CharacterDetailComponent.init(dependenciesProvider).getViewModelFactory()
         )
-        CharacterDetailScreen(characterId, viewModel)
+        CharacterDetailScreen(viewModel)
     }
 }
 

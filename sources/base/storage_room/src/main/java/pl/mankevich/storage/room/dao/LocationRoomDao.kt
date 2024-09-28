@@ -34,7 +34,7 @@ interface LocationRoomDao {
         name: String = "",
         type: String = "",
         dimension: String = "",
-        limit: Int = 20,
-        offset: Int = 0 //TODO check
+        limit: Int,
+        offset: Int
     ): List<LocationEntity>
 }

@@ -4,9 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import pl.mankevich.characterdetail.getCharacterId
-import pl.mankevich.core.mvi.MviViewModel
-import pl.mankevich.core.mvi.StateWithEffects
+import pl.mankevich.core.mvi.Transform
 import pl.mankevich.core.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadCharacterDetailUseCase
 import pl.mankevich.domainapi.usecase.LoadEpisodesByCharacterIdUseCase
@@ -16,63 +21,32 @@ class CharacterDetailViewModel
     @Assisted private val savedStateHandle: SavedStateHandle,
     private val loadCharacterDetailUseCase: LoadCharacterDetailUseCase,
     private val loadEpisodesByCharacterIdUseCase: LoadEpisodesByCharacterIdUseCase,
-) : MviViewModel<CharacterDetailAction, CharacterDetailState, CharacterDetailSideEffect>(
-    initialStateWithEffects = StateWithEffects(
+) : CharacterDetailMviViewModel(
+    initialStateWithEffects = CharacterDetailStateWithEffects(
         state = CharacterDetailState()
     )
 ) {
     @AssistedFactory
     interface Factory : ViewModelAssistedFactory<CharacterDetailViewModel>
 
-    override fun executeAction(action: CharacterDetailAction) { //execute external actions(f.e. usecase call)
-        when (action) {
-            is CharacterDetailAction.LoadCharacter -> {
-                sendAction(
-                    CharacterDetailAction.LoadCharacterSuccess(
-                        loadCharacterDetailUseCase(characterId = savedStateHandle.getCharacterId())//TODO .stateIn(viewModelScope)
-                    )
-                )
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun executeIntent(intent: CharacterDetailIntent): Flow<Transform<CharacterDetailStateWithEffects>> =
+        when (intent) {
+            is CharacterDetailIntent.LoadCharacter -> flowOf(
+                CharacterDetailTransforms.LoadCharacter(savedStateHandle.getCharacterId())
+            )
+                .flatMapMerge {
+                    loadCharacterDetailUseCase(characterId = savedStateHandle.getCharacterId())
+                        .map { CharacterDetailTransforms.LoadCharacterSuccess(it) }
+                }
+
+            is CharacterDetailIntent.LoadEpisodes -> flowOf(
+                CharacterDetailTransforms.LoadEpisodes(savedStateHandle.getCharacterId())
+            ).flatMapMerge {
+                loadEpisodesByCharacterIdUseCase(characterId = savedStateHandle.getCharacterId())
+                    .map { CharacterDetailTransforms.LoadEpisodesSuccess(it) }
             }
 
-            is CharacterDetailAction.LoadEpisodes -> {
-                sendAction(
-                    CharacterDetailAction.LoadEpisodesSuccess(
-                        loadEpisodesByCharacterIdUseCase(characterId = savedStateHandle.getCharacterId())
-                    )
-                )
-            }
-
-            else -> {}
+            is CharacterDetailIntent.EpisodeItemClick -> emptyFlow()
         }
-    }
-
-    override fun CharacterDetailStateWithEffects.reduce(action: CharacterDetailAction): CharacterDetailStateWithEffects {
-        return when (action) {
-            is CharacterDetailAction.EpisodeItemClick -> {
-                copy(
-                    sideEffects = sideEffects.add(
-                        CharacterDetailSideEffect.OnEpisodeItemClick(
-                            action.episodeId
-                        )
-                    )
-                )
-            }
-
-            is CharacterDetailAction.LoadCharacter -> {
-                copy(state = state.copy(isLoading = true))
-            }
-
-            is CharacterDetailAction.LoadCharacterSuccess -> {
-                copy(state = state.copy(isLoading = false, character = action.character))
-            }
-
-            CharacterDetailAction.LoadEpisodes -> {
-                copy(state = state.copy(isEpisodesLoading = true))
-            }
-
-            is CharacterDetailAction.LoadEpisodesSuccess -> {
-                copy(state = state.copy(isEpisodesLoading = false, episodes = action.episodes))
-            }
-        }
-    }
 }
