@@ -5,12 +5,12 @@ import org.gradle.accessors.dm.LibrariesForLibs
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.the
 
 internal fun Project.android(configuration: BaseExtension.() -> Unit) = configure(configuration)
 
 internal val Project.libs
-    get(): LibrariesForLibs = extensions.getByType()
+    get(): LibrariesForLibs = the()
 
 fun Project.applyChucker() {
     dependencies {

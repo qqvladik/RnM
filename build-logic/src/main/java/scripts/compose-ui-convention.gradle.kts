@@ -12,9 +12,9 @@ plugins {
 
 android {
     val extension = try {
-        extensions.getByType<LibraryExtension>()
+        the<LibraryExtension>()
     } catch (e: UnknownDomainObjectException) {
-        extensions.getByType<ApplicationExtension>()
+        the<ApplicationExtension>()
     }
     extension.addComposeConfig()
 }

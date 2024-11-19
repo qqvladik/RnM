@@ -1,19 +1,19 @@
 [versions]
-androidGradlePlugin = "8.5.2"
+androidGradlePlugin = "8.7.2"
 atomicfu = "0.25.0"
-kotlin = "2.0.0"
-coreKtx = "1.13.1"
-ksp = "2.0.0-1.0.22"
-lifecycle = "2.8.4"
+kotlin = "2.0.21"
+coreKtx = "1.15.0"
+ksp = "2.0.21-1.0.25"
+lifecycle = "2.8.7"
 dagger = "2.51.1"
-paging = "3.3.2"
+paging = "3.3.4"
 room = "2.6.1"
 secrets = "2.0.1"
 
 # Compose
-activity = "1.9.1"
-composeBom = "2024.06.00"
-navigationCompose = "2.7.7"
+activity = "1.9.3"
+composeBom = "2024.11.00"
+navigationCompose = "2.8.4"
 
 # Network
 retrofit = "2.11.0"
