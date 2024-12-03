@@ -3,6 +3,7 @@ androidGradlePlugin = "8.7.2"
 atomicfu = "0.25.0"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
+coil = "3.0.3"
 ksp = "2.0.21-1.0.25"
 lifecycle = "2.8.7"
 dagger = "2.51.1"
@@ -43,6 +44,9 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 
 atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
+
+coil-kt-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-kt-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }  # Only available on Android/JVM.
 
 dagger-core = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }

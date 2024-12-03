@@ -1,17 +1,21 @@
 package pl.mankevich.characterslist.presentation
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,12 +25,19 @@ import androidx.paging.compose.itemKey
 import pl.mankevich.characterslist.presentation.view.EmptyView
 import pl.mankevich.characterslist.presentation.view.ErrorView
 import pl.mankevich.characterslist.presentation.view.LoadingView
-import pl.mankevich.characterslist.presentation.view.SearchField
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListIntent
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListSideEffect
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
 import pl.mankevich.core.util.cast
+import pl.mankevich.designsystem.component.SearchField
+import pl.mankevich.designsystem.icons.RnmIcons
+import pl.mankevich.designsystem.ui.CharacterCard
+import pl.mankevich.designsystem.ui.filter.FilterGroup
+import pl.mankevich.designsystem.ui.filter.FilterView
+import pl.mankevich.designsystem.utils.rememberSaveableMutableStateListOf
 import pl.mankevich.model.Filter
+
+private val PADDING = 12.dp
 
 @Composable
 fun CharactersListScreen(
@@ -48,7 +59,9 @@ fun CharactersListScreen(
 
     val pagingCharacterItems = state.characters.collectAsLazyPagingItems()
 
-    Column(modifier = Modifier) {
+    Column(modifier = Modifier.padding(horizontal = PADDING)) {
+        Spacer(modifier = Modifier.height(PADDING))
+
         SearchField(
             value = state.filter.name,
             onValueChange = {
@@ -57,22 +70,66 @@ fun CharactersListScreen(
             onClearClick = {
                 viewModel.sendIntent(CharactersListIntent.LoadCharacters(Filter(name = "")))
             },
-            hint = "Search..."
+            placeholder = "Search..."
         )
+
+        Spacer(modifier = Modifier.height(PADDING))
+
+        var selectedSpecies by rememberSaveable { mutableStateOf<String?>("Alien") }
+        var speciesLabelList = rememberSaveableMutableStateListOf(
+            "Alien", "Human", "Humanoid", "Robo"
+        )
+
+        var selectedGender by rememberSaveable { mutableStateOf<String?>(null) }
+        var genderLabelList = rememberSaveableMutableStateListOf(
+            "Male", "Female", "Genderless", "Unknown"
+        )
+
+        FilterView(
+            name = "Characters filter",
+            filterGroupList = listOf(
+                FilterGroup(
+                    name = "Species",
+                    selected = selectedSpecies,
+                    labelList = speciesLabelList,
+                    isListFinished = false,
+                    resolveIcon = { text -> RnmIcons.Alien },//TODO create icon resolvers
+                    onAddLabel = { text -> speciesLabelList.add(text) },
+                    onSelectedChanged = {
+                        selectedSpecies = it
+                    },
+                ),
+                FilterGroup(
+                    name = "Gender",
+                    selected = selectedGender,
+                    isListFinished = true,
+                    labelList = genderLabelList,
+                    resolveIcon = { text -> RnmIcons.GenderIntersex },
+                    onAddLabel = { text -> genderLabelList.add(text) },
+                    onSelectedChanged = {
+                        selectedGender = it
+                    },
+                )
+            ),
+            modifier = Modifier.height(32.dp)
+        )
+
+        Spacer(modifier = Modifier.height(PADDING))
 
         if (pagingCharacterItems.loadState.refresh is LoadState.Loading) {
             LoadingView()
         } else if (pagingCharacterItems.itemCount == 0) {
             EmptyView()
         } else {
-            LazyColumn( //TODO add savePosition
-                contentPadding = PaddingValues(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+            LazyVerticalStaggeredGrid( //TODO add savePosition
+                columns = StaggeredGridCells.Fixed(2),
+                verticalItemSpacing = PADDING,
+                horizontalArrangement = Arrangement.spacedBy(PADDING),
                 modifier = Modifier.fillMaxSize()
             ) {
                 val stateItemModifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(PADDING)
 
                 if (pagingCharacterItems.loadState.prepend is LoadState.Error) {
                     item {
@@ -86,7 +143,7 @@ fun CharactersListScreen(
                 }
 
                 if (pagingCharacterItems.loadState.prepend is LoadState.Loading) {
-                    item {
+                    item(span = FullLine) {
                         LoadingView(
                             modifier = stateItemModifier
                         )
@@ -94,19 +151,23 @@ fun CharactersListScreen(
                 }
                 items(
                     count = pagingCharacterItems.itemCount,
-                    key = pagingCharacterItems.itemKey { character -> character.id }
+                    key = pagingCharacterItems.itemKey { character -> character.id },
                 ) { index ->
                     pagingCharacterItems[index]?.let { character ->
-                        Text(
-                            character.id.toString() + " " + character.name,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 12.dp)
-                                .clickable {
-                                    viewModel.sendIntent(
-                                        CharactersListIntent.CharacterItemClick(character.id)
-                                    )
-                                }
+                        CharacterCard(
+                            name = character.name,
+                            status = character.status,
+                            species = character.species,
+                            origin = character.origin.name,
+                            imageUrl = character.image,
+                            isFavorite = false,
+                            onFavoriteClick = {
+                            },
+                            onCardClick = {
+                                viewModel.sendIntent(
+                                    CharactersListIntent.CharacterItemClick(character.id)
+                                )
+                            }
                         )
                     }
                 }
@@ -137,6 +198,10 @@ fun CharactersListScreen(
                             pagingCharacterItems.retry()
                         }
                     }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(PADDING))
                 }
             }
         }

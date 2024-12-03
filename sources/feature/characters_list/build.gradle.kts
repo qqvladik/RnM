@@ -13,4 +13,5 @@ dependencies {
     api(project(":character_detail_api"))
     implementation(project(":core"))
     implementation(project(":dependencies"))
+    implementation(project(":design_system"))
 }

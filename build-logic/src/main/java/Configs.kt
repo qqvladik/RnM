@@ -15,7 +15,7 @@ object Configs {
     const val applicationPackage = "pl.mankevich.rnm"
     val versionCode = generateVersionCode()
     val versionName = generateVersionName()
-    const val minSdk = 23
+    const val minSdk = 26
     const val targetSdk = 35
     const val compileSdk = 35
     const val androidJunitRunner = "androidx.test.runner.AndroidJUnitRunner"
