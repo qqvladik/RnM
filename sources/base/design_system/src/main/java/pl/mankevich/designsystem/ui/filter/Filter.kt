@@ -39,12 +39,12 @@ data class FilterLabel(
 @ConsistentCopyVisibility
 data class FilterGroup private constructor(
     val name: String,
-    val selected: String? = null,
+    val selected: String = "",
     val labelList: List<FilterLabel>,
     val isListFinished: Boolean,
     val resolveIcon: @Composable (String) -> ImageVector,
     val onAddLabel: (String) -> Unit,
-    val onSelectedChanged: (String?) -> Unit,
+    val onSelectedChanged: (String) -> Unit,
 ) {
     companion object {
         /**
@@ -53,12 +53,12 @@ data class FilterGroup private constructor(
          */
         operator fun invoke(
             name: String,
-            selected: String? = null,
+            selected: String = "",
             labelList: List<String>,
             isListFinished: Boolean,
             resolveIcon: @Composable (String) -> ImageVector,
             onAddLabel: (String) -> Unit,
-            onSelectedChanged: (String?) -> Unit,
+            onSelectedChanged: (String) -> Unit,
         ) = FilterGroup(
             name = name,
             selected = selected,
@@ -119,7 +119,7 @@ fun FilterView(
         ) {
             items(count = sortedLabelList.size) { index ->
                 val label = sortedLabelList[index]
-                var filterGroup = filterGroupList.first { it.name == label.groupName }
+                val filterGroup = filterGroupList.first { it.name == label.groupName }
                 FilterChip(
                     label = label,
                     filterGroup = filterGroup,
@@ -157,7 +157,7 @@ fun FilterChip(
         icon = filterGroup.resolveIcon(label.value),
         isSelected = isSelected,
         onSelectedChange = {
-            val newSelected = if (isSelected) null else label.value
+            val newSelected = if (isSelected) "" else label.value
             filterGroup.onSelectedChanged(newSelected)
         },
         modifier = modifier
@@ -168,13 +168,13 @@ fun FilterChip(
 @Composable
 fun FilterViewPreview() {
     RnmTheme {
-        var selectedSpecies by rememberSaveable { mutableStateOf("Alien") }
-        var speciesLabelList = rememberSaveableMutableStateListOf(
+        val selectedSpecies by rememberSaveable { mutableStateOf("Alien") }
+        val speciesLabelList = rememberSaveableMutableStateListOf(
             "Alien", "Human", "Humanoid", "Robo"
         )
 
-        var selectedGender by rememberSaveable { mutableStateOf<String?>(null) }
-        var genderLabelList = rememberSaveableMutableStateListOf(
+        val selectedGender by rememberSaveable { mutableStateOf("") }
+        val genderLabelList = rememberSaveableMutableStateListOf(
             "Male", "Female", "Genderless", "Unknown"
         )
 

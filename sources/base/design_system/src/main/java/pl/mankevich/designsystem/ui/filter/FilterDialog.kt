@@ -50,7 +50,6 @@ import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FilterDialog(
     name: String,

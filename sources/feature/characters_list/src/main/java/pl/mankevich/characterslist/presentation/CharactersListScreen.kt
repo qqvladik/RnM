@@ -75,39 +75,64 @@ fun CharactersListScreen(
 
         Spacer(modifier = Modifier.height(PADDING))
 
-        var selectedSpecies by rememberSaveable { mutableStateOf<String?>("Alien") }
-        var speciesLabelList = rememberSaveableMutableStateListOf(
+        val statusLabelList = rememberSaveableMutableStateListOf(
+            "Alive", "Dead", "Unknown"
+        )
+        val speciesLabelList = rememberSaveableMutableStateListOf(
             "Alien", "Human", "Humanoid", "Robo"
         )
-
-        var selectedGender by rememberSaveable { mutableStateOf<String?>(null) }
-        var genderLabelList = rememberSaveableMutableStateListOf(
+        val genderLabelList = rememberSaveableMutableStateListOf(
             "Male", "Female", "Genderless", "Unknown"
+        )
+        val typeLabelList = rememberSaveableMutableStateListOf(
+            "Parasite"
         )
 
         FilterView(
             name = "Characters filter",
             filterGroupList = listOf(
                 FilterGroup(
+                    name = "Status",
+                    selected = state.filter.status,
+                    labelList = statusLabelList,
+                    isListFinished = false,
+                    resolveIcon = { text -> RnmIcons.Pulse },//TODO create icon resolvers
+                    onAddLabel = { text -> statusLabelList.add(text) },
+                    onSelectedChanged = {
+                        viewModel.sendIntent(CharactersListIntent.LoadCharacters(Filter(status = it)))
+                    },
+                ),
+                FilterGroup(
                     name = "Species",
-                    selected = selectedSpecies,
+                    selected = state.filter.species,
                     labelList = speciesLabelList,
                     isListFinished = false,
                     resolveIcon = { text -> RnmIcons.Alien },//TODO create icon resolvers
                     onAddLabel = { text -> speciesLabelList.add(text) },
                     onSelectedChanged = {
-                        selectedSpecies = it
+                        viewModel.sendIntent(CharactersListIntent.LoadCharacters(Filter(species = it)))
                     },
                 ),
                 FilterGroup(
                     name = "Gender",
-                    selected = selectedGender,
-                    isListFinished = true,
+                    selected = state.filter.gender,
                     labelList = genderLabelList,
+                    isListFinished = true,
                     resolveIcon = { text -> RnmIcons.GenderIntersex },
                     onAddLabel = { text -> genderLabelList.add(text) },
                     onSelectedChanged = {
-                        selectedGender = it
+                        viewModel.sendIntent(CharactersListIntent.LoadCharacters(Filter(gender = it)))
+                    },
+                ),
+                FilterGroup(
+                    name = "Type",
+                    selected = state.filter.type,
+                    labelList = typeLabelList,
+                    isListFinished = true,
+                    resolveIcon = { text -> RnmIcons.GenderIntersex },
+                    onAddLabel = { text -> typeLabelList.add(text) },
+                    onSelectedChanged = {
+                        viewModel.sendIntent(CharactersListIntent.LoadCharacters(Filter(type = it)))
                     },
                 )
             ),

@@ -10,10 +10,28 @@ typealias CharactersListTransform = Transform<CharactersListStateWithEffects>
 
 object CharactersListTransforms {
 
-    data class LoadCharactersList(val filter: Filter) : CharactersListTransform {
+    data class LoadCharactersList(
+        val name: String? = null,
+        val status: String? = null,
+        val species: String? = null,
+        val type: String? = null,
+        val gender: String? = null
+    ) : CharactersListTransform {
 
         override fun reduce(current: CharactersListStateWithEffects): CharactersListStateWithEffects {
-            return current.copy(state = current.state.copy(isLoading = true, filter = filter))
+            val currentFilter = current.state.filter
+            return current.copy(
+                state = current.state.copy(
+                    isLoading = true,
+                    filter = currentFilter.copy(
+                        name = name?: currentFilter.name,
+                        status = status?: currentFilter.status,
+                        species = species?: currentFilter.species,
+                        type = type?: currentFilter.type,
+                        gender = gender?: currentFilter.gender
+                    )
+                )
+            )
         }
     }
 

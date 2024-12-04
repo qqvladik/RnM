@@ -19,6 +19,16 @@ sealed class CharactersListIntent {
     data class Refresh(val filter: Filter) : CharactersListIntent()
 
     data class CharacterItemClick(val characterId: Int) : CharactersListIntent()
+
+    data class NameFilterChanged(val name: String) : CharactersListIntent()
+
+    data class StatusFilterChanged(val status: String) : CharactersListIntent()
+
+    data class SpeciesFilterChanged(val species: String) : CharactersListIntent()
+
+    data class GenderFilterChanged(val gender: String) : CharactersListIntent()
+
+    data class TypeFilterChanged(val type: String) : CharactersListIntent()
 }
 
 sealed interface CharactersListSideEffect {
