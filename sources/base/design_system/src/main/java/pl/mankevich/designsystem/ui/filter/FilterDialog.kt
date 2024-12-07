@@ -1,5 +1,6 @@
 package pl.mankevich.designsystem.ui.filter
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
@@ -88,17 +90,33 @@ fun FilterDialog(
 
                 (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0f) */
 
+                var focusedGroup by rememberSaveable { mutableStateOf<String?>(null) }
+                var inputValue by rememberSaveable { mutableStateOf("") }
+                val saveInputAndSetGroupFocus: (String?) -> Unit = {
+                    filterGroupList.find { it.name == focusedGroup }?.selectValue(inputValue)
+                    inputValue = ""
+                    focusedGroup = it
+                }
+
                 HorizontalDivider()
 
                 Column(
-                    Modifier.verticalScroll(rememberScrollState()),
+                    Modifier
+                        .verticalScroll(rememberScrollState())
+                        .pointerInput(Unit) {
+                            detectTapGestures(onTap = { saveInputAndSetGroupFocus(null) })
+                        },
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    filterGroupList.forEach { filterGroupData ->
+                    filterGroupList.forEach { filterGroup ->
                         FilterGroupView(
-                            filterGroup = filterGroupData,
+                            inputValue = inputValue,
+                            onValueChange = { inputValue = it },
+                            isGroupFocused = focusedGroup == filterGroup.name,
+                            onGroupFocusChange = { saveInputAndSetGroupFocus(it) },
+                            filterGroup = filterGroup,
                             chipPadding = chipPadding,
                             chipHeight = chipHeight,
                             modifier = Modifier.fillMaxWidth()
@@ -127,11 +145,17 @@ fun FilterDialog(
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun FilterGroupView(
+    inputValue: String,
+    onValueChange: (String) -> Unit,
+    isGroupFocused: Boolean,
+    onGroupFocusChange: (String?) -> Unit,
     filterGroup: FilterGroup,
     chipPadding: Dp,
     chipHeight: Dp,
     modifier: Modifier = Modifier
 ) {
+    val focusRequester = remember { FocusRequester() }
+
     Column(
         modifier = modifier
     ) {
@@ -155,15 +179,11 @@ fun FilterGroupView(
                 )
             }
 
-            var isInputVisible by rememberSaveable { mutableStateOf(false) }
-            var inputValue by rememberSaveable { mutableStateOf("") }
-            val focusRequester = remember { FocusRequester() }
-
-            if (isInputVisible) {
+            if (isGroupFocused) {
                 BasicTextField(
                     value = inputValue,
                     onValueChange = {
-                        inputValue = it.filter { !it.isWhitespace() }
+                        onValueChange(it.filter { !it.isWhitespace() })
                     },
                     textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface),
                     modifier = Modifier
@@ -175,10 +195,7 @@ fun FilterGroupView(
                     singleLine = true,
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            filterGroup.selectValue(inputValue)
-                            inputValue = ""
-                            focusRequester.freeFocus()
-                            isInputVisible = false
+                            onGroupFocusChange(null)
                         },
                     ),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
@@ -201,16 +218,15 @@ fun FilterGroupView(
                 }
 
                 //Executed at the end of composition and solves the problem with requestFocus being called during composition
-                LaunchedEffect(isInputVisible) {
-                    if (isInputVisible) {
-                        focusRequester.requestFocus()
-                    }
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
                 }
+
             } else {
                 if (!filterGroup.isListFinished) {
                     SurfaceIconButton(
                         onClick = {
-                            isInputVisible = true
+                            onGroupFocusChange(filterGroup.name)
                         },
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add filter",
@@ -265,6 +281,10 @@ fun FilterDialogPreview() {
 fun FlowOfChipsPreview() {
     RnmTheme {
         FilterGroupView(
+            inputValue = "",
+            onValueChange = {},
+            isGroupFocused = false,
+            onGroupFocusChange = {},
             filterGroup = FilterGroup(
                 name = "Species",
                 selected = "Alien",
