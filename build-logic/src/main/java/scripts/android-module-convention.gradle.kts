@@ -12,7 +12,4 @@ android {
             ""
         )
     }" //namespace must be the same as packageName
-    defaultConfig {
-        consumerProguardFiles("consumer-rules.pro")
-    }
 }

@@ -12,6 +12,23 @@ android {
         versionCode = Configs.versionCode
         versionName = Configs.versionName
     }
+
+    buildTypes {
+        getByName("release") {
+            isDebuggable = false
+            isMinifyEnabled = false//TODO true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("debug")
+        }
+
+        getByName("debug") {
+            isDebuggable = true
+            isMinifyEnabled = false
+        }
+    }
 }
 
 dependencies {
