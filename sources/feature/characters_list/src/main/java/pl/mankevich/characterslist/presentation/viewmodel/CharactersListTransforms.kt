@@ -4,16 +4,37 @@ import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import pl.mankevich.core.mvi.Transform
 import pl.mankevich.model.Character
-import pl.mankevich.model.Filter
 
 typealias CharactersListTransform = Transform<CharactersListStateWithEffects>
 
 object CharactersListTransforms {
 
-    data class LoadCharactersList(val filter: Filter) : CharactersListTransform {
+    data class ChangeFilters(
+        val name: String? = null,
+        val status: String? = null,
+        val species: String? = null,
+        val type: String? = null,
+        val gender: String? = null
+    ) : CharactersListTransform {
 
         override fun reduce(current: CharactersListStateWithEffects): CharactersListStateWithEffects {
-            return current.copy(state = current.state.copy(isLoading = true, filter = filter))
+            val currentFilter = current.state.filter
+            val newFilter = currentFilter.copy(
+                name = name?: currentFilter.name,
+                status = status?: currentFilter.status,
+                species = species?: currentFilter.species,
+                type = type?: currentFilter.type,
+                gender = gender?: currentFilter.gender
+            )
+            return current.copy(
+                state = current.state.copy(
+                    isLoading = true,
+                    filter = newFilter
+                ),
+                sideEffects = current.sideEffects.add(
+                    CharactersListSideEffect.OnLoadCharactersRequested(newFilter)
+                )
+            )
         }
     }
 

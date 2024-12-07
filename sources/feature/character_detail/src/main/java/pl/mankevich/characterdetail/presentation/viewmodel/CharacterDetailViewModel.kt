@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import pl.mankevich.characterdetail.getCharacterId
+import pl.mankevich.core.mvi.SideEffects
 import pl.mankevich.core.mvi.Transform
 import pl.mankevich.core.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadCharacterDetailUseCase
@@ -23,7 +24,11 @@ class CharacterDetailViewModel
     private val loadEpisodesByCharacterIdUseCase: LoadEpisodesByCharacterIdUseCase,
 ) : CharacterDetailMviViewModel(
     initialStateWithEffects = CharacterDetailStateWithEffects(
-        state = CharacterDetailState()
+        state = CharacterDetailState(),
+        sideEffects = SideEffects<CharacterDetailSideEffect>().add(
+            CharacterDetailSideEffect.OnLoadCharacterRequested,
+            CharacterDetailSideEffect.OnLoadEpisodesRequested
+        )
     )
 ) {
     @AssistedFactory
@@ -49,4 +54,19 @@ class CharacterDetailViewModel
 
             is CharacterDetailIntent.EpisodeItemClick -> emptyFlow()
         }
+
+    fun handleSideEffect(
+        sideEffect: CharacterDetailSideEffect,
+    ) {
+        when (sideEffect) {
+            is CharacterDetailSideEffect.OnEpisodeItemClicked ->
+                sendIntent(CharacterDetailIntent.EpisodeItemClick(sideEffect.episodeId))
+
+            is CharacterDetailSideEffect.OnLoadCharacterRequested ->
+                sendIntent(CharacterDetailIntent.LoadCharacter)
+
+            is CharacterDetailSideEffect.OnLoadEpisodesRequested ->
+                sendIntent(CharacterDetailIntent.LoadEpisodes)
+        }
+    }
 }

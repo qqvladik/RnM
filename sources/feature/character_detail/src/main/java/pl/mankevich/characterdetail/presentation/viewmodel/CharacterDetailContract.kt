@@ -19,6 +19,10 @@ sealed class CharacterDetailIntent {
 
 sealed interface CharacterDetailSideEffect {
 
+    data object OnLoadCharacterRequested : CharacterDetailSideEffect
+
+    data object OnLoadEpisodesRequested : CharacterDetailSideEffect
+
     data class OnEpisodeItemClicked(val episodeId: Int) : CharacterDetailSideEffect
 }
 

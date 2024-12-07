@@ -11,11 +11,8 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,7 +23,6 @@ import pl.mankevich.characterslist.presentation.view.EmptyView
 import pl.mankevich.characterslist.presentation.view.ErrorView
 import pl.mankevich.characterslist.presentation.view.LoadingView
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListIntent
-import pl.mankevich.characterslist.presentation.viewmodel.CharactersListSideEffect
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
 import pl.mankevich.core.util.cast
 import pl.mankevich.designsystem.component.SearchField
@@ -35,7 +31,6 @@ import pl.mankevich.designsystem.ui.CharacterCard
 import pl.mankevich.designsystem.ui.filter.FilterGroup
 import pl.mankevich.designsystem.ui.filter.FilterView
 import pl.mankevich.designsystem.utils.rememberSaveableMutableStateListOf
-import pl.mankevich.model.Filter
 
 private val PADDING = 12.dp
 
@@ -47,14 +42,10 @@ fun CharactersListScreen(
     val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
     val state = stateWithEffects.state
 
-    stateWithEffects.sideEffects.forEach { sideEffect ->
-        when (sideEffect) {
-            is CharactersListSideEffect.OnCharacterItemClicked -> onCharacterItemClick(sideEffect.characterId)
+    SideEffect {
+        stateWithEffects.sideEffects.forEach { sideEffect ->
+            viewModel.handleSideEffect(sideEffect, onCharacterItemClick)
         }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.initializeWithIntents(CharactersListIntent.Refresh(Filter(name = "")))
     }
 
     val pagingCharacterItems = state.characters.collectAsLazyPagingItems()
@@ -65,49 +56,74 @@ fun CharactersListScreen(
         SearchField(
             value = state.filter.name,
             onValueChange = {
-                viewModel.sendIntent(CharactersListIntent.LoadCharacters(Filter(name = it)))
+                viewModel.sendIntent(CharactersListIntent.NameFilterChanged(it))
             },
             onClearClick = {
-                viewModel.sendIntent(CharactersListIntent.LoadCharacters(Filter(name = "")))
+                viewModel.sendIntent(CharactersListIntent.NameFilterChanged(""))
             },
             placeholder = "Search..."
         )
 
         Spacer(modifier = Modifier.height(PADDING))
 
-        var selectedSpecies by rememberSaveable { mutableStateOf<String?>("Alien") }
-        var speciesLabelList = rememberSaveableMutableStateListOf(
+        val statusLabelList = rememberSaveableMutableStateListOf(
+            "Alive", "Dead", "Unknown"
+        )
+        val speciesLabelList = rememberSaveableMutableStateListOf(
             "Alien", "Human", "Humanoid", "Robo"
         )
-
-        var selectedGender by rememberSaveable { mutableStateOf<String?>(null) }
-        var genderLabelList = rememberSaveableMutableStateListOf(
+        val genderLabelList = rememberSaveableMutableStateListOf(
             "Male", "Female", "Genderless", "Unknown"
+        )
+        val typeLabelList = rememberSaveableMutableStateListOf(
+            "Parasite"
         )
 
         FilterView(
             name = "Characters filter",
             filterGroupList = listOf(
                 FilterGroup(
+                    name = "Status",
+                    selected = state.filter.status,
+                    labelList = statusLabelList,
+                    isListFinished = true,
+                    resolveIcon = { text -> RnmIcons.Pulse },
+                    onAddLabel = { text -> statusLabelList.add(text) },
+                    onSelectedChanged = {
+                        viewModel.sendIntent(CharactersListIntent.StatusFilterChanged(it))
+                    },
+                ),
+                FilterGroup(
                     name = "Species",
-                    selected = selectedSpecies,
+                    selected = state.filter.species,
                     labelList = speciesLabelList,
                     isListFinished = false,
-                    resolveIcon = { text -> RnmIcons.Alien },//TODO create icon resolvers
+                    resolveIcon = { text -> RnmIcons.Alien },
                     onAddLabel = { text -> speciesLabelList.add(text) },
                     onSelectedChanged = {
-                        selectedSpecies = it
+                        viewModel.sendIntent(CharactersListIntent.SpeciesFilterChanged(it))
                     },
                 ),
                 FilterGroup(
                     name = "Gender",
-                    selected = selectedGender,
-                    isListFinished = true,
+                    selected = state.filter.gender,
                     labelList = genderLabelList,
+                    isListFinished = true,
                     resolveIcon = { text -> RnmIcons.GenderIntersex },
                     onAddLabel = { text -> genderLabelList.add(text) },
                     onSelectedChanged = {
-                        selectedGender = it
+                        viewModel.sendIntent(CharactersListIntent.GenderFilterChanged(it))
+                    },
+                ),
+                FilterGroup(
+                    name = "Type",
+                    selected = state.filter.type,
+                    labelList = typeLabelList,
+                    isListFinished = false,
+                    resolveIcon = { text -> RnmIcons.Blocks },
+                    onAddLabel = { text -> typeLabelList.add(text) },
+                    onSelectedChanged = {
+                        viewModel.sendIntent(CharactersListIntent.TypeFilterChanged(it))
                     },
                 )
             ),

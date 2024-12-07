@@ -11,7 +11,12 @@ object CharacterDetailTransforms {
     data class LoadCharacter(val characterId: Int) : CharacterDetailTransform {
 
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
-            return current.copy(state = current.state.copy(isCharacterLoading = true))
+            return current.copy(
+                state = current.state.copy(isCharacterLoading = true),
+                sideEffects = current.sideEffects.add(
+                    CharacterDetailSideEffect.OnLoadCharacterRequested
+                )
+            )
         }
     }
 
@@ -30,7 +35,12 @@ object CharacterDetailTransforms {
     data class LoadEpisodes(val characterId: Int) : CharacterDetailTransform {
 
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
-            return current.copy(state = current.state.copy(isEpisodesLoading = true))
+            return current.copy(
+                state = current.state.copy(isEpisodesLoading = true),
+                sideEffects = current.sideEffects.add(
+                    CharacterDetailSideEffect.OnLoadEpisodesRequested
+                )
+            )
         }
     }
 

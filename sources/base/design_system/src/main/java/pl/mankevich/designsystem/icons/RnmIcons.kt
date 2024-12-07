@@ -24,95 +24,95 @@ import pl.mankevich.designsystem.R
 object RnmIcons {
     val Alien: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_alien)
+        get() = ImageVector.vectorResource(RnmIconsRes.Alien)
 
     val ArrowCircleUp: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_arrow_circle_up)
+        get() = ImageVector.vectorResource(RnmIconsRes.ArrowCircleUp)
 
     val Blocks: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_blocks)
+        get() = ImageVector.vectorResource(RnmIconsRes.Blocks)
 
     val CalendarBlank: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_calendar_blank)
+        get() = ImageVector.vectorResource(RnmIconsRes.CalendarBlank)
 
     val CaretLeft: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_caret_left)
+        get() = ImageVector.vectorResource(RnmIconsRes.CaretLeft)
 
     val CaretRight: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_caret_right)
+        get() = ImageVector.vectorResource(RnmIconsRes.CaretRight)
 
     val CubeFocus: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_cube_focus)
+        get() = ImageVector.vectorResource(RnmIconsRes.CubeFocus)
 
     val GenderFemale: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_gender_female)
+        get() = ImageVector.vectorResource(RnmIconsRes.GenderFemale)
 
     val GenderIntersex: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_gender_intersex)
+        get() = ImageVector.vectorResource(RnmIconsRes.GenderIntersex)
 
     val GenderMale: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_gender_male)
+        get() = ImageVector.vectorResource(RnmIconsRes.GenderMale)
 
     val HeartFilled: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_heart_filled)
+        get() = ImageVector.vectorResource(RnmIconsRes.HeartFilled)
 
     val HeartOutlined: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_heart_outlined)
+        get() = ImageVector.vectorResource(RnmIconsRes.HeartOutlined)
 
     val Info: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_info)
+        get() = ImageVector.vectorResource(RnmIconsRes.Info)
 
     val MapPin: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_map_pin)
+        get() = ImageVector.vectorResource(RnmIconsRes.MapPin)
 
     val MonitorPlay: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_monitor_play)
+        get() = ImageVector.vectorResource(RnmIconsRes.MonitorPlay)
 
     val Person: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_person)
+        get() = ImageVector.vectorResource(RnmIconsRes.Person)
 
     val Planet: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_planet)
+        get() = ImageVector.vectorResource(RnmIconsRes.Planet)
 
     val Pulse: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_pulse)
+        get() = ImageVector.vectorResource(RnmIconsRes.Pulse)
 
     val Question: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_question)
+        get() = ImageVector.vectorResource(RnmIconsRes.Question)
 
     val Queue: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_queue)
+        get() = ImageVector.vectorResource(RnmIconsRes.Queue)
 
     val Robot: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_robot)
+        get() = ImageVector.vectorResource(RnmIconsRes.Robot)
 
     val Skull: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_skull)
+        get() = ImageVector.vectorResource(RnmIconsRes.Skull)
 
     val XCircle: ImageVector
         @Composable
-        get() = ImageVector.vectorResource(R.drawable.ic_x_circle)
+        get() = ImageVector.vectorResource(RnmIconsRes.XCircle)
 
 }
 

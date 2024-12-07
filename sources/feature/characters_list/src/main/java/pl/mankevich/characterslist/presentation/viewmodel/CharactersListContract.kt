@@ -16,14 +16,28 @@ sealed class CharactersListIntent {
 
     data class LoadCharacters(val filter: Filter) : CharactersListIntent(), UniqueIntent
 
-    data class Refresh(val filter: Filter) : CharactersListIntent()
+    data class Refresh(val filter: Filter) : CharactersListIntent(), UniqueIntent
 
     data class CharacterItemClick(val characterId: Int) : CharactersListIntent()
+
+    data class NameFilterChanged(val name: String) : CharactersListIntent()
+
+    data class StatusFilterChanged(val status: String) : CharactersListIntent()
+
+    data class SpeciesFilterChanged(val species: String) : CharactersListIntent()
+
+    data class GenderFilterChanged(val gender: String) : CharactersListIntent()
+
+    data class TypeFilterChanged(val type: String) : CharactersListIntent()
 }
 
 sealed interface CharactersListSideEffect {
 
     data class OnCharacterItemClicked(val characterId: Int) : CharactersListSideEffect
+
+    data class OnLoadCharactersRequested(val filter: Filter) : CharactersListSideEffect
+
+    data class OnRefreshRequested(val filter: Filter) : CharactersListSideEffect
 }
 
 data class CharactersListState(

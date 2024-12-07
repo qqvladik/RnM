@@ -29,17 +29,6 @@ abstract class MviViewModel<in TIntent : Any, TStateWithEffects>(
             .stateIn(viewModelScope, SharingStarted.Eagerly, initialStateWithEffects)
     }
 
-    private var isInitialized = false
-
-    fun initializeWithIntents(vararg initialIntents: TIntent) {
-        if (!isInitialized) {
-            initialIntents.forEach { initialIntent ->
-                sendIntent(initialIntent)
-            }
-            isInitialized = true
-        }
-    }
-
     fun sendIntent(intent: TIntent) {
         val job = viewModelScope.launch {
             if (intent is UniqueIntent) {
