@@ -2,13 +2,13 @@
 
 import pl.mankevich.model.Character
 import pl.mankevich.model.LocationShort
-import pl.mankevich.networkapi.dto.CharacterResponseDto
-import pl.mankevich.networkapi.dto.LocationShortResponseDto
-import pl.mankevich.storageapi.dto.CharacterDto
-import pl.mankevich.storageapi.dto.LocationShortDto
+import pl.mankevich.remoteapi.response.CharacterResponse
+import pl.mankevich.remoteapi.response.LocationShortResponse
+import pl.mankevich.databaseapi.entity.CharacterEntity
+import pl.mankevich.databaseapi.entity.LocationShortEntity
 
 
-fun CharacterDto.mapToCharacter() = Character(
+fun CharacterEntity.mapToCharacter() = Character(
     id = id,
     name = name,
     status = status,
@@ -20,12 +20,12 @@ fun CharacterDto.mapToCharacter() = Character(
     image = image
 )
 
-fun LocationShortDto.mapToLocationShort() = LocationShort(
+fun LocationShortEntity.mapToLocationShort() = LocationShort(
     id = id,
     name = name,
 )
 
-fun CharacterResponseDto.mapToCharacterDto() = CharacterDto(
+fun CharacterResponse.mapToCharacterDto() = CharacterEntity(
     id = id,
     name = name,
     status = status,
@@ -37,7 +37,7 @@ fun CharacterResponseDto.mapToCharacterDto() = CharacterDto(
     image = image
 )
 
-fun LocationShortResponseDto.mapToLocationShortDto() = LocationShortDto(
+fun LocationShortResponse.mapToLocationShortDto() = LocationShortEntity(
     id = id,
     name = name,
 )

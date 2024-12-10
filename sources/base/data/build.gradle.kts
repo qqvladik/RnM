@@ -7,6 +7,6 @@ dependencies {
 
     api(project(":data_api"))
     implementation(project(":core"))
-    implementation(project(":storage_api"))
-    implementation(project(":network_api"))
+    implementation(project(":database_api"))
+    implementation(project(":remote_api"))
 }

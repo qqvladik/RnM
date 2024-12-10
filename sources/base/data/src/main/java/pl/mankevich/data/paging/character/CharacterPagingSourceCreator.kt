@@ -3,7 +3,7 @@ package pl.mankevich.data.paging.character
 import dagger.assisted.AssistedFactory
 import pl.mankevich.core.paging.PagingSource
 import pl.mankevich.model.Character
-import pl.mankevich.model.Filter
+import pl.mankevich.model.CharacterFilter
 import javax.inject.Inject
 
 class CharacterPagingSourceCreator @Inject constructor(
@@ -11,11 +11,11 @@ class CharacterPagingSourceCreator @Inject constructor(
     private val characterPagingSourceCreatorOffline: CharacterPagingSourceCreatorOffline
 ) {
 
-    fun create(isOnline: Boolean, filter: Filter): PagingSource<Character> {
+    fun create(isOnline: Boolean, characterFilter: CharacterFilter): PagingSource<Character> {
         return if (isOnline) {
-            characterPagingSourceCreatorOnline.create(filter)
+            characterPagingSourceCreatorOnline.create(characterFilter)
         } else {
-            characterPagingSourceCreatorOffline.create(filter)
+            characterPagingSourceCreatorOffline.create(characterFilter)
         }
     }
 }
@@ -23,11 +23,11 @@ class CharacterPagingSourceCreator @Inject constructor(
 @AssistedFactory
 interface CharacterPagingSourceCreatorOffline {
 
-    fun create(filter: Filter): CharacterPagingSourceOffline
+    fun create(characterFilter: CharacterFilter): CharacterPagingSourceOffline
 }
 
 @AssistedFactory
 interface CharacterPagingSourceCreatorOnline {
 
-    fun create(filter: Filter): CharacterPagingSourceOnline
+    fun create(characterFilter: CharacterFilter): CharacterPagingSourceOnline
 }

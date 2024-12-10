@@ -1,10 +1,10 @@
 package pl.mankevich.data.mapper
 
-import pl.mankevich.model.Filter
-import pl.mankevich.networkapi.dto.FilterQueryDto
-import pl.mankevich.storageapi.dto.FilterDto
+import pl.mankevich.model.CharacterFilter
+import pl.mankevich.remoteapi.query.CharacterFilterQuery
+import pl.mankevich.databaseapi.entity.CharacterFilterEntity
 
-fun Filter.mapToFilterDto() = FilterDto(
+fun CharacterFilter.mapToEntity() = CharacterFilterEntity(
     name = name,
     status = status,
     species = species,
@@ -12,7 +12,7 @@ fun Filter.mapToFilterDto() = FilterDto(
     gender = gender
 )
 
-fun Filter.mapToFilterQuery() = FilterQueryDto(
+fun CharacterFilter.mapToQuery() = CharacterFilterQuery(
     name = name,
     status = status,
     species = species,

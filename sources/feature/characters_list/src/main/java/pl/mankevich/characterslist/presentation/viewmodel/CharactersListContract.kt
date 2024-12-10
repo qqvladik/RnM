@@ -7,16 +7,16 @@ import pl.mankevich.core.mvi.MviViewModel
 import pl.mankevich.core.mvi.StateWithEffects
 import pl.mankevich.core.mvi.UniqueIntent
 import pl.mankevich.model.Character
-import pl.mankevich.model.Filter
+import pl.mankevich.model.CharacterFilter
 
 typealias CharactersListStateWithEffects = StateWithEffects<CharactersListState, CharactersListSideEffect>
 typealias CharactersListMviViewModel = MviViewModel<CharactersListIntent, CharactersListStateWithEffects>
 
 sealed class CharactersListIntent {
 
-    data class LoadCharacters(val filter: Filter) : CharactersListIntent(), UniqueIntent
+    data class LoadCharacters(val characterFilter: CharacterFilter) : CharactersListIntent(), UniqueIntent
 
-    data class Refresh(val filter: Filter) : CharactersListIntent(), UniqueIntent
+    data class Refresh(val characterFilter: CharacterFilter) : CharactersListIntent(), UniqueIntent
 
     data class CharacterItemClick(val characterId: Int) : CharactersListIntent()
 
@@ -35,15 +35,15 @@ sealed interface CharactersListSideEffect {
 
     data class OnCharacterItemClicked(val characterId: Int) : CharactersListSideEffect
 
-    data class OnLoadCharactersRequested(val filter: Filter) : CharactersListSideEffect
+    data class OnLoadCharactersRequested(val characterFilter: CharacterFilter) : CharactersListSideEffect
 
-    data class OnRefreshRequested(val filter: Filter) : CharactersListSideEffect
+    data class OnRefreshRequested(val characterFilter: CharacterFilter) : CharactersListSideEffect
 }
 
 data class CharactersListState(
     val isLoading: Boolean = true,
     val error: Throwable? = null,
-    val filter: Filter = Filter(),
+    val characterFilter: CharacterFilter = CharacterFilter(),
     // Flow is unstable, so it will always recompose https://issuetracker.google.com/issues/183495984
     // Currently there is no solution how to fit Paging in Unidirectional data flow (MVI)
     val characters: Flow<PagingData<Character>> = emptyFlow()

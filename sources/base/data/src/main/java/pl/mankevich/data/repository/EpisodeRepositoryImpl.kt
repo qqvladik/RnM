@@ -13,10 +13,10 @@ import pl.mankevich.data.mapper.mapToEpisode
 import pl.mankevich.data.mapper.mapToEpisodeDto
 import pl.mankevich.dataapi.repository.EpisodeRepository
 import pl.mankevich.model.Episode
-import pl.mankevich.networkapi.api.EpisodeApi
-import pl.mankevich.storageapi.dao.EpisodeDao
-import pl.mankevich.storageapi.dao.RelationsDao
-import pl.mankevich.storageapi.dao.Transaction
+import pl.mankevich.remoteapi.api.EpisodeApi
+import pl.mankevich.databaseapi.dao.EpisodeDao
+import pl.mankevich.databaseapi.dao.RelationsDao
+import pl.mankevich.databaseapi.dao.Transaction
 import javax.inject.Inject
 
 private const val QUERY_DELAY_MILLIS = 1000L

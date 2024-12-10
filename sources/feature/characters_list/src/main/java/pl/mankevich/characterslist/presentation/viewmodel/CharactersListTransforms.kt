@@ -18,7 +18,7 @@ object CharactersListTransforms {
     ) : CharactersListTransform {
 
         override fun reduce(current: CharactersListStateWithEffects): CharactersListStateWithEffects {
-            val currentFilter = current.state.filter
+            val currentFilter = current.state.characterFilter
             val newFilter = currentFilter.copy(
                 name = name?: currentFilter.name,
                 status = status?: currentFilter.status,
@@ -29,7 +29,7 @@ object CharactersListTransforms {
             return current.copy(
                 state = current.state.copy(
                     isLoading = true,
-                    filter = newFilter
+                    characterFilter = newFilter
                 ),
                 sideEffects = current.sideEffects.add(
                     CharactersListSideEffect.OnLoadCharactersRequested(newFilter)

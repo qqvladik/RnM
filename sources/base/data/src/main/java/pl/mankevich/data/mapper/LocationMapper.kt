@@ -1,17 +1,17 @@
 package pl.mankevich.data.mapper
 
 import pl.mankevich.model.Location
-import pl.mankevich.networkapi.dto.LocationResponseDto
-import pl.mankevich.storageapi.dto.LocationDto
+import pl.mankevich.remoteapi.response.LocationResponse
+import pl.mankevich.databaseapi.entity.LocationEntity
 
-fun LocationResponseDto.mapToLocationDto() = LocationDto(
+fun LocationResponse.mapToLocationDto() = LocationEntity(
     id = id,
     name = name,
     type = type,
     dimension = dimension
 )
 
-fun LocationDto.mapToLocation() = Location(
+fun LocationEntity.mapToLocation() = Location(
     id = id,
     name = name,
     type = type,

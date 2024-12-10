@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flowOf
 import pl.mankevich.core.mvi.SideEffects
 import pl.mankevich.core.mvi.Transform
 import pl.mankevich.domainapi.usecase.LoadCharactersListUseCase
-import pl.mankevich.model.Filter
+import pl.mankevich.model.CharacterFilter
 import javax.inject.Inject
 
 private const val QUERY_INPUT_DELAY_MILLIS = 500L
@@ -22,7 +22,7 @@ class CharactersListViewModel
         state = CharactersListState(),
         sideEffects = SideEffects<CharactersListSideEffect>().add(
             CharactersListSideEffect.OnRefreshRequested(
-                Filter()
+                CharacterFilter()
             )
         )
     )
@@ -32,10 +32,10 @@ class CharactersListViewModel
         when (intent) {
             is CharactersListIntent.LoadCharacters -> loadCharacters(
                 instantRefresh = false,
-                intent.filter
+                intent.characterFilter
             )
 
-            is CharactersListIntent.Refresh -> loadCharacters(instantRefresh = true, intent.filter)
+            is CharactersListIntent.Refresh -> loadCharacters(instantRefresh = true, intent.characterFilter)
 
             is CharactersListIntent.NameFilterChanged -> flowOf(
                 CharactersListTransforms.ChangeFilters(name = intent.name)
@@ -64,12 +64,12 @@ class CharactersListViewModel
 
     private fun loadCharacters(
         instantRefresh: Boolean,
-        filter: Filter
+        characterFilter: CharacterFilter
     ): Flow<Transform<CharactersListStateWithEffects>> = flow {
         if (!instantRefresh) delay(QUERY_INPUT_DELAY_MILLIS)
         emit(
             CharactersListTransforms.LoadCharactersListSuccess(
-                loadCharactersListUseCase(filter).cachedIn(viewModelScope)
+                loadCharactersListUseCase(characterFilter).cachedIn(viewModelScope)
             )
         )
     }
@@ -83,10 +83,10 @@ class CharactersListViewModel
                 onCharacterItemClick(sideEffect.characterId)
 
             is CharactersListSideEffect.OnLoadCharactersRequested ->
-                sendIntent(CharactersListIntent.LoadCharacters(sideEffect.filter))
+                sendIntent(CharactersListIntent.LoadCharacters(sideEffect.characterFilter))
 
             is CharactersListSideEffect.OnRefreshRequested ->
-                sendIntent(CharactersListIntent.Refresh(sideEffect.filter))
+                sendIntent(CharactersListIntent.Refresh(sideEffect.characterFilter))
         }
     }
 }

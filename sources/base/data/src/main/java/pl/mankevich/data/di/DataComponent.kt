@@ -4,8 +4,8 @@ import dagger.Component
 import pl.mankevich.core.di.DispatchersModule
 import pl.mankevich.core.di.FeatureScope
 import pl.mankevich.dataapi.di.DataProvider
-import pl.mankevich.networkapi.di.NetworkProvider
-import pl.mankevich.storageapi.di.StorageProvider
+import pl.mankevich.remoteapi.di.NetworkProvider
+import pl.mankevich.databaseapi.di.StorageProvider
 
 @FeatureScope
 @Component(

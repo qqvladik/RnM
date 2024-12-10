@@ -10,8 +10,8 @@ import pl.mankevich.data.di.DataComponent
 import pl.mankevich.dependencies.DependenciesProvider
 import pl.mankevich.domain.di.DomainComponent
 import pl.mankevich.domainapi.di.DomainProvider
-import pl.mankevich.networkretrofit.di.NetworkRetrofitComponent
-import pl.mankevich.storageroom.di.StorageRoomComponent
+import pl.mankevich.remoteretrofit.di.NetworkRetrofitComponent
+import pl.mankevich.databaseroom.di.StorageRoomComponent
 
 @FeatureScope
 @Component(

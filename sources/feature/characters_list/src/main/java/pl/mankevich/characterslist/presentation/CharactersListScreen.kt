@@ -54,7 +54,7 @@ fun CharactersListScreen(
         Spacer(modifier = Modifier.height(PADDING))
 
         SearchField(
-            value = state.filter.name,
+            value = state.characterFilter.name,
             onValueChange = {
                 viewModel.sendIntent(CharactersListIntent.NameFilterChanged(it))
             },
@@ -84,7 +84,7 @@ fun CharactersListScreen(
             filterGroupList = listOf(
                 FilterGroup(
                     name = "Status",
-                    selected = state.filter.status,
+                    selected = state.characterFilter.status,
                     labelList = statusLabelList,
                     isListFinished = true,
                     resolveIcon = { text -> RnmIcons.Pulse },
@@ -95,7 +95,7 @@ fun CharactersListScreen(
                 ),
                 FilterGroup(
                     name = "Species",
-                    selected = state.filter.species,
+                    selected = state.characterFilter.species,
                     labelList = speciesLabelList,
                     isListFinished = false,
                     resolveIcon = { text -> RnmIcons.Alien },
@@ -106,7 +106,7 @@ fun CharactersListScreen(
                 ),
                 FilterGroup(
                     name = "Gender",
-                    selected = state.filter.gender,
+                    selected = state.characterFilter.gender,
                     labelList = genderLabelList,
                     isListFinished = true,
                     resolveIcon = { text -> RnmIcons.GenderIntersex },
@@ -117,7 +117,7 @@ fun CharactersListScreen(
                 ),
                 FilterGroup(
                     name = "Type",
-                    selected = state.filter.type,
+                    selected = state.characterFilter.type,
                     labelList = typeLabelList,
                     isListFinished = false,
                     resolveIcon = { text -> RnmIcons.Blocks },
@@ -151,7 +151,7 @@ fun CharactersListScreen(
             That's why pagingCharacterItems.loadState.append.endOfPaginationReached check was added.
         */
         if (pagingCharacterItems.loadState.refresh is LoadState.Loading
-            || (pagingCharacterItems.loadState.refresh !is LoadState.Loading
+            || (pagingCharacterItems.loadState.refresh is LoadState.NotLoading
                     && pagingCharacterItems.itemCount == 0
                     && !pagingCharacterItems.loadState.append.endOfPaginationReached)
         ) {

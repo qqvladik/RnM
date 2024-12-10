@@ -1,17 +1,17 @@
 package pl.mankevich.data.mapper
 
 import pl.mankevich.model.Episode
-import pl.mankevich.networkapi.dto.EpisodeResponseDto
-import pl.mankevich.storageapi.dto.EpisodeDto
+import pl.mankevich.remoteapi.response.EpisodeResponse
+import pl.mankevich.databaseapi.entity.EpisodeEntity
 
-fun EpisodeDto.mapToEpisode() = Episode(
+fun EpisodeEntity.mapToEpisode() = Episode(
     id = id,
     name = name,
     airDate = airDate,
     episode = episode
 )
 
-fun EpisodeResponseDto.mapToEpisodeDto() = EpisodeDto(
+fun EpisodeResponse.mapToEpisodeDto() = EpisodeEntity(
     id = id,
     name = name,
     airDate = airDate,

@@ -7,15 +7,15 @@ import androidx.paging.RemoteMediator
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import pl.mankevich.data.mapper.mapToCharacterDto
-import pl.mankevich.data.mapper.mapToFilterDto
-import pl.mankevich.data.mapper.mapToFilterQuery
+import pl.mankevich.data.mapper.mapToEntity
+import pl.mankevich.data.mapper.mapToQuery
 import pl.mankevich.model.Character
-import pl.mankevich.model.Filter
-import pl.mankevich.networkapi.api.CharacterApi
-import pl.mankevich.storageapi.dao.CharacterDao
-import pl.mankevich.storageapi.dao.RelationsDao
-import pl.mankevich.storageapi.dao.Transaction
-import pl.mankevich.storageapi.dto.CharacterPageKeyDto
+import pl.mankevich.model.CharacterFilter
+import pl.mankevich.remoteapi.api.CharacterApi
+import pl.mankevich.databaseapi.dao.CharacterDao
+import pl.mankevich.databaseapi.dao.RelationsDao
+import pl.mankevich.databaseapi.dao.Transaction
+import pl.mankevich.databaseapi.entity.CharacterPageKeyEntity
 
 @OptIn(ExperimentalPagingApi::class)
 class CharacterRemoteMediator @AssistedInject constructor( //TODO create base mediator
@@ -23,7 +23,7 @@ class CharacterRemoteMediator @AssistedInject constructor( //TODO create base me
     private val characterDao: CharacterDao,
     private val relationsDao: RelationsDao,
     private val characterApi: CharacterApi,
-    @Assisted private val filter: Filter
+    @Assisted private val characterFilter: CharacterFilter
 ) : RemoteMediator<Int, Character>() {
 
     override suspend fun load(
@@ -46,14 +46,14 @@ class CharacterRemoteMediator @AssistedInject constructor( //TODO create base me
 
                 LoadType.PREPEND -> {
                     val remoteKey = state.firstItemOrNull()?.let {
-                        characterDao.getPageKey(it.id, filter.mapToFilterDto())
+                        characterDao.getPageKey(it.id, characterFilter.mapToEntity())
                     }
                     remoteKey?.previousPageKey ?: return MediatorResult.Success(remoteKey != null)
                 }
 
                 LoadType.APPEND -> {
                     val remoteKey = state.lastItemOrNull()?.let {
-                        characterDao.getPageKey(it.id, filter.mapToFilterDto())
+                        characterDao.getPageKey(it.id, characterFilter.mapToEntity())
                     }
                     remoteKey?.nextPageKey ?: return MediatorResult.Success(remoteKey != null)
                 }
@@ -61,14 +61,14 @@ class CharacterRemoteMediator @AssistedInject constructor( //TODO create base me
 
             val charactersListResponse = characterApi.fetchCharactersList(
                 page = currentPage,
-                filter = filter.mapToFilterQuery()
+                filter = characterFilter.mapToQuery()
             )
             val responseInfo = charactersListResponse.info
 
             val idPageKeys = charactersListResponse.charactersResponse.map {
-                CharacterPageKeyDto(
+                CharacterPageKeyEntity(
                     characterId = it.id,
-                    filter = filter.mapToFilterDto(),
+                    filter = characterFilter.mapToEntity(),
                     value = currentPage,
                     previousPageKey = responseInfo.prev,
                     nextPageKey = responseInfo.next

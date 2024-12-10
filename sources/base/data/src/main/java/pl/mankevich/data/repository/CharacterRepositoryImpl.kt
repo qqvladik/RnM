@@ -22,9 +22,9 @@ import pl.mankevich.data.paging.character.CharacterPagingSourceCreator
 import pl.mankevich.data.paging.character.CharacterRemoteMediatorCreator
 import pl.mankevich.dataapi.repository.CharacterRepository
 import pl.mankevich.model.Character
-import pl.mankevich.model.Filter
-import pl.mankevich.networkapi.api.CharacterApi
-import pl.mankevich.storageapi.dao.CharacterDao
+import pl.mankevich.model.CharacterFilter
+import pl.mankevich.remoteapi.api.CharacterApi
+import pl.mankevich.databaseapi.dao.CharacterDao
 import javax.inject.Inject
 
 private const val ITEMS_PER_PAGE = 20
@@ -41,10 +41,10 @@ class CharacterRepositoryImpl
     private lateinit var onTableUpdateListener: () -> Unit
 
     @OptIn(ExperimentalPagingApi::class)
-    override suspend fun getCharactersPageFlow(filter: Filter): Flow<PagingData<Character>> {
+    override suspend fun getCharactersPageFlow(characterFilter: CharacterFilter): Flow<PagingData<Character>> {
         val isOnline = networkManager.isOnline()
         val characterPagingSourceFactory = createPagingSourceFactory {
-            characterPagingSourceCreator.create(isOnline, filter)
+            characterPagingSourceCreator.create(isOnline, characterFilter)
         }
 
         val pager = Pager(
@@ -53,7 +53,7 @@ class CharacterRepositoryImpl
                 initialLoadSize = ITEMS_PER_PAGE * 2,
                 maxSize = 200
             ),
-            remoteMediator = characterRemoteMediatorCreator.create(isOnline, filter),
+            remoteMediator = characterRemoteMediatorCreator.create(isOnline, characterFilter),
             pagingSourceFactory = characterPagingSourceFactory,
         )
 
