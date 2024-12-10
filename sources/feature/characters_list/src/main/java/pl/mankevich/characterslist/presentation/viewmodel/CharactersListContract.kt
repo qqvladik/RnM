@@ -44,5 +44,7 @@ data class CharactersListState(
     val isLoading: Boolean = true,
     val error: Throwable? = null,
     val filter: Filter = Filter(),
-    val characters: Flow<PagingData<Character>> = emptyFlow(),
+    // Flow is unstable, so it will always recompose https://issuetracker.google.com/issues/183495984
+    // Currently there is no solution how to fit Paging in Unidirectional data flow (MVI)
+    val characters: Flow<PagingData<Character>> = emptyFlow()
 )

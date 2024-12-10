@@ -132,12 +132,34 @@ fun CharactersListScreen(
 
         Spacer(modifier = Modifier.height(PADDING))
 
-        if (pagingCharacterItems.loadState.refresh is LoadState.Loading) {
+        /*When use pager with remoteMediator there are strange loadStates when launch app(1->2->3):
+            1. loadState.refresh = Loading
+             loadState.mediator = null
+             loadState.source.refresh = Loading
+
+            2. loadState.refresh = NotLoading
+             loadState.mediator.refresh = NotLoading
+             loadState.source.refresh = Loading
+
+            3. loadState.refresh = Loading
+             loadState.mediator = Loading
+             loadState.source.refresh = Loading
+
+            That 2 loadState brings flicking of progressbar. I found the issue: https://issuetracker.google.com/issues/288023763
+            There is no such behavior when use pager without remoteMediator.
+
+            That's why pagingCharacterItems.loadState.append.endOfPaginationReached check was added.
+        */
+        if (pagingCharacterItems.loadState.refresh is LoadState.Loading
+            || (pagingCharacterItems.loadState.refresh !is LoadState.Loading
+                    && pagingCharacterItems.itemCount == 0
+                    && !pagingCharacterItems.loadState.append.endOfPaginationReached)
+        ) {
             LoadingView()
-        } else if (pagingCharacterItems.itemCount == 0) {
+        } else if (pagingCharacterItems.itemCount == 0 && pagingCharacterItems.loadState.append.endOfPaginationReached) {
             EmptyView()
         } else {
-            LazyVerticalStaggeredGrid( //TODO add savePosition
+            LazyVerticalStaggeredGrid(
                 columns = StaggeredGridCells.Fixed(2),
                 verticalItemSpacing = PADDING,
                 horizontalArrangement = Arrangement.spacedBy(PADDING),
@@ -147,24 +169,6 @@ fun CharactersListScreen(
                     .fillMaxWidth()
                     .padding(PADDING)
 
-                if (pagingCharacterItems.loadState.prepend is LoadState.Error) {
-                    item {
-                        ErrorView(
-                            error = pagingCharacterItems.loadState.prepend.cast<LoadState.Error>().error,
-                            modifier = stateItemModifier
-                        ) {
-                            pagingCharacterItems.retry()
-                        }
-                    }
-                }
-
-                if (pagingCharacterItems.loadState.prepend is LoadState.Loading) {
-                    item(span = FullLine) {
-                        LoadingView(
-                            modifier = stateItemModifier
-                        )
-                    }
-                }
                 items(
                     count = pagingCharacterItems.itemCount,
                     key = pagingCharacterItems.itemKey { character -> character.id },
@@ -189,14 +193,14 @@ fun CharactersListScreen(
                 }
 
                 if (pagingCharacterItems.loadState.append is LoadState.Loading) {
-                    item {
+                    item(span = FullLine) {
                         LoadingView(
                             modifier = stateItemModifier
                         )
                     }
                 }
                 if (pagingCharacterItems.loadState.refresh is LoadState.Error) {
-                    item {
+                    item(span = FullLine) {
                         ErrorView(
                             error = pagingCharacterItems.loadState.refresh.cast<LoadState.Error>().error,
                             modifier = stateItemModifier
@@ -206,7 +210,7 @@ fun CharactersListScreen(
                     }
                 }
                 if (pagingCharacterItems.loadState.append is LoadState.Error) {
-                    item {
+                    item(span = FullLine) {
                         ErrorView(
                             error = pagingCharacterItems.loadState.append.cast<LoadState.Error>().error,
                             modifier = stateItemModifier
@@ -216,9 +220,7 @@ fun CharactersListScreen(
                     }
                 }
 
-                item {
-                    Spacer(modifier = Modifier.height(PADDING))
-                }
+                item(span = FullLine) {}
             }
         }
     }

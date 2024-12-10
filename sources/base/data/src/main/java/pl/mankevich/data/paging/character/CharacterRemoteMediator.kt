@@ -34,6 +34,14 @@ class CharacterRemoteMediator @AssistedInject constructor( //TODO create base me
             val currentPage = when (loadType) {
                 LoadType.REFRESH -> {
                     1
+                    // It works bad when remoteKey > 1. It scrolls to the top and loads PREPEND data
+                    // infinitely because Room's PagingSource has such weird behavior
+//                    val remoteKey = state.anchorPosition?.let { position ->
+//                        state.closestItemToPosition(position)?.let {
+//                            characterDao.getPageKey(it.id, filter.mapToFilterDto())
+//                        }
+//                    }
+//                    remoteKey?.value ?: 1
                 }
 
                 LoadType.PREPEND -> {

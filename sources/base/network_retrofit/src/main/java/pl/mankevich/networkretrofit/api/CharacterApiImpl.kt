@@ -8,6 +8,7 @@ import pl.mankevich.networkapi.api.CharacterApi
 import pl.mankevich.networkapi.dto.CharacterResponseDto
 import pl.mankevich.networkapi.dto.CharactersListResponseDto
 import pl.mankevich.networkapi.dto.FilterQueryDto
+import pl.mankevich.networkapi.dto.InfoResponseDto
 import pl.mankevich.networkapi.dto.LocationShortResponseDto
 import javax.inject.Inject
 
@@ -25,14 +26,31 @@ class CharacterApiImpl
     override suspend fun fetchCharactersList(
         page: Int,
         filter: FilterQueryDto
-    ): CharactersListResponseDto = rnmApi.fetchAllCharacters(
-        page = page,
-        name = filter.name,
-        status = filter.status,
-        species = filter.species,
-        type = filter.type,
-        gender = filter.gender
-    ).mapToCharactersListResponseDto()
+    ): CharactersListResponseDto = try {
+        rnmApi.fetchAllCharacters(
+            page = page,
+            name = filter.name,
+            status = filter.status,
+            species = filter.species,
+            type = filter.type,
+            gender = filter.gender
+        ).mapToCharactersListResponseDto()
+    } catch (e: retrofit2.HttpException) {
+        if (e.code() == 404) {
+            CharactersListResponseDto(
+                info = InfoResponseDto(
+                    count = 0,
+                    pages = 0,
+                    next = null,
+                    prev = null
+                ),
+                charactersResponse = emptyList()
+            )
+        } else {
+            e.printStackTrace()
+            throw e
+        }
+    }
 }
 
 private fun CharactersListResponse.mapToCharactersListResponseDto() = CharactersListResponseDto(
