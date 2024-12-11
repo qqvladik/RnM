@@ -1,5 +1,6 @@
 package pl.mankevich.characterslist.presentation
 
+import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,15 +11,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
 import pl.mankevich.characterslist.presentation.view.EmptyView
 import pl.mankevich.characterslist.presentation.view.ErrorView
 import pl.mankevich.characterslist.presentation.view.LoadingView
@@ -159,7 +166,19 @@ fun CharactersListScreen(
         } else if (pagingCharacterItems.itemCount == 0 && pagingCharacterItems.loadState.append.endOfPaginationReached) {
             EmptyView()
         } else {
+            val focusManager = LocalFocusManager.current
+            val gridState = rememberLazyStaggeredGridState()
+            LaunchedEffect(Unit) {//TODO: create custom LazyVerticalGrid with state to clear focus when scroll
+                gridState.interactionSource.interactions
+                    .distinctUntilChanged()
+                    .filterIsInstance<DragInteraction.Start>()
+                    .collectLatest {
+                        focusManager.clearFocus()
+                    }
+            }
+
             LazyVerticalStaggeredGrid(
+                state = gridState,
                 columns = StaggeredGridCells.Fixed(2),
                 verticalItemSpacing = PADDING,
                 horizontalArrangement = Arrangement.spacedBy(PADDING),

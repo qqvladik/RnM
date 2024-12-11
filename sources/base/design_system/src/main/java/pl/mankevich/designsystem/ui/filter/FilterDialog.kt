@@ -1,6 +1,7 @@
 package pl.mankevich.designsystem.ui.filter
 
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,6 +48,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
 import pl.mankevich.designsystem.component.SurfaceIconButton
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
@@ -100,9 +103,19 @@ fun FilterDialog(
 
                 HorizontalDivider()
 
+                val listState = rememberScrollState()
+                LaunchedEffect(Unit) {
+                    listState.interactionSource.interactions
+                        .distinctUntilChanged()
+                        .filterIsInstance<DragInteraction.Start>()
+                        .collect {
+                            saveInputAndSetGroupFocus(null)
+                        }
+                }
+
                 Column(
                     Modifier
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(listState)
                         .pointerInput(Unit) {
                             detectTapGestures(onTap = { saveInputAndSetGroupFocus(null) })
                         },
