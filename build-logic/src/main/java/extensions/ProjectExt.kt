@@ -18,3 +18,10 @@ fun Project.applyChucker() {
         add("debugImplementation", libs.chucker.library.debug)
     }
 }
+
+fun Project.applyCoil() {
+    dependencies {
+        add("implementation", libs.coil.kt.compose)
+        add("implementation", libs.coil.kt.network.okhttp)
+    }
+}
