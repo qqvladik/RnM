@@ -156,7 +156,8 @@ fun FilterChip(
         label = label.value,
         icon = filterGroup.resolveIcon(label.value),
         isSelected = isSelected,
-        onSelectedChange = {
+        isRippleEnabled = false,
+        onClick = {
             val newSelected = if (isSelected) "" else label.value
             filterGroup.onSelectedChanged(newSelected)
         },

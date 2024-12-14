@@ -1,7 +1,6 @@
 package pl.mankevich.designsystem.component
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -16,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.unit.dp
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.utils.keyboardAsState
@@ -58,15 +56,10 @@ fun SearchField(
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
             cursorColor = MaterialTheme.colorScheme.primary,
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-//            unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = MaterialTheme.colorScheme.background, //should not be transparent to remove intermediate gray color during animation
-//            focusedContainerColor = MaterialTheme.colorScheme.surface,
-//            focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
         ),
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp),
+        modifier = modifier,
     )
 
     // Clear focus if keyboard was hidden by user
@@ -84,8 +77,6 @@ fun SearchFieldPreview() {
         SearchField(
             value = "Rick Sanchez",
             onValueChange = { },
-            modifier = Modifier
-                .fillMaxWidth(),
         )
     }
 }

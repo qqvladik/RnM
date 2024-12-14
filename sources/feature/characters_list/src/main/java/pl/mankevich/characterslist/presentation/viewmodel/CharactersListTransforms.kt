@@ -20,15 +20,14 @@ object CharactersListTransforms {
         override fun reduce(current: CharactersListStateWithEffects): CharactersListStateWithEffects {
             val currentFilter = current.state.characterFilter
             val newFilter = currentFilter.copy(
-                name = name?: currentFilter.name,
-                status = status?: currentFilter.status,
-                species = species?: currentFilter.species,
-                type = type?: currentFilter.type,
-                gender = gender?: currentFilter.gender
+                name = name ?: currentFilter.name,
+                status = status ?: currentFilter.status,
+                species = species ?: currentFilter.species,
+                type = type ?: currentFilter.type,
+                gender = gender ?: currentFilter.gender
             )
             return current.copy(
                 state = current.state.copy(
-                    isLoading = true,
                     characterFilter = newFilter
                 ),
                 sideEffects = current.sideEffects.add(
@@ -56,7 +55,6 @@ object CharactersListTransforms {
         override fun reduce(current: CharactersListStateWithEffects): CharactersListStateWithEffects {
             return current.copy(
                 state = current.state.copy(
-                    isLoading = false,
                     characters = characters
                 )
             )

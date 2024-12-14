@@ -62,6 +62,10 @@ object RnmIcons {
         @Composable
         get() = ImageVector.vectorResource(RnmIconsRes.GenderMale)
 
+    val Genderless: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(RnmIconsRes.Genderless)
+
     val HeartFilled: ImageVector
         @Composable
         get() = ImageVector.vectorResource(RnmIconsRes.HeartFilled)
@@ -69,6 +73,14 @@ object RnmIcons {
     val HeartOutlined: ImageVector
         @Composable
         get() = ImageVector.vectorResource(RnmIconsRes.HeartOutlined)
+
+    val Home: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(RnmIconsRes.Home)
+
+    val HouseSimple: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(RnmIconsRes.HouseSimple)
 
     val Info: ImageVector
         @Composable
@@ -127,8 +139,11 @@ object RnmIconsRes {
     val GenderFemale = R.drawable.ic_gender_female
     val GenderIntersex = R.drawable.ic_gender_intersex
     val GenderMale = R.drawable.ic_gender_male
+    val Genderless = R.drawable.ic_genderless
     val HeartFilled = R.drawable.ic_heart_filled
     val HeartOutlined = R.drawable.ic_heart_outlined
+    val Home = R.drawable.ic_home
+    val HouseSimple = R.drawable.ic_house_simple
     val Info = R.drawable.ic_info
     val MapPin = R.drawable.ic_map_pin
     val MonitorPlay = R.drawable.ic_monitor_play

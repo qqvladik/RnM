@@ -47,15 +47,16 @@ fun Chip(
     icon: ImageVector,
     iconSize: Dp = 16.dp,
     isSelected: Boolean,
-    onSelectedChange: (Boolean) -> Unit,
+    isRippleEnabled: Boolean = true,
+    onClick: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     CompositionLocalProvider(
-        LocalRippleConfiguration provides null
+        LocalRippleConfiguration provides if (isRippleEnabled) LocalRippleConfiguration.current else null
     ) {
         FilterChip(
             selected = isSelected,
-            onClick = { onSelectedChange(!isSelected) },
+            onClick = { onClick(!isSelected) },
             label = {
                 IconText(
                     text = label,
@@ -91,7 +92,8 @@ fun ChipTruePreview() {
             label = "Parasite",
             icon = RnmIcons.Blocks,
             isSelected = isSelected,
-            onSelectedChange = { isSelected = it },
+            isRippleEnabled = false,
+            onClick = { isSelected = it },
             modifier = Modifier.wrapContentSize()
         )
     }
@@ -106,7 +108,7 @@ fun ChipFalsePreview() {
             label = "Chisafasdfp",
             icon = RnmIcons.Alien,
             isSelected = isSelected,
-            onSelectedChange = { isSelected = it },
+            onClick = { isSelected = it },
             modifier = Modifier.wrapContentSize()
         )
     }

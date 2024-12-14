@@ -21,23 +21,36 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
+import androidx.paging.LoadStates
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
-import pl.mankevich.characterslist.presentation.view.EmptyView
-import pl.mankevich.characterslist.presentation.view.ErrorView
-import pl.mankevich.characterslist.presentation.view.LoadingView
+import kotlinx.coroutines.flow.flowOf
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListIntent
+import pl.mankevich.characterslist.presentation.viewmodel.CharactersListState
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
 import pl.mankevich.core.util.cast
+import pl.mankevich.designsystem.component.EmptyView
+import pl.mankevich.designsystem.component.ErrorView
+import pl.mankevich.designsystem.component.LoadingView
 import pl.mankevich.designsystem.component.SearchField
 import pl.mankevich.designsystem.icons.RnmIcons
+import pl.mankevich.designsystem.theme.RnmTheme
+import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.ui.CharacterCard
 import pl.mankevich.designsystem.ui.filter.FilterGroup
 import pl.mankevich.designsystem.ui.filter.FilterView
+import pl.mankevich.designsystem.utils.characterGenderIconResolver
+import pl.mankevich.designsystem.utils.characterSpeciesIconResolver
+import pl.mankevich.designsystem.utils.characterStatusIconResolver
+import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.designsystem.utils.rememberSaveableMutableStateListOf
+import pl.mankevich.model.Character
+import pl.mankevich.model.CharacterFilter
+import pl.mankevich.model.LocationShort
 
 private val PADDING = 12.dp
 
@@ -55,20 +68,44 @@ fun CharactersListScreen(
         }
     }
 
+    CharactersListView(
+        state = state,
+        onSearchChange = { viewModel.sendIntent(CharactersListIntent.NameFilterChanged(it)) },
+        onSearchClear = { viewModel.sendIntent(CharactersListIntent.NameFilterChanged("")) },
+        onStatusSelected = { viewModel.sendIntent(CharactersListIntent.StatusFilterChanged(it)) },
+        onSpeciesSelected = { viewModel.sendIntent(CharactersListIntent.SpeciesFilterChanged(it)) },
+        onGenderSelected = { viewModel.sendIntent(CharactersListIntent.GenderFilterChanged(it)) },
+        onTypeSelected = { viewModel.sendIntent(CharactersListIntent.TypeFilterChanged(it)) },
+        onCharacterItemClick = onCharacterItemClick,
+        modifier = Modifier.fillMaxSize()
+    )
+}
+
+@Composable
+fun CharactersListView(
+    state: CharactersListState,
+    onSearchChange: (String) -> Unit,
+    onSearchClear: () -> Unit,
+    onStatusSelected: (String) -> Unit,
+    onSpeciesSelected: (String) -> Unit,
+    onGenderSelected: (String) -> Unit,
+    onTypeSelected: (String) -> Unit,
+    onCharacterItemClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val pagingCharacterItems = state.characters.collectAsLazyPagingItems()
 
-    Column(modifier = Modifier.padding(horizontal = PADDING)) {
+    Column(modifier = modifier.padding(horizontal = PADDING)) {
         Spacer(modifier = Modifier.height(PADDING))
 
         SearchField(
             value = state.characterFilter.name,
-            onValueChange = {
-                viewModel.sendIntent(CharactersListIntent.NameFilterChanged(it))
-            },
-            onClearClick = {
-                viewModel.sendIntent(CharactersListIntent.NameFilterChanged(""))
-            },
-            placeholder = "Search..."
+            onValueChange = onSearchChange,
+            onClearClick = onSearchClear,
+            placeholder = "Search...",
+            modifier = Modifier
+                .height(56.dp)
+                .fillMaxWidth(),
         )
 
         Spacer(modifier = Modifier.height(PADDING))
@@ -77,7 +114,7 @@ fun CharactersListScreen(
             "Alive", "Dead", "Unknown"
         )
         val speciesLabelList = rememberSaveableMutableStateListOf(
-            "Alien", "Human", "Humanoid", "Robo"
+            "Alien", "Human", "Humanoid", "Robot"
         )
         val genderLabelList = rememberSaveableMutableStateListOf(
             "Male", "Female", "Genderless", "Unknown"
@@ -94,33 +131,27 @@ fun CharactersListScreen(
                     selected = state.characterFilter.status,
                     labelList = statusLabelList,
                     isListFinished = true,
-                    resolveIcon = { text -> RnmIcons.Pulse },
+                    resolveIcon = { characterStatusIconResolver(it) },
                     onAddLabel = { text -> statusLabelList.add(text) },
-                    onSelectedChanged = {
-                        viewModel.sendIntent(CharactersListIntent.StatusFilterChanged(it))
-                    },
+                    onSelectedChanged = onStatusSelected,
                 ),
                 FilterGroup(
                     name = "Species",
                     selected = state.characterFilter.species,
                     labelList = speciesLabelList,
                     isListFinished = false,
-                    resolveIcon = { text -> RnmIcons.Alien },
+                    resolveIcon = { characterSpeciesIconResolver(it) },
                     onAddLabel = { text -> speciesLabelList.add(text) },
-                    onSelectedChanged = {
-                        viewModel.sendIntent(CharactersListIntent.SpeciesFilterChanged(it))
-                    },
+                    onSelectedChanged = onSpeciesSelected,
                 ),
                 FilterGroup(
                     name = "Gender",
                     selected = state.characterFilter.gender,
                     labelList = genderLabelList,
                     isListFinished = true,
-                    resolveIcon = { text -> RnmIcons.GenderIntersex },
+                    resolveIcon = { characterGenderIconResolver(it) },
                     onAddLabel = { text -> genderLabelList.add(text) },
-                    onSelectedChanged = {
-                        viewModel.sendIntent(CharactersListIntent.GenderFilterChanged(it))
-                    },
+                    onSelectedChanged = onGenderSelected,
                 ),
                 FilterGroup(
                     name = "Type",
@@ -129,9 +160,7 @@ fun CharactersListScreen(
                     isListFinished = false,
                     resolveIcon = { text -> RnmIcons.Blocks },
                     onAddLabel = { text -> typeLabelList.add(text) },
-                    onSelectedChanged = {
-                        viewModel.sendIntent(CharactersListIntent.TypeFilterChanged(it))
-                    },
+                    onSelectedChanged = onTypeSelected,
                 )
             ),
             modifier = Modifier.height(32.dp)
@@ -162,9 +191,9 @@ fun CharactersListScreen(
                     && pagingCharacterItems.itemCount == 0
                     && !pagingCharacterItems.loadState.append.endOfPaginationReached)
         ) {
-            LoadingView()
+            LoadingView(modifier = Modifier.fillMaxSize())
         } else if (pagingCharacterItems.itemCount == 0 && pagingCharacterItems.loadState.append.endOfPaginationReached) {
-            EmptyView()
+            EmptyView(modifier = Modifier.fillMaxSize())
         } else {
             val focusManager = LocalFocusManager.current
             val gridState = rememberLazyStaggeredGridState()
@@ -179,14 +208,12 @@ fun CharactersListScreen(
 
             LazyVerticalStaggeredGrid(
                 state = gridState,
-                columns = StaggeredGridCells.Fixed(2),
+                columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
                 verticalItemSpacing = PADDING,
                 horizontalArrangement = Arrangement.spacedBy(PADDING),
                 modifier = Modifier.fillMaxSize()
             ) {
-                val stateItemModifier = Modifier
-                    .fillMaxWidth()
-                    .padding(PADDING)
+                val stateItemModifier = Modifier.fillMaxWidth()
 
                 items(
                     count = pagingCharacterItems.itemCount,
@@ -202,11 +229,7 @@ fun CharactersListScreen(
                             isFavorite = false,
                             onFavoriteClick = {
                             },
-                            onCardClick = {
-                                viewModel.sendIntent(
-                                    CharactersListIntent.CharacterItemClick(character.id)
-                                )
-                            }
+                            onCardClick = { onCharacterItemClick(character.id) },
                         )
                     }
                 }
@@ -242,5 +265,64 @@ fun CharactersListScreen(
                 item(span = FullLine) {}
             }
         }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun CharactersListViewPreview() {
+    RnmTheme {
+        val character1 = Character(
+            id = 1,
+            name = "Rick Sanchez",
+            status = "Alive",
+            species = "Human",
+            type = "",
+            origin = LocationShort(
+                id = 1,
+                name = "Earth (C-137)",
+            ),
+            location = LocationShort(
+                id = 20,
+                name = "Earth (Replacement Dimension)",
+            ),
+            gender = "Male",
+            image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+        )
+
+        CharactersListView(
+            state = CharactersListState(
+                characterFilter = CharacterFilter(
+                    name = "",
+                    status = "",
+                    species = "",
+                ),
+                characters = flowOf(
+                    value = PagingData.from(
+                        data = listOf(
+                            character1,
+                            character1.copy(id = 2)
+                        ),
+                        sourceLoadStates = LoadStates(
+                            refresh = LoadState.NotLoading(false),
+                            append = LoadState.NotLoading(false),
+                            prepend = LoadState.NotLoading(false)
+                        ),
+                        mediatorLoadStates = LoadStates(
+                            refresh = LoadState.NotLoading(false),
+                            append = LoadState.NotLoading(false),
+                            prepend = LoadState.NotLoading(false)
+                        )
+                    )
+                )
+            ),
+            onSearchChange = {},
+            onSearchClear = {},
+            onStatusSelected = {},
+            onSpeciesSelected = {},
+            onGenderSelected = {},
+            onTypeSelected = {},
+            onCharacterItemClick = {},
+        )
     }
 }

@@ -27,8 +27,8 @@ sealed interface CharacterDetailSideEffect {
 }
 
 data class CharacterDetailState(
-    val isCharacterLoading: Boolean = true,
-    val isEpisodesLoading: Boolean = true,
+    val isCharacterLoading: Boolean = true, //TODO remove?
+    val isEpisodesLoading: Boolean = true, //TODO remove?
     val error: Throwable? = null,
     val character: Character? = null,
     val episodes: List<Episode>? = null,

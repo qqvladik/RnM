@@ -1,5 +1,6 @@
 package pl.mankevich.designsystem.utils
 
+import android.content.res.Configuration
 import android.view.ViewTreeObserver
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -10,6 +11,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -31,7 +33,7 @@ fun keyboardAsState(): State<Boolean> {
 }
 
 @Composable
-fun <T: Any> rememberSaveableMutableStateListOf(vararg elements: T): SnapshotStateList<T> {
+fun <T : Any> rememberSaveableMutableStateListOf(vararg elements: T): SnapshotStateList<T> {
     return rememberSaveable(saver = snapshotStateListSaver()) {
         elements.toList().toMutableStateList()
     }
@@ -41,3 +43,9 @@ private fun <T : Any> snapshotStateListSaver() = listSaver<SnapshotStateList<T>,
     save = { stateList -> stateList.toList() },
     restore = { it.toMutableStateList() },
 )
+
+@Composable
+fun isLandscape(): Boolean = when (LocalConfiguration.current.orientation) {
+    Configuration.ORIENTATION_LANDSCAPE -> true
+    else -> false
+}

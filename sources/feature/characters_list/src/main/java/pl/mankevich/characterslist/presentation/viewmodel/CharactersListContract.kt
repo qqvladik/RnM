@@ -41,7 +41,6 @@ sealed interface CharactersListSideEffect {
 }
 
 data class CharactersListState(
-    val isLoading: Boolean = true,
     val error: Throwable? = null,
     val characterFilter: CharacterFilter = CharacterFilter(),
     // Flow is unstable, so it will always recompose https://issuetracker.google.com/issues/183495984

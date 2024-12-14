@@ -31,6 +31,8 @@ import pl.mankevich.designsystem.theme.Pear
 import pl.mankevich.designsystem.theme.Red
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.characterSpeciesIconResolver
+import pl.mankevich.designsystem.utils.characterStatusIconResolver
 
 private val PADDING = 12.dp
 
@@ -51,7 +53,6 @@ fun CharacterCard(
         modifier = modifier
     ) {
         Column {
-            // Character Image
             AsyncImage(
                 model = imageUrl,
                 contentDescription = null,
@@ -84,7 +85,7 @@ fun CharacterCard(
                     Column(modifier = Modifier.weight(1f)) {
                         IconText(
                             text = status,
-                            icon = if (status == "Dead") RnmIcons.Skull else RnmIcons.Pulse,
+                            icon = characterStatusIconResolver(status),
                             iconTint = if (status == "Dead") Red else Pear,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -93,7 +94,7 @@ fun CharacterCard(
 
                         IconText(
                             text = species,
-                            icon = RnmIcons.Alien,
+                            icon = characterSpeciesIconResolver(species),
                             modifier = Modifier.fillMaxWidth()
                         )
 
