@@ -1,32 +1,42 @@
 package pl.mankevich.characterslist.presentation.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import pl.mankevich.characterslist.getCharacterFilter
 import pl.mankevich.core.mvi.SideEffects
 import pl.mankevich.core.mvi.Transform
+import pl.mankevich.core.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadCharactersListUseCase
 import pl.mankevich.model.CharacterFilter
-import javax.inject.Inject
 
 private const val QUERY_INPUT_DELAY_MILLIS = 500L
 
 class CharactersListViewModel
-@Inject constructor(
+@AssistedInject constructor(
+    @Assisted private val savedStateHandle: SavedStateHandle,
     private val loadCharactersListUseCase: LoadCharactersListUseCase,
 ) : CharactersListMviViewModel(
     initialStateWithEffects = CharactersListStateWithEffects(
-        state = CharactersListState(),
+        state = CharactersListState(
+            characterFilter = savedStateHandle.getCharacterFilter()
+        ),
         sideEffects = SideEffects<CharactersListSideEffect>().add(
             CharactersListSideEffect.OnRefreshRequested(
-                CharacterFilter()
+                savedStateHandle.getCharacterFilter()
             )
         )
     )
 ) {
+    @AssistedFactory
+    interface Factory : ViewModelAssistedFactory<CharactersListViewModel>
 
     override fun executeIntent(intent: CharactersListIntent): Flow<Transform<CharactersListStateWithEffects>> =
         when (intent) {
@@ -35,26 +45,29 @@ class CharactersListViewModel
                 intent.characterFilter
             )
 
-            is CharactersListIntent.Refresh -> loadCharacters(instantRefresh = true, intent.characterFilter)
-
-            is CharactersListIntent.NameFilterChanged -> flowOf(
-                CharactersListTransforms.ChangeFilters(name = intent.name)
+            is CharactersListIntent.Refresh -> loadCharacters(
+                instantRefresh = true,
+                intent.characterFilter
             )
 
-            is CharactersListIntent.StatusFilterChanged -> flowOf(
-                CharactersListTransforms.ChangeFilters(status = intent.status)
+            is CharactersListIntent.NameChanged -> flowOf(
+                CharactersListTransforms.ChangeName(name = intent.name)
             )
 
-            is CharactersListIntent.SpeciesFilterChanged -> flowOf(
-                CharactersListTransforms.ChangeFilters(species = intent.species)
+            is CharactersListIntent.StatusChanged -> flowOf(
+                CharactersListTransforms.ChangeStatus(status = intent.status)
             )
 
-            is CharactersListIntent.GenderFilterChanged -> flowOf(
-                CharactersListTransforms.ChangeFilters(gender = intent.gender)
+            is CharactersListIntent.SpeciesChanged -> flowOf(
+                CharactersListTransforms.ChangeSpecies(species = intent.species)
             )
 
-            is CharactersListIntent.TypeFilterChanged -> flowOf(
-                CharactersListTransforms.ChangeFilters(type = intent.type)
+            is CharactersListIntent.GenderChanged -> flowOf(
+                CharactersListTransforms.ChangeGender(gender = intent.gender)
+            )
+
+            is CharactersListIntent.TypeChanged -> flowOf(
+                CharactersListTransforms.ChangeType(type = intent.type)
             )
 
             is CharactersListIntent.CharacterItemClick -> flowOf(

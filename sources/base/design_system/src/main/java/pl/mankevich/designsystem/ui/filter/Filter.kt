@@ -43,7 +43,6 @@ data class FilterGroup private constructor(
     val labelList: List<FilterLabel>,
     val isListFinished: Boolean,
     val resolveIcon: @Composable (String) -> ImageVector,
-    val onAddLabel: (String) -> Unit,
     val onSelectedChanged: (String) -> Unit,
 ) {
     companion object {
@@ -57,17 +56,17 @@ data class FilterGroup private constructor(
             labelList: List<String>,
             isListFinished: Boolean,
             resolveIcon: @Composable (String) -> ImageVector,
-            onAddLabel: (String) -> Unit,
             onSelectedChanged: (String) -> Unit,
-        ) = FilterGroup(
-            name = name,
-            selected = selected,
-            labelList = labelList.map { FilterLabel(name, it) },
-            isListFinished = isListFinished,
-            resolveIcon = resolveIcon,
-            onAddLabel = onAddLabel,
-            onSelectedChanged = onSelectedChanged,
-        )
+        ): FilterGroup {
+            return FilterGroup(
+                name = name,
+                selected = selected,
+                labelList = labelList.map { FilterLabel(name, it) },
+                isListFinished = isListFinished,
+                resolveIcon = resolveIcon,
+                onSelectedChanged = onSelectedChanged,
+            )
+        }
     }
 }
 
@@ -110,6 +109,7 @@ fun FilterView(
                 )
             }
         }
+
         val unselectedLabelList = labelList.filter { filterLabel ->
             !selectedLabelList.contains(filterLabel)
         }
@@ -188,7 +188,6 @@ fun FilterViewPreview() {
                     labelList = speciesLabelList,
                     isListFinished = false,
                     resolveIcon = { text -> RnmIcons.Alien },
-                    onAddLabel = { text -> speciesLabelList.add(text) },
                     onSelectedChanged = {},
                 ),
                 FilterGroup(
@@ -197,7 +196,6 @@ fun FilterViewPreview() {
                     labelList = genderLabelList,
                     isListFinished = true,
                     resolveIcon = { text -> RnmIcons.GenderIntersex },
-                    onAddLabel = { text -> genderLabelList.add(text) },
                     onSelectedChanged = {},
                 )
             )

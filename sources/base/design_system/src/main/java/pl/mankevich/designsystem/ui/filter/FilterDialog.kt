@@ -96,7 +96,9 @@ fun FilterDialog(
                 var focusedGroup by rememberSaveable { mutableStateOf<String?>(null) }
                 var inputValue by rememberSaveable { mutableStateOf("") }
                 val saveInputAndSetGroupFocus: (String?) -> Unit = {
-                    filterGroupList.find { it.name == focusedGroup }?.selectValue(inputValue)
+                    filterGroupList.find { it.name == focusedGroup }?.run {
+                        if (inputValue.isNotBlank()) onSelectedChanged(inputValue)
+                    }
                     inputValue = ""
                     focusedGroup = it
                 }
@@ -221,7 +223,6 @@ fun FilterGroupView(
                         innerTextField = innerTextField,
                         singleLine = true,
                         contentPadding = PaddingValues(0.dp),
-
                         colors = TextFieldDefaults.colors(
                             unfocusedContainerColor = Color.Transparent,
                             focusedContainerColor = Color.Transparent,
@@ -252,18 +253,6 @@ fun FilterGroupView(
     }
 }
 
-private fun FilterGroup.selectValue(value: String) {
-    if (value.isNotBlank()) {
-        //Check value originality
-        if (!labelList.any { it.value.equals(value, ignoreCase = true) }) {
-            onAddLabel(value)
-            onSelectedChanged(value)
-        } else {
-            onSelectedChanged(value)
-        }
-    }
-}
-
 @ThemePreviews
 @Composable
 fun FilterDialogPreview() {
@@ -277,7 +266,6 @@ fun FilterDialogPreview() {
                     selected = "Alien",
                     labelList = listOf("Alien", "Human", "Humanoid", "Robo"),
                     resolveIcon = { text -> RnmIcons.Alien },
-                    onAddLabel = {},
                     onSelectedChanged = {},
                     isListFinished = false
                 )
@@ -303,7 +291,6 @@ fun FlowOfChipsPreview() {
                 selected = "Alien",
                 labelList = listOf("Alien", "Human", "Humanoid", "Robo"),
                 resolveIcon = { text -> RnmIcons.Alien },
-                onAddLabel = {},
                 onSelectedChanged = {},
                 isListFinished = true
             ),

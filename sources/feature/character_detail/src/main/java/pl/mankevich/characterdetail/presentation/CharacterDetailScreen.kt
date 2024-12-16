@@ -56,7 +56,15 @@ private val PADDING_SMALL = 6.dp
 
 @Composable
 fun CharacterDetailScreen(
-    viewModel: CharacterDetailViewModel
+    viewModel: CharacterDetailViewModel,
+    onStatusFilterClick: (String) -> Unit,
+    onSpeciesFilterClick: (String) -> Unit,
+    onGenderFilterClick: (String) -> Unit,
+    onTypeFilterClick: (String) -> Unit,
+    onOriginClick: (Int) -> Unit = {},
+    onLocationClick: (Int) -> Unit = {},
+    onEpisodeItemClick: (Int) -> Unit = {},
+    onBackPress: () -> Unit,
 ) {
     val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
     val state = stateWithEffects.state
@@ -73,7 +81,14 @@ fun CharacterDetailScreen(
         CharacterDetailView(
             character = state.character,
             episodes = state.episodes ?: emptyList(),
-            obBackPress = { },
+            onStatusFilterClick = onStatusFilterClick,
+            onSpeciesFilterClick = onSpeciesFilterClick,
+            onGenderFilterClick = onGenderFilterClick,
+            onTypeFilterClick = onTypeFilterClick,
+            onOriginClick = onOriginClick,
+            onLocationClick = onLocationClick,
+            onEpisodeItemClick = onEpisodeItemClick,
+            onBackPress = onBackPress,
             modifier = Modifier.fillMaxSize()
         )
     }
@@ -83,7 +98,14 @@ fun CharacterDetailScreen(
 fun CharacterDetailView(
     character: Character,
     episodes: List<Episode>,
-    obBackPress: () -> Unit,
+    onStatusFilterClick: (String) -> Unit,
+    onSpeciesFilterClick: (String) -> Unit,
+    onGenderFilterClick: (String) -> Unit,
+    onTypeFilterClick: (String) -> Unit,
+    onOriginClick: (Int) -> Unit,
+    onLocationClick: (Int) -> Unit,
+    onEpisodeItemClick: (Int) -> Unit,
+    onBackPress: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -94,10 +116,11 @@ fun CharacterDetailView(
         Spacer(modifier = Modifier.height(PADDING))
 
         Row(
-            modifier = Modifier.fillMaxWidth()
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
         ) {
             SurfaceIconButton(
-                onClick = obBackPress,
+                onClick = onBackPress,
                 imageVector = RnmIcons.CaretLeft,
                 contentDescription = "Show filters",
                 iconSize = 20.dp,
@@ -143,7 +166,7 @@ fun CharacterDetailView(
             name = "Status",
             value = character.status,
             icon = characterStatusIconResolver(character.status),
-            onDetailClick = {}
+            onDetailClick = {onStatusFilterClick(character.status)}
         )
 
         Spacer(modifier = Modifier.height(PADDING_SMALL))
@@ -152,7 +175,7 @@ fun CharacterDetailView(
             name = "Species",
             value = character.species,
             icon = characterSpeciesIconResolver(character.species),
-            onDetailClick = {}
+            onDetailClick = { onSpeciesFilterClick(character.species) }
         )
 
         Spacer(modifier = Modifier.height(PADDING_SMALL))
@@ -161,7 +184,7 @@ fun CharacterDetailView(
             name = "Gender",
             value = character.gender,
             icon = characterGenderIconResolver(character.gender),
-            onDetailClick = {}
+            onDetailClick = { onGenderFilterClick(character.gender) }
         )
 
         Spacer(modifier = Modifier.height(PADDING_SMALL))
@@ -170,7 +193,7 @@ fun CharacterDetailView(
             name = "Type",
             value = character.type,
             icon = RnmIcons.Blocks,
-            onDetailClick = {}
+            onDetailClick = { onTypeFilterClick(character.type) }
         )
 
         Spacer(modifier = Modifier.height(PADDING))
@@ -303,8 +326,15 @@ fun CharacterDetailScreenPreview() {
                 image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
             ),
             episodes = emptyList(),
+            onStatusFilterClick = {},
+            onSpeciesFilterClick = {},
+            onGenderFilterClick = {},
+            onTypeFilterClick = {},
+            onOriginClick = {},
+            onLocationClick = {},
+            onEpisodeItemClick = {},
+            onBackPress = {},
             modifier = Modifier.fillMaxSize(),
-            obBackPress = {}
         )
     }
 }
