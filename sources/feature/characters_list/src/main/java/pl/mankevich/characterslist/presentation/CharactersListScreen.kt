@@ -5,11 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -39,9 +40,9 @@ import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewMode
 import pl.mankevich.core.util.cast
 import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
+import pl.mankevich.designsystem.component.IconButton
 import pl.mankevich.designsystem.component.LoadingView
 import pl.mankevich.designsystem.component.SearchField
-import pl.mankevich.designsystem.component.SurfaceIconButton
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
@@ -102,22 +103,24 @@ fun CharactersListView(
 ) {
     val pagingCharacterItems = state.characters.collectAsLazyPagingItems()
 
-    Column(modifier = modifier.padding(horizontal = PADDING)) {
+    Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(PADDING))
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .height(40.dp)
+                .fillMaxWidth(),
         ) {
             if (onBackPress != null) {
-                SurfaceIconButton(
+                IconButton(
                     onClick = onBackPress,
                     imageVector = RnmIcons.CaretLeft,
                     contentDescription = "Show filters",
                     iconSize = 20.dp,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.fillMaxHeight().aspectRatio(1.2f)
                 )
-
+            } else {
                 Spacer(modifier = Modifier.width(PADDING))
             }
 
@@ -126,13 +129,11 @@ fun CharactersListView(
                 onValueChange = onSearchChange,
                 onClearClick = onSearchClear,
                 placeholder = "Search...",
-                modifier = Modifier
-                    .height(40.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.weight(1f),
             )
+
+            Spacer(modifier = Modifier.width(PADDING))
         }
-
-
 
         Spacer(modifier = Modifier.height(PADDING))
 
@@ -172,7 +173,8 @@ fun CharactersListView(
                     onSelectedChanged = onTypeSelected,
                 )
             ),
-            modifier = Modifier.height(32.dp)
+            startPadding = PADDING,
+            modifier = Modifier.height(32.dp).padding(end = PADDING)
         )
 
         Spacer(modifier = Modifier.height(PADDING))
@@ -195,83 +197,89 @@ fun CharactersListView(
 
             That's why pagingCharacterItems.loadState.append.endOfPaginationReached check was added.
         */
-        if (pagingCharacterItems.loadState.refresh is LoadState.Loading
-            || (pagingCharacterItems.loadState.refresh is LoadState.NotLoading
-                    && pagingCharacterItems.itemCount == 0
-                    && !pagingCharacterItems.loadState.append.endOfPaginationReached)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = PADDING)
         ) {
-            LoadingView(modifier = Modifier.fillMaxSize())
-        } else if (pagingCharacterItems.itemCount == 0 && pagingCharacterItems.loadState.append.endOfPaginationReached) {
-            EmptyView(modifier = Modifier.fillMaxSize())
-        } else {
-            val focusManager = LocalFocusManager.current
-            val gridState = rememberLazyStaggeredGridState()
-            LaunchedEffect(Unit) {//TODO: create custom LazyVerticalGrid with state to clear focus when scroll
-                gridState.interactionSource.interactions
-                    .distinctUntilChanged()
-                    .filterIsInstance<DragInteraction.Start>()
-                    .collectLatest {
-                        focusManager.clearFocus()
-                    }
-            }
-
-            LazyVerticalStaggeredGrid(
-                state = gridState,
-                columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
-                verticalItemSpacing = PADDING,
-                horizontalArrangement = Arrangement.spacedBy(PADDING),
-                modifier = Modifier.fillMaxSize()
+            if (pagingCharacterItems.loadState.refresh is LoadState.Loading
+                || (pagingCharacterItems.loadState.refresh is LoadState.NotLoading
+                        && pagingCharacterItems.itemCount == 0
+                        && !pagingCharacterItems.loadState.append.endOfPaginationReached)
             ) {
-                val stateItemModifier = Modifier.fillMaxWidth()
-
-                items(
-                    count = pagingCharacterItems.itemCount,
-                    key = pagingCharacterItems.itemKey { character -> character.id },
-                ) { index ->
-                    pagingCharacterItems[index]?.let { character ->
-                        CharacterCard(
-                            name = character.name,
-                            status = character.status,
-                            species = character.species,
-                            origin = character.origin.name,
-                            imageUrl = character.image,
-                            isFavorite = false,
-                            onFavoriteClick = {
-                            },
-                            onCardClick = { onCharacterItemClick(character.id) },
-                        )
-                    }
+                LoadingView(modifier = Modifier.fillMaxSize())
+            } else if (pagingCharacterItems.itemCount == 0 && pagingCharacterItems.loadState.append.endOfPaginationReached) {
+                EmptyView(modifier = Modifier.fillMaxSize())
+            } else {
+                val focusManager = LocalFocusManager.current
+                val gridState = rememberLazyStaggeredGridState()
+                LaunchedEffect(Unit) {//TODO: create custom LazyVerticalGrid with state to clear focus when scroll
+                    gridState.interactionSource.interactions
+                        .distinctUntilChanged()
+                        .filterIsInstance<DragInteraction.Start>()
+                        .collectLatest {
+                            focusManager.clearFocus()
+                        }
                 }
 
-                if (pagingCharacterItems.loadState.append is LoadState.Loading) {
-                    item(span = FullLine) {
-                        LoadingView(
-                            modifier = stateItemModifier
-                        )
-                    }
-                }
-                if (pagingCharacterItems.loadState.refresh is LoadState.Error) {
-                    item(span = FullLine) {
-                        ErrorView(
-                            error = pagingCharacterItems.loadState.refresh.cast<LoadState.Error>().error,
-                            modifier = stateItemModifier
-                        ) {
-                            pagingCharacterItems.retry()
+                LazyVerticalStaggeredGrid(
+                    state = gridState,
+                    columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
+                    verticalItemSpacing = PADDING,
+                    horizontalArrangement = Arrangement.spacedBy(PADDING),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    val stateItemModifier = Modifier.fillMaxWidth()
+
+                    items(
+                        count = pagingCharacterItems.itemCount,
+                        key = pagingCharacterItems.itemKey { character -> character.id },
+                    ) { index ->
+                        pagingCharacterItems[index]?.let { character ->
+                            CharacterCard(
+                                name = character.name,
+                                status = character.status,
+                                species = character.species,
+                                origin = character.origin.name,
+                                imageUrl = character.image,
+                                isFavorite = false,
+                                onFavoriteClick = {
+                                },
+                                onCardClick = { onCharacterItemClick(character.id) },
+                            )
                         }
                     }
-                }
-                if (pagingCharacterItems.loadState.append is LoadState.Error) {
-                    item(span = FullLine) {
-                        ErrorView(
-                            error = pagingCharacterItems.loadState.append.cast<LoadState.Error>().error,
-                            modifier = stateItemModifier
-                        ) {
-                            pagingCharacterItems.retry()
+
+                    if (pagingCharacterItems.loadState.append is LoadState.Loading) {
+                        item(span = FullLine) {
+                            LoadingView(
+                                modifier = stateItemModifier
+                            )
                         }
                     }
-                }
+                    if (pagingCharacterItems.loadState.refresh is LoadState.Error) {
+                        item(span = FullLine) {
+                            ErrorView(
+                                error = pagingCharacterItems.loadState.refresh.cast<LoadState.Error>().error,
+                                modifier = stateItemModifier
+                            ) {
+                                pagingCharacterItems.retry()
+                            }
+                        }
+                    }
+                    if (pagingCharacterItems.loadState.append is LoadState.Error) {
+                        item(span = FullLine) {
+                            ErrorView(
+                                error = pagingCharacterItems.loadState.append.cast<LoadState.Error>().error,
+                                modifier = stateItemModifier
+                            ) {
+                                pagingCharacterItems.retry()
+                            }
+                        }
+                    }
 
-                item(span = FullLine) {}
+                    item(span = FullLine) {}
+                }
             }
         }
     }

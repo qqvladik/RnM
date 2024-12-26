@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -79,6 +80,7 @@ fun FilterView(
     filterGroupList: List<FilterGroup>,
     chipPadding: Dp = 4.dp,
     chipHeight: Dp = 32.dp,
+    startPadding: Dp = 0.dp,
     modifier: Modifier = Modifier.height(32.dp)
 ) {
 
@@ -126,7 +128,12 @@ fun FilterView(
                 FilterChip(
                     label = label,
                     filterGroup = filterGroup,
-                    modifier = Modifier.height(chipHeight)
+                    modifier = Modifier
+                        .then(
+                            if (index == 0) Modifier.padding(start = startPadding)
+                            else Modifier
+                        )
+                        .height(chipHeight)
                 )
             }
         }

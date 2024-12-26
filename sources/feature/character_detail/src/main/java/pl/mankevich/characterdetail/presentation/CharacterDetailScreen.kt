@@ -130,14 +130,9 @@ fun CharacterDetailView(
 
         Spacer(modifier = Modifier.height(PADDING))
 
+        val fraction = if (isLandscape()) 0.3f else 0.5f
         var imageModifier = Modifier
-            .then(
-                if (isLandscape()) {
-                    Modifier.size(200.dp)
-                } else {
-                    Modifier.fillMaxWidth(0.5f)
-                }
-            )
+            .fillMaxWidth(fraction)
             .align(CenterHorizontally)
             .aspectRatio(1f)
             .clip(CircleShape)
@@ -166,7 +161,7 @@ fun CharacterDetailView(
             name = "Status",
             value = character.status,
             icon = characterStatusIconResolver(character.status),
-            onDetailClick = {onStatusFilterClick(character.status)}
+            onDetailClick = { onStatusFilterClick(character.status) }
         )
 
         Spacer(modifier = Modifier.height(PADDING_SMALL))
