@@ -1,7 +1,6 @@
 package pl.mankevich.data.repository
 
 import android.util.Log
-import androidx.paging.ExperimentalPagingApi
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -9,7 +8,6 @@ import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingSourceFactory
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -40,7 +38,6 @@ class CharacterRepositoryImpl
 
     private lateinit var onTableUpdateListener: () -> Unit
 
-    @OptIn(ExperimentalPagingApi::class)
     override suspend fun getCharactersPageFlow(characterFilter: CharacterFilter): Flow<PagingData<Character>> {
         val isOnline = networkManager.isOnline()
         val characterPagingSourceFactory = createPagingSourceFactory {
@@ -60,7 +57,6 @@ class CharacterRepositoryImpl
         return pager.flow.flowOn(Dispatchers.IO)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getCharacterDetail(characterId: Int): Flow<Character> =
         flow {
             emit(Unit)

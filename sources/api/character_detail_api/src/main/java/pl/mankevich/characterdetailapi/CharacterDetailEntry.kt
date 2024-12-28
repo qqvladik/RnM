@@ -7,9 +7,9 @@ import androidx.navigation.navDeepLink
 import pl.mankevich.core.API_URL
 import pl.mankevich.core.APP_ROUTE
 import pl.mankevich.core.CHARACTER_RELATIVE_PATH
-import pl.mankevich.core.navigation.ComposableFeatureEntry
+import pl.mankevich.coreui.navigation.AnimatedFeatureEntry
 
-abstract class CharacterDetailEntry : ComposableFeatureEntry {
+abstract class CharacterDetailEntry : AnimatedFeatureEntry() {
 
     final override val featureRoute = "$APP_ROUTE/$CHARACTER_RELATIVE_PATH/{$ARG_CHARACTER_ID}"
 

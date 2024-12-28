@@ -6,11 +6,12 @@ plugins {
 }
 
 android {
-    namespace = Configs.applicationPackage
+    val appPackage = "pl.mankevich.rnm"
+    namespace = appPackage
     defaultConfig {
-        applicationId = Configs.applicationPackage
-        versionCode = Configs.versionCode
-        versionName = Configs.versionName
+        applicationId = appPackage
+        versionCode = 1
+        versionName = "1.0.0" // X.Y.Z; X = Major, Y = minor, Z = Patch level
     }
 
     buildTypes {

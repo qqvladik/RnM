@@ -18,10 +18,10 @@ import javax.inject.Inject
 class CharacterDetailEntryImpl @Inject constructor() : CharacterDetailEntry() {
 
     @Composable
-    override fun Composable(
+    override fun AnimatedComposable(
         navController: NavHostController,
         featureEntries: FeatureEntries,
-        backStackEntry: NavBackStackEntry
+        backStackEntry: NavBackStackEntry,
     ) {
         val dependenciesProvider = LocalDependenciesProvider.current
         val viewModel = daggerViewModel<CharacterDetailViewModel>(

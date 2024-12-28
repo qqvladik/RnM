@@ -13,7 +13,7 @@ plugins {
 android {
     val extension = try {
         the<LibraryExtension>()
-    } catch (e: UnknownDomainObjectException) {
+    } catch (_: UnknownDomainObjectException) {
         the<ApplicationExtension>()
     }
     extension.addComposeConfig()
@@ -26,6 +26,5 @@ dependencies {
     add("implementation", libs.androidx.compose.ui)
     add("debugImplementation", libs.androidx.compose.ui.tooling)
     add("implementation", libs.androidx.compose.ui.tooling.preview)
-    add("implementation", libs.androidx.activity.compose)
-    add("implementation", libs.androidx.navigation.compose)
+    add("implementation", libs.androidx.compose.animation)
 }

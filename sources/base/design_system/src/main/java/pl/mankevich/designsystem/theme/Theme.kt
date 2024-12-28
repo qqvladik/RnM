@@ -3,6 +3,8 @@ package pl.mankevich.designsystem.theme
 import android.app.Activity
 import android.content.res.Configuration
 import android.os.Build
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -10,12 +12,16 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.ViewCompat
+import pl.mankevich.designsystem.utils.LocalSharedTransitionScope
+import pl.mankevich.designsystem.utils.ProvideAnimatedVisibilityScope
 
 val DarkColorScheme = darkColorScheme(
     primary = BlueA,             // Used for prominent buttons or highlights (e.g., "Saiba mais" buttons).
@@ -57,7 +63,7 @@ fun RnmTheme(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            (view.context as Activity).window.statusBarColor = colorScheme.primary.toArgb()
+            (view.context as Activity).window.statusBarColor = colorScheme.primary.toArgb() //TODO fix deprecated
             ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
         }
     }
@@ -65,10 +71,47 @@ fun RnmTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = RnmTypography,
-        content = content
-    )
+    ) {
+        SharedTransitionLayout {
+            CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+                // As there is no NavHost used in Previews, we need to provide dummy AnimatedVisibilityScope ourselves
+                if (LocalInspectionMode.current) {
+                    AnimatedVisibility(
+                        visible = true,
+                        label = "LocalAnimatedVisibility"
+                    ) {
+                        ProvideAnimatedVisibilityScope(content)
+                    }
+                } else {
+                    content()
+                }
+            }
+        }
+    }
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Light theme", showBackground = true, backgroundColor = 0xFFFFFFFF)
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark theme", showBackground = true, backgroundColor = 0xFF1E1E20)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    name = "Light theme",
+    showBackground = true,
+    backgroundColor = 0xFFFFFFFF
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "Dark theme",
+    showBackground = true,
+    backgroundColor = 0xFF1E1E20
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    name = "Light theme",
+    showBackground = true,
+    backgroundColor = 0xFFFFFFFF, device = "spec:parent=pixel_5,orientation=landscape"
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "Dark theme",
+    showBackground = true,
+    backgroundColor = 0xFF1E1E20, device = "spec:parent=pixel_5,orientation=landscape"
+)
 annotation class ThemePreviews

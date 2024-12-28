@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapMerge
@@ -34,7 +33,6 @@ class CharacterDetailViewModel
     @AssistedFactory
     interface Factory : ViewModelAssistedFactory<CharacterDetailViewModel>
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun executeIntent(intent: CharacterDetailIntent): Flow<Transform<CharacterDetailStateWithEffects>> =
         when (intent) {
             is CharacterDetailIntent.LoadCharacter -> flowOf(

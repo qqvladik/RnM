@@ -1,4 +1,4 @@
-package pl.mankevich.designsystem.ui.filter
+package pl.mankevich.coreui.ui.filter
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -20,12 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import pl.mankevich.designsystem.utils.rememberSaveableMutableStateListOf
 import pl.mankevich.designsystem.component.Chip
 import pl.mankevich.designsystem.component.SurfaceIconButton
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
-import pl.mankevich.designsystem.utils.rememberSaveableMutableStateListOf
 import kotlin.collections.first
 
 data class FilterLabel(

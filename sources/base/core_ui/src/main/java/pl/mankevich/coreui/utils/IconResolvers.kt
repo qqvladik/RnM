@@ -1,4 +1,4 @@
-package pl.mankevich.designsystem.utils
+package pl.mankevich.coreui.utils
 
 import androidx.compose.runtime.Composable
 import pl.mankevich.designsystem.icons.RnmIcons

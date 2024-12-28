@@ -1,8 +1,6 @@
 package pl.mankevich.data.repository
 
 import android.util.Log
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -29,7 +27,6 @@ class EpisodeRepositoryImpl
     private val transaction: Transaction
 ) : EpisodeRepository {
 
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     override fun getEpisodesByCharacterId(characterId: Int): Flow<List<Episode>> {
         val episodeIdsFlow = relationsDao.getEpisodeIdsByCharacterId(characterId)
         return episodeIdsFlow

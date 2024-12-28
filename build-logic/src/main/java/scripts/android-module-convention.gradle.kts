@@ -6,10 +6,5 @@ plugins {
 }
 
 android {
-    namespace = "${Configs.applicationPackage.substringBeforeLast('.')}.${
-        name.replace(
-            "_",
-            ""
-        )
-    }" //namespace must be the same as packageName
+    namespace = "pl.mankevich.${name.replace("_", "")}" //namespace must be the same as packageName
 }

@@ -1,13 +1,13 @@
 package pl.mankevich.core.navigation
 
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.runtime.Composable
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NamedNavArgument
 import androidx.navigation.compose.composable
-
 
 typealias FeatureEntries = Map<Class<out FeatureEntry>, @JvmSuppressWildcards FeatureEntry>
 
@@ -24,14 +24,17 @@ interface FeatureEntry {
 
 interface ComposableFeatureEntry : FeatureEntry {
 
-    fun NavGraphBuilder.composable(navController: NavHostController, featureEntries: FeatureEntries) {
+    fun NavGraphBuilder.composable(
+        navController: NavHostController,
+        featureEntries: FeatureEntries
+    ) {
         composable(featureRoute, arguments, deepLinks) { backStackEntry ->
             Composable(navController, featureEntries, backStackEntry)
         }
     }
 
     @Composable
-    fun Composable(
+    fun AnimatedContentScope.Composable(
         navController: NavHostController,
         featureEntries: FeatureEntries,
         backStackEntry: NavBackStackEntry

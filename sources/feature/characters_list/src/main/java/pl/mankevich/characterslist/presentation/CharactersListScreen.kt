@@ -38,6 +38,13 @@ import pl.mankevich.characterslist.presentation.viewmodel.CharactersListIntent
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListState
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
 import pl.mankevich.core.util.cast
+import pl.mankevich.coreui.ui.CharacterCard
+import pl.mankevich.coreui.ui.filter.FilterGroup
+import pl.mankevich.coreui.ui.filter.FilterView
+import pl.mankevich.coreui.utils.characterGenderIconResolver
+import pl.mankevich.coreui.utils.characterSpeciesIconResolver
+import pl.mankevich.coreui.utils.characterStatusIconResolver
+import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.IconButton
@@ -46,13 +53,6 @@ import pl.mankevich.designsystem.component.SearchField
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
-import pl.mankevich.designsystem.ui.CharacterCard
-import pl.mankevich.designsystem.ui.filter.FilterGroup
-import pl.mankevich.designsystem.ui.filter.FilterView
-import pl.mankevich.designsystem.utils.characterGenderIconResolver
-import pl.mankevich.designsystem.utils.characterSpeciesIconResolver
-import pl.mankevich.designsystem.utils.characterStatusIconResolver
-import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.model.Character
 import pl.mankevich.model.CharacterFilter
 import pl.mankevich.model.LocationShort
@@ -63,7 +63,7 @@ private val PADDING = 12.dp
 fun CharactersListScreen(
     viewModel: CharactersListViewModel,
     onCharacterItemClick: (Int) -> Unit,
-    onBackPress: (() -> Unit)? = null
+    onBackPress: (() -> Unit)? = null,
 ) {
     val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
     val state = stateWithEffects.state
@@ -118,7 +118,9 @@ fun CharactersListView(
                     imageVector = RnmIcons.CaretLeft,
                     contentDescription = "Show filters",
                     iconSize = 20.dp,
-                    modifier = Modifier.fillMaxHeight().aspectRatio(1.2f)
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .aspectRatio(1.2f)
                 )
             } else {
                 Spacer(modifier = Modifier.width(PADDING))
@@ -174,7 +176,9 @@ fun CharactersListView(
                 )
             ),
             startPadding = PADDING,
-            modifier = Modifier.height(32.dp).padding(end = PADDING)
+            modifier = Modifier
+                .height(32.dp)
+                .padding(end = PADDING)
         )
 
         Spacer(modifier = Modifier.height(PADDING))

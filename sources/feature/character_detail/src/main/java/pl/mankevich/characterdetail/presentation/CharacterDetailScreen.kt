@@ -1,6 +1,5 @@
 package pl.mankevich.characterdetail.presentation
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,12 +39,14 @@ import pl.mankevich.designsystem.component.LoadingView
 import pl.mankevich.designsystem.component.RnmCard
 import pl.mankevich.designsystem.component.SurfaceIconButton
 import pl.mankevich.designsystem.icons.RnmIcons
-import pl.mankevich.designsystem.theme.Red
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
-import pl.mankevich.designsystem.utils.characterGenderIconResolver
-import pl.mankevich.designsystem.utils.characterSpeciesIconResolver
-import pl.mankevich.designsystem.utils.characterStatusIconResolver
+import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
+import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
+import pl.mankevich.designsystem.utils.WithSharedTransitionScope
+import pl.mankevich.coreui.utils.characterGenderIconResolver
+import pl.mankevich.coreui.utils.characterSpeciesIconResolver
+import pl.mankevich.coreui.utils.characterStatusIconResolver
 import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.model.Character
 import pl.mankevich.model.Episode
@@ -131,29 +132,39 @@ fun CharacterDetailView(
         Spacer(modifier = Modifier.height(PADDING))
 
         val fraction = if (isLandscape()) 0.3f else 0.5f
-        var imageModifier = Modifier
-            .fillMaxWidth(fraction)
-            .align(CenterHorizontally)
-            .aspectRatio(1f)
-            .clip(CircleShape)
-            .background(Red)
-
-        AsyncImage(
-            model = character.image,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = imageModifier
-        )
+        WithSharedTransitionScope {
+            val shape = CircleShape
+            AsyncImage(
+                model = character.image,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth(fraction)
+                    .align(CenterHorizontally)
+                    .aspectRatio(1f)
+                    .clip(shape)
+//                    .background(Red) //For preview purposes
+                    .sharedElement(
+                        state = rememberSharedContentState(
+                            key = "image-${character.image}"
+                        ),
+                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                        clipInOverlayDuringTransition = OverlayClip(shape),
+                    )
+            )
+        }
 
         Spacer(modifier = Modifier.height(PADDING))
 
-        Text(
-            text = character.name,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.align(CenterHorizontally)
-        )
+        WithSharedTransitionScope {
+            Text(
+                text = character.name,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.align(CenterHorizontally)
+            )
+        }
 
         Spacer(modifier = Modifier.height(PADDING))
 
@@ -298,39 +309,41 @@ fun LocationCard(
     }
 }
 
-@ThemePreviews //TODO add landscape
+@ThemePreviews
 @Composable
 fun CharacterDetailScreenPreview() {
     RnmTheme {
-        CharacterDetailView(
-            character = Character(
-                id = 1,
-                name = "Rick Sanchez asklncf;lasnc;ljnasc;lj",
-                status = "Alive",
-                species = "Human",
-                type = "",
-                origin = LocationShort(
+        WithAnimatedVisibilityScope {
+            CharacterDetailView(
+                character = Character(
                     id = 1,
-                    name = "Earth (C-137)",
+                    name = "Rick Sanchez asklncf;lasnc;ljnasc;lj",
+                    status = "Alive",
+                    species = "Human",
+                    type = "",
+                    origin = LocationShort(
+                        id = 1,
+                        name = "Earth (C-137)",
+                    ),
+                    location = LocationShort(
+                        id = 20,
+                        name = "Earth (Replacement Dimension)",
+                    ),
+                    gender = "Male",
+                    image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
                 ),
-                location = LocationShort(
-                    id = 20,
-                    name = "Earth (Replacement Dimension)",
-                ),
-                gender = "Male",
-                image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-            ),
-            episodes = emptyList(),
-            onStatusFilterClick = {},
-            onSpeciesFilterClick = {},
-            onGenderFilterClick = {},
-            onTypeFilterClick = {},
-            onOriginClick = {},
-            onLocationClick = {},
-            onEpisodeItemClick = {},
-            onBackPress = {},
-            modifier = Modifier.fillMaxSize(),
-        )
+                episodes = emptyList(),
+                onStatusFilterClick = {},
+                onSpeciesFilterClick = {},
+                onGenderFilterClick = {},
+                onTypeFilterClick = {},
+                onOriginClick = {},
+                onLocationClick = {},
+                onEpisodeItemClick = {},
+                onBackPress = {},
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
     }
 }
 

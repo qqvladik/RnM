@@ -1,6 +1,5 @@
 package pl.mankevich.data.paging.character
 
-import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
@@ -17,7 +16,6 @@ import pl.mankevich.databaseapi.dao.RelationsDao
 import pl.mankevich.databaseapi.dao.Transaction
 import pl.mankevich.databaseapi.entity.CharacterPageKeyEntity
 
-@OptIn(ExperimentalPagingApi::class)
 class CharacterRemoteMediator @AssistedInject constructor( //TODO create base mediator
     private val transaction: Transaction,
     private val characterDao: CharacterDao,

@@ -19,7 +19,7 @@ import javax.inject.Inject
 class CharactersListEntryImpl @Inject constructor() : CharactersListEntry() {
 
     @Composable
-    override fun Composable(
+    override fun AnimatedComposable(
         navController: NavHostController,
         featureEntries: FeatureEntries,
         backStackEntry: NavBackStackEntry

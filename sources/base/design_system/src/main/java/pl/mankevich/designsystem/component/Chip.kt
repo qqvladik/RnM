@@ -18,7 +18,6 @@ package pl.mankevich.designsystem.component
 
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.LocalRippleConfiguration
@@ -39,7 +38,6 @@ import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Chip(
     label: String,

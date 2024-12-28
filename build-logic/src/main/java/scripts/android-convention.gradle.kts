@@ -1,6 +1,5 @@
 package scripts
 
-import Configs
 import extensions.android
 import extensions.libs
 
@@ -10,16 +9,27 @@ plugins {
 
 android {
     defaultConfig {
-        compileSdkVersion(Configs.compileSdk)
-        minSdk = Configs.minSdk
-        targetSdk = Configs.targetSdk
+        compileSdkVersion(35)
+        minSdk = 26
+        targetSdk = 35
 
-        testInstrumentationRunner = Configs.androidJunitRunner
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 }
 
 kotlin {
     jvmToolchain(21)
+    compilerOptions.freeCompilerArgs = listOf(
+//        "-opt-in=kotlin.Experimental",
+        "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+        "-opt-in=kotlinx.coroutines.FlowPreview",
+        "-opt-in=androidx.compose.animation.ExperimentalSharedTransitionApi",
+        "-opt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi",
+        "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+        "-opt-in=androidx.paging.ExperimentalPagingApi",
+//        "-opt-in=com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi",
+//        "-opt-in=androidx.compose.animation.ExperimentalAnimationApi"
+    )
 }
 
 dependencies {
