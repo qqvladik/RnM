@@ -1,4 +1,4 @@
-package pl.mankevich.core.navigation
+package pl.mankevich.coreui.navigation
 
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.runtime.Composable

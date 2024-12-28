@@ -1,5 +1,8 @@
 package pl.mankevich.remoteretrofit.retrofit
 
+import pl.mankevich.core.CHARACTER_RELATIVE_PATH
+import pl.mankevich.core.EPISODE_RELATIVE_PATH
+import pl.mankevich.core.LOCATION_RELATIVE_PATH
 import pl.mankevich.remoteretrofit.retrofit.response.CharacterRetrofitResponse
 import pl.mankevich.remoteretrofit.retrofit.response.CharactersListRetrofitResponse
 import pl.mankevich.remoteretrofit.retrofit.response.EpisodeRetrofitResponse
@@ -12,7 +15,7 @@ import retrofit2.http.Query
 
 interface RnmApi {
 
-    @GET("character")
+    @GET(CHARACTER_RELATIVE_PATH)
     suspend fun fetchAllCharacters(
         @Query("page") page: Int = 1,
         @Query("name") name: String = "",
@@ -22,7 +25,7 @@ interface RnmApi {
         @Query("gender") gender: String = ""
     ): CharactersListRetrofitResponse
 
-    @GET("location")
+    @GET(LOCATION_RELATIVE_PATH)
     suspend fun fetchAllLocations(
         @Query("page") page: Int = 1,
         @Query("name") name: String = "",
@@ -30,26 +33,26 @@ interface RnmApi {
         @Query("dimension") dimension: String = ""
     ): LocationsListRetrofitResponse
 
-    @GET("episode")
+    @GET(EPISODE_RELATIVE_PATH)
     suspend fun fetchAllEpisodes(
         @Query("page") page: Int = 1,
         @Query("name") name: String = "",
         @Query("episode") episode: String = ""
     ): EpisodesListRetrofitResponse
 
-    @GET("character/{ids}")
+    @GET("$CHARACTER_RELATIVE_PATH/{ids}")
     suspend fun fetchMultipleCharacters(@Path("ids") ids: List<Int>): List<CharacterRetrofitResponse>
 
-    @GET("episode/{ids}")
+    @GET("$EPISODE_RELATIVE_PATH/{ids}")
     suspend fun fetchMultipleEpisodes(@Path("ids") ids: List<Int>): List<EpisodeRetrofitResponse>
 
-    @GET("location/{id}")
+    @GET("$LOCATION_RELATIVE_PATH/{id}")
     suspend fun fetchSingleLocation(@Path("id") id: Int): LocationRetrofitResponse
 
-    @GET("character/{id}")
+    @GET("$CHARACTER_RELATIVE_PATH/{id}")
     suspend fun fetchSingleCharacter(@Path("id") id: Int): CharacterRetrofitResponse
 
-    @GET("episode/{id}")
+    @GET("$EPISODE_RELATIVE_PATH/{id}")
     suspend fun fetchSingleEpisode(@Path("id") id: Int): EpisodeRetrofitResponse
 
 }

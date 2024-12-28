@@ -9,9 +9,9 @@ import pl.mankevich.characterdetail.presentation.CharacterDetailScreen
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailViewModel
 import pl.mankevich.characterdetailapi.CharacterDetailEntry
 import pl.mankevich.characterslistapi.CharactersListEntry
-import pl.mankevich.core.navigation.FeatureEntries
-import pl.mankevich.core.navigation.find
-import pl.mankevich.core.viewmodel.daggerViewModel
+import pl.mankevich.coreui.navigation.FeatureEntries
+import pl.mankevich.coreui.navigation.find
+import pl.mankevich.coreui.viewmodel.daggerViewModel
 import pl.mankevich.dependencies.LocalDependenciesProvider
 import javax.inject.Inject
 

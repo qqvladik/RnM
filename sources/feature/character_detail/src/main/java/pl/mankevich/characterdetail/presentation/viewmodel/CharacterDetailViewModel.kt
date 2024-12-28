@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import pl.mankevich.characterdetail.getCharacterId
-import pl.mankevich.core.mvi.SideEffects
-import pl.mankevich.core.mvi.Transform
-import pl.mankevich.core.viewmodel.ViewModelAssistedFactory
+import pl.mankevich.coreui.mvi.SideEffects
+import pl.mankevich.coreui.mvi.Transform
+import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadCharacterDetailUseCase
 import pl.mankevich.domainapi.usecase.LoadEpisodesByCharacterIdUseCase
 

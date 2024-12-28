@@ -5,8 +5,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
-import pl.mankevich.core.viewmodel.ViewModelAssistedFactory
-import pl.mankevich.core.viewmodel.di.ViewModelAssistedFactoryKey
+import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
+import pl.mankevich.coreui.viewmodel.di.ViewModelAssistedFactoryKey
 
 @Module
 interface CharactersListViewModelModule {

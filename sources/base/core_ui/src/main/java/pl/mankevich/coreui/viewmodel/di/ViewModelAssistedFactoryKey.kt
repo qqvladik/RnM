@@ -1,4 +1,4 @@
-package pl.mankevich.core.viewmodel.di
+package pl.mankevich.coreui.viewmodel.di
 
 import androidx.lifecycle.ViewModel
 import dagger.MapKey

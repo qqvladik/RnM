@@ -1,4 +1,4 @@
-package pl.mankevich.core.mvi
+package pl.mankevich.coreui.mvi
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

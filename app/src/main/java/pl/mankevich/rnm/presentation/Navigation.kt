@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import pl.mankevich.characterdetailapi.CharacterDetailEntry
 import pl.mankevich.characterslistapi.CharactersListEntry
-import pl.mankevich.core.navigation.find
+import pl.mankevich.coreui.navigation.find
 import pl.mankevich.dependencies.LocalDependenciesProvider
 
 @Composable

@@ -1,11 +1,11 @@
-package pl.mankevich.core.viewmodel.di
+package pl.mankevich.coreui.viewmodel.di
 
 import androidx.lifecycle.ViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.Multibinds
-import pl.mankevich.core.viewmodel.ViewModelAssistedFactory
-import pl.mankevich.core.viewmodel.ViewModelFactory
+import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
+import pl.mankevich.coreui.viewmodel.ViewModelFactory
 
 @Module
 interface ViewModelFactoryModule {

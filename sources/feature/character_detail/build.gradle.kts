@@ -8,14 +8,9 @@ plugins {
 
 dependencies {
     applyCoil()
-
     implementation(libs.androidx.lifecycle.runtimeCompose)
-    implementation(libs.androidx.navigation.compose)
 
     api(project(":character_detail_api"))
-    api(project(":characters_list_api"))
-    implementation(project(":core"))
-    implementation(project(":core_ui"))
+    implementation(project(":characters_list_api"))
     implementation(project(":dependencies"))
-    implementation(project(":design_system"))
 }

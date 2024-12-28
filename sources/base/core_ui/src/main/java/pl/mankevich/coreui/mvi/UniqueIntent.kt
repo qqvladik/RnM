@@ -1,4 +1,4 @@
-package pl.mankevich.core.mvi
+package pl.mankevich.coreui.mvi
 
 /**
  * Interface to mark an Intent as unique.

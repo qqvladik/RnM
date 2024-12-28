@@ -1,4 +1,4 @@
-package pl.mankevich.core.mvi
+package pl.mankevich.coreui.mvi
 
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic

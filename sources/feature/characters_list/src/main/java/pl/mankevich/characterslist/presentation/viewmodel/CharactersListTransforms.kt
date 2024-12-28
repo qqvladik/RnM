@@ -2,7 +2,7 @@ package pl.mankevich.characterslist.presentation.viewmodel
 
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
-import pl.mankevich.core.mvi.Transform
+import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.model.Character
 import kotlin.collections.plus
 

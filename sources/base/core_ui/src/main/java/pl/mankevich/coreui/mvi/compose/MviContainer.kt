@@ -1,11 +1,11 @@
-package pl.mankevich.core.mvi.compose
+package pl.mankevich.coreui.mvi.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
-import pl.mankevich.core.mvi.StateWithEffects
+import pl.mankevich.coreui.mvi.StateWithEffects
 
 /**
  * The [MviContainer] is a composable function for implementing the MVI in Jetpack Compose, providing a convenient way to observe the state of your ViewModel.

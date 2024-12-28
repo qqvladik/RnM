@@ -2,8 +2,8 @@ package pl.mankevich.characterslist.di
 
 import dagger.Component
 import pl.mankevich.core.di.FeatureScope
-import pl.mankevich.core.viewmodel.ViewModelFactory
-import pl.mankevich.core.viewmodel.di.ViewModelFactoryModule
+import pl.mankevich.coreui.viewmodel.ViewModelFactory
+import pl.mankevich.coreui.viewmodel.di.ViewModelFactoryModule
 import pl.mankevich.dependencies.DependenciesProvider
 
 @FeatureScope

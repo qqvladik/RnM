@@ -1,9 +1,9 @@
-package pl.mankevich.core.viewmodel.di
+package pl.mankevich.coreui.viewmodel.di
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import pl.mankevich.core.viewmodel.ViewModelAssistedFactory
-import pl.mankevich.core.viewmodel.ViewModelFactory
+import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
+import pl.mankevich.coreui.viewmodel.ViewModelFactory
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -34,9 +34,10 @@ class DaggerViewModelFactory @Inject constructor(
         modelClass: Class<T>,
         handle: SavedStateHandle
     ): ViewModel? {
-        val creator = assistedFactoryMap[modelClass] ?: assistedFactoryMap.asIterable().firstOrNull {
-            modelClass.isAssignableFrom(it.key)
-        }?.value?: return null
+        val creator =
+            assistedFactoryMap[modelClass] ?: assistedFactoryMap.asIterable().firstOrNull {
+                modelClass.isAssignableFrom(it.key)
+            }?.value ?: return null
 
         return creator.get().create(handle)
     }
@@ -46,7 +47,8 @@ class DaggerViewModelFactory @Inject constructor(
      */
     private fun <T : ViewModel?> createInjectViewModel(modelClass: Class<T>): ViewModel? {
         val creator = viewModelProviders[modelClass]
-            ?: viewModelProviders.asIterable().firstOrNull { modelClass.isAssignableFrom(it.key) }?.value
+            ?: viewModelProviders.asIterable()
+                .firstOrNull { modelClass.isAssignableFrom(it.key) }?.value
             ?: return null
 
         return creator.get()

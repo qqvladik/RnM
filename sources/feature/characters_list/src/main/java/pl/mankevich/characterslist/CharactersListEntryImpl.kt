@@ -9,9 +9,9 @@ import pl.mankevich.characterslist.di.CharactersListComponent
 import pl.mankevich.characterslist.presentation.CharactersListScreen
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
 import pl.mankevich.characterslistapi.CharactersListEntry
-import pl.mankevich.core.navigation.FeatureEntries
-import pl.mankevich.core.navigation.find
-import pl.mankevich.core.viewmodel.daggerViewModel
+import pl.mankevich.coreui.navigation.FeatureEntries
+import pl.mankevich.coreui.navigation.find
+import pl.mankevich.coreui.viewmodel.daggerViewModel
 import pl.mankevich.dependencies.LocalDependenciesProvider
 import pl.mankevich.model.CharacterFilter
 import javax.inject.Inject
@@ -31,8 +31,7 @@ class CharactersListEntryImpl @Inject constructor() : CharactersListEntry() {
         CharactersListScreen(
             viewModel = viewModel,
             onCharacterItemClick = { characterId ->
-                val destination =
-                    featureEntries.find<CharacterDetailEntry>().destination(characterId)
+                val destination = featureEntries.find<CharacterDetailEntry>().destination(characterId)
                 navController.navigate(destination)
             },
             onBackPress = if (navController.previousBackStackEntry != null) {

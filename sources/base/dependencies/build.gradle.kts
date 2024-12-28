@@ -3,8 +3,9 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.runtime)
 
-    implementation(project(":core"))
-    api(project(":domain_api")) //TODO think about api, maybe it is better to use implementation in every module
+    api(project(":core"))
+    api(project(":core_ui"))
+    api(project(":domain_api"))
 }

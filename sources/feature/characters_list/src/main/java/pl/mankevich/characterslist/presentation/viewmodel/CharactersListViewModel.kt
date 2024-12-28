@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import pl.mankevich.characterslist.getCharacterFilter
-import pl.mankevich.core.mvi.SideEffects
-import pl.mankevich.core.mvi.Transform
-import pl.mankevich.core.viewmodel.ViewModelAssistedFactory
+import pl.mankevich.coreui.mvi.SideEffects
+import pl.mankevich.coreui.mvi.Transform
+import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadCharactersListUseCase
 import pl.mankevich.model.CharacterFilter
 

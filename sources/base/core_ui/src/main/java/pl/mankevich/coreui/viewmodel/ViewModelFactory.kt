@@ -1,4 +1,4 @@
-package pl.mankevich.core.viewmodel
+package pl.mankevich.coreui.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

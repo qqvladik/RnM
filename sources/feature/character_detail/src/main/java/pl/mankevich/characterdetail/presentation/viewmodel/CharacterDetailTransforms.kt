@@ -1,6 +1,6 @@
 package pl.mankevich.characterdetail.presentation.viewmodel
 
-import pl.mankevich.core.mvi.Transform
+import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.model.Character
 import pl.mankevich.model.Episode
 

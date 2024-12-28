@@ -1,7 +1,7 @@
-package pl.mankevich.core.di
+package pl.mankevich.coreui.di
 
 import dagger.MapKey
-import pl.mankevich.core.navigation.FeatureEntry
+import pl.mankevich.coreui.navigation.FeatureEntry
 import kotlin.reflect.KClass
 
 @MapKey

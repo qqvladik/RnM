@@ -1,4 +1,4 @@
-package pl.mankevich.core.viewmodel
+package pl.mankevich.coreui.viewmodel
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel

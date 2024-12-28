@@ -4,9 +4,9 @@ import androidx.compose.runtime.Immutable
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import pl.mankevich.core.mvi.MviViewModel
-import pl.mankevich.core.mvi.StateWithEffects
-import pl.mankevich.core.mvi.UniqueIntent
+import pl.mankevich.coreui.mvi.MviViewModel
+import pl.mankevich.coreui.mvi.StateWithEffects
+import pl.mankevich.coreui.mvi.UniqueIntent
 import pl.mankevich.model.Character
 import pl.mankevich.model.CharacterFilter
 

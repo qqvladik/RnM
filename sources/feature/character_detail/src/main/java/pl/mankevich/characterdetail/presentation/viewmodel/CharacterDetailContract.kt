@@ -1,7 +1,7 @@
 package pl.mankevich.characterdetail.presentation.viewmodel
 
-import pl.mankevich.core.mvi.MviViewModel
-import pl.mankevich.core.mvi.StateWithEffects
+import pl.mankevich.coreui.mvi.MviViewModel
+import pl.mankevich.coreui.mvi.StateWithEffects
 import pl.mankevich.model.Character
 import pl.mankevich.model.Episode
 
