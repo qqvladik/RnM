@@ -1,4 +1,4 @@
-package pl.mankevich.characterslist.presentation
+package pl.mankevich.locationslist.presentation
 
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -34,17 +35,15 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
-import pl.mankevich.characterslist.presentation.viewmodel.CharactersListIntent
-import pl.mankevich.characterslist.presentation.viewmodel.CharactersListState
-import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
+import pl.mankevich.locationslist.presentation.viewmodel.LocationsListIntent
+import pl.mankevich.locationslist.presentation.viewmodel.LocationsListState
+import pl.mankevich.locationslist.presentation.viewmodel.LocationsListViewModel
 import pl.mankevich.core.util.cast
-import pl.mankevich.coreui.ui.CharacterCard
 import pl.mankevich.coreui.ui.filter.FilterGroup
 import pl.mankevich.coreui.ui.filter.FilterView
-import pl.mankevich.coreui.utils.characterGenderIconResolver
-import pl.mankevich.coreui.utils.characterSpeciesIconResolver
-import pl.mankevich.coreui.utils.characterStatusIconResolver
-import pl.mankevich.coreui.utils.characterTypeIconResolver
+import pl.mankevich.coreui.utils.locationDimensionIconResolver
+import pl.mankevich.coreui.utils.locationTypeIconResolver
+import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.IconButton
@@ -53,17 +52,15 @@ import pl.mankevich.designsystem.component.SearchField
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
-import pl.mankevich.designsystem.utils.isLandscape
-import pl.mankevich.model.Character
-import pl.mankevich.model.CharacterFilter
-import pl.mankevich.model.LocationShort
+import pl.mankevich.model.Location
+import pl.mankevich.model.LocationFilter
 
 private val PADDING = 12.dp
 
 @Composable
-fun CharactersListScreen(
-    viewModel: CharactersListViewModel,
-    onCharacterItemClick: (Int) -> Unit,
+fun LocationsListScreen(
+    viewModel: LocationsListViewModel,
+    onLocationItemClick: (Int) -> Unit,
     onBackPress: (() -> Unit)? = null,
 ) {
     val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
@@ -71,38 +68,34 @@ fun CharactersListScreen(
 
     SideEffect {
         stateWithEffects.sideEffects.forEach { sideEffect ->
-            viewModel.handleSideEffect(sideEffect, onCharacterItemClick)
+            viewModel.handleSideEffect(sideEffect, onLocationItemClick)
         }
     }
 
-    CharactersListView(
+    LocationsListView(
         state = state,
-        onSearchChange = { viewModel.sendIntent(CharactersListIntent.NameChanged(it)) },
-        onSearchClear = { viewModel.sendIntent(CharactersListIntent.NameChanged("")) },
-        onStatusSelected = { viewModel.sendIntent(CharactersListIntent.StatusChanged(it)) },
-        onSpeciesSelected = { viewModel.sendIntent(CharactersListIntent.SpeciesChanged(it)) },
-        onGenderSelected = { viewModel.sendIntent(CharactersListIntent.GenderChanged(it)) },
-        onTypeSelected = { viewModel.sendIntent(CharactersListIntent.TypeChanged(it)) },
-        onCharacterItemClick = onCharacterItemClick,
+        onSearchChange = { viewModel.sendIntent(LocationsListIntent.NameChanged(it)) },
+        onSearchClear = { viewModel.sendIntent(LocationsListIntent.NameChanged("")) },
+        onTypeSelected = { viewModel.sendIntent(LocationsListIntent.TypeChanged(it)) },
+        onDimensionSelected = { viewModel.sendIntent(LocationsListIntent.DimensionChanged(it)) },
+        onCharacterItemClick = { viewModel.sendIntent(LocationsListIntent.CharacterItemClick(it)) },
         onBackPress = onBackPress,
         modifier = Modifier.fillMaxSize()
     )
 }
 
 @Composable
-fun CharactersListView(
-    state: CharactersListState,
+fun LocationsListView(
+    state: LocationsListState,
     onSearchChange: (String) -> Unit,
     onSearchClear: () -> Unit,
-    onStatusSelected: (String) -> Unit,
-    onSpeciesSelected: (String) -> Unit,
-    onGenderSelected: (String) -> Unit,
     onTypeSelected: (String) -> Unit,
+    onDimensionSelected: (String) -> Unit,
     onCharacterItemClick: (Int) -> Unit,
     onBackPress: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    val pagingCharacterItems = state.characters.collectAsLazyPagingItems()
+    val pagingLocationItems = state.locations.collectAsLazyPagingItems()
 
     Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(PADDING))
@@ -128,7 +121,7 @@ fun CharactersListView(
             }
 
             SearchField(
-                value = state.characterFilter.name,
+                value = state.locationFilter.name,
                 onValueChange = onSearchChange,
                 onClearClick = onSearchClear,
                 placeholder = "Search...",
@@ -141,40 +134,25 @@ fun CharactersListView(
         Spacer(modifier = Modifier.height(PADDING))
 
         FilterView(
-            name = "Characters filter",
+            name = "Locations filter",
             filterGroupList = listOf(
                 FilterGroup(
-                    name = "Status",
-                    selected = state.characterFilter.status,
-                    labelList = state.statusLabelList,
-                    isListFinished = true,
-                    resolveIcon = characterStatusIconResolver,
-                    onSelectedChanged = onStatusSelected,
-                ),
-                FilterGroup(
-                    name = "Species",
-                    selected = state.characterFilter.species,
-                    labelList = state.speciesLabelList,
-                    isListFinished = false,
-                    resolveIcon = characterSpeciesIconResolver,
-                    onSelectedChanged = onSpeciesSelected,
-                ),
-                FilterGroup(
-                    name = "Gender",
-                    selected = state.characterFilter.gender,
-                    labelList = state.genderLabelList,
-                    isListFinished = true,
-                    resolveIcon = characterGenderIconResolver,
-                    onSelectedChanged = onGenderSelected,
-                ),
-                FilterGroup(
                     name = "Type",
-                    selected = state.characterFilter.type,
+                    selected = state.locationFilter.type,
                     labelList = state.typeLabelList,
                     isListFinished = false,
-                    resolveIcon = characterTypeIconResolver,
+                    resolveIcon = locationTypeIconResolver,
                     onSelectedChanged = onTypeSelected,
-                )
+                ),
+                FilterGroup(
+                    name = "Dimension",
+                    selected = state.locationFilter.dimension,
+                    labelList = state.dimensionLabelList,
+                    isListFinished = false,
+                    resolveIcon = locationDimensionIconResolver,
+                    onSelectedChanged = onDimensionSelected,
+                ),
+
             ),
             scrollablePadding = PADDING,
             modifier = Modifier
@@ -200,20 +178,20 @@ fun CharactersListView(
             That 2 loadState brings flicking of progressbar. I found the issue: https://issuetracker.google.com/issues/288023763
             There is no such behavior when use pager without remoteMediator.
 
-            That's why pagingCharacterItems.loadState.append.endOfPaginationReached check was added.
+            That's why pagingLocationItems.loadState.append.endOfPaginationReached check was added.
         */
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = PADDING)
         ) {
-            if (pagingCharacterItems.loadState.refresh is LoadState.Loading
-                || (pagingCharacterItems.loadState.refresh is LoadState.NotLoading
-                        && pagingCharacterItems.itemCount == 0
-                        && !pagingCharacterItems.loadState.append.endOfPaginationReached)
+            if (pagingLocationItems.loadState.refresh is LoadState.Loading
+                || (pagingLocationItems.loadState.refresh is LoadState.NotLoading
+                        && pagingLocationItems.itemCount == 0
+                        && !pagingLocationItems.loadState.append.endOfPaginationReached)
             ) {
                 LoadingView(modifier = Modifier.fillMaxSize())
-            } else if (pagingCharacterItems.itemCount == 0 && pagingCharacterItems.loadState.append.endOfPaginationReached) {
+            } else if (pagingLocationItems.itemCount == 0 && pagingLocationItems.loadState.append.endOfPaginationReached) {
                 EmptyView(modifier = Modifier.fillMaxSize())
             } else {
                 val focusManager = LocalFocusManager.current
@@ -237,48 +215,38 @@ fun CharactersListView(
                     val stateItemModifier = Modifier.fillMaxWidth()
 
                     items(
-                        count = pagingCharacterItems.itemCount,
-                        key = pagingCharacterItems.itemKey { character -> character.id },
+                        count = pagingLocationItems.itemCount,
+                        key = pagingLocationItems.itemKey { location -> location.id },
                     ) { index ->
-                        pagingCharacterItems[index]?.let { character ->
-                            CharacterCard(
-                                name = character.name,
-                                status = character.status,
-                                species = character.species,
-                                origin = character.origin.name,
-                                imageUrl = character.image,
-                                isFavorite = false,
-                                onFavoriteClick = {
-                                },
-                                onCardClick = { onCharacterItemClick(character.id) },
-                            )
+                        pagingLocationItems[index]?.let { location ->
+                            Text(text=location.toString())
                         }
                     }
 
-                    if (pagingCharacterItems.loadState.append is LoadState.Loading) {
+                    if (pagingLocationItems.loadState.append is LoadState.Loading) {
                         item(span = FullLine) {
                             LoadingView(
                                 modifier = stateItemModifier
                             )
                         }
                     }
-                    if (pagingCharacterItems.loadState.refresh is LoadState.Error) {
+                    if (pagingLocationItems.loadState.refresh is LoadState.Error) {
                         item(span = FullLine) {
                             ErrorView(
-                                error = pagingCharacterItems.loadState.refresh.cast<LoadState.Error>().error,
+                                error = pagingLocationItems.loadState.refresh.cast<LoadState.Error>().error,
                                 modifier = stateItemModifier
                             ) {
-                                pagingCharacterItems.retry()
+                                pagingLocationItems.retry()
                             }
                         }
                     }
-                    if (pagingCharacterItems.loadState.append is LoadState.Error) {
+                    if (pagingLocationItems.loadState.append is LoadState.Error) {
                         item(span = FullLine) {
                             ErrorView(
-                                error = pagingCharacterItems.loadState.append.cast<LoadState.Error>().error,
+                                error = pagingLocationItems.loadState.append.cast<LoadState.Error>().error,
                                 modifier = stateItemModifier
                             ) {
-                                pagingCharacterItems.retry()
+                                pagingLocationItems.retry()
                             }
                         }
                     }
@@ -292,38 +260,27 @@ fun CharactersListView(
 
 @ThemePreviews
 @Composable
-fun CharactersListViewPreview() {
+fun LocationsListViewPreview() {
     RnmTheme {
-        val character1 = Character(
+        val location1 = Location(
             id = 1,
             name = "Rick Sanchez",
-            status = "Alive",
-            species = "Human",
             type = "",
-            origin = LocationShort(
-                id = 1,
-                name = "Earth (C-137)",
-            ),
-            location = LocationShort(
-                id = 20,
-                name = "Earth (Replacement Dimension)",
-            ),
-            gender = "Male",
-            image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+            dimension = "",
         )
 
-        CharactersListView(
-            state = CharactersListState(
-                characterFilter = CharacterFilter(
+        LocationsListView(
+            state = LocationsListState(
+                locationFilter = LocationFilter(
                     name = "",
-                    status = "",
-                    species = "",
+                    type = "",
+                    dimension = ""
                 ),
-                characters = flowOf(
+                locations = flowOf(
                     value = PagingData.from(
                         data = listOf(
-                            character1,
-                            character1.copy(id = 2)
+                            location1,
+                            location1.copy(id = 2)
                         ),
                         sourceLoadStates = LoadStates(
                             refresh = LoadState.NotLoading(false),
@@ -340,10 +297,8 @@ fun CharactersListViewPreview() {
             ),
             onSearchChange = {},
             onSearchClear = {},
-            onStatusSelected = {},
-            onSpeciesSelected = {},
-            onGenderSelected = {},
             onTypeSelected = {},
+            onDimensionSelected = {},
             onCharacterItemClick = {},
             onBackPress = {},
         )

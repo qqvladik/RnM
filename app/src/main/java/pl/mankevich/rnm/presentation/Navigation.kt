@@ -1,7 +1,6 @@
 package pl.mankevich.rnm.presentation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -10,6 +9,9 @@ import pl.mankevich.characterdetailapi.CharacterDetailEntry
 import pl.mankevich.characterslistapi.CharactersListEntry
 import pl.mankevich.coreui.navigation.find
 import pl.mankevich.dependencies.LocalDependenciesProvider
+import pl.mankevich.episodeslistapi.EpisodesListEntry
+import pl.mankevich.locationslistapi.LocationsListEntry
+import pl.mankevich.rnm.presentation.ui.BottomMenuBar
 
 @Composable
 fun Navigation() {
@@ -18,9 +20,15 @@ fun Navigation() {
 
     val charactersListEntry = featureEntries.find<CharactersListEntry>()
     val characterDetailEntry = featureEntries.find<CharacterDetailEntry>()
+    val locationsListEntry = featureEntries.find<LocationsListEntry>()
+    val episodesListEntry = featureEntries.find<EpisodesListEntry>()
 
-    Box(Modifier.fillMaxSize()) {
-        NavHost(navController, startDestination = charactersListEntry.destination()) {
+    Column {
+        NavHost(
+            navController = navController,
+            startDestination = charactersListEntry.destination(),
+            modifier = Modifier.weight(1f)
+        ) {
 
             with(charactersListEntry) {
                 composable(navController, featureEntries)
@@ -29,10 +37,16 @@ fun Navigation() {
             with(characterDetailEntry) {
                 composable(navController, featureEntries)
             }
-        }
-    }
 
-//    Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.BottomCenter) {
-//        BottomMenuBar(navController, destinations) //TODO
-//    }
+            with(locationsListEntry) {
+                composable(navController, featureEntries)
+            }
+
+            with(episodesListEntry) {
+                composable(navController, featureEntries)
+            }
+        }
+
+        BottomMenuBar(navController, featureEntries)
+    }
 }

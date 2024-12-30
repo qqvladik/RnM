@@ -50,6 +50,10 @@ object RnmIcons {
         @Composable
         get() = ImageVector.vectorResource(RnmIconsRes.CubeFocus)
 
+    val Film: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(RnmIconsRes.Film)
+
     val GenderFemale: ImageVector
         @Composable
         get() = ImageVector.vectorResource(RnmIconsRes.GenderFemale)
@@ -122,6 +126,10 @@ object RnmIcons {
         @Composable
         get() = ImageVector.vectorResource(RnmIconsRes.Skull)
 
+    val VideoLibrary: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(RnmIconsRes.VideoLibrary)
+
     val XCircle: ImageVector
         @Composable
         get() = ImageVector.vectorResource(RnmIconsRes.XCircle)
@@ -136,6 +144,7 @@ object RnmIconsRes {
     val CaretLeft = R.drawable.ic_caret_left
     val CaretRight = R.drawable.ic_caret_right
     val CubeFocus = R.drawable.ic_cube_focus
+    val Film = R.drawable.ic_film
     val GenderFemale = R.drawable.ic_gender_female
     val GenderIntersex = R.drawable.ic_gender_intersex
     val GenderMale = R.drawable.ic_gender_male
@@ -154,5 +163,6 @@ object RnmIconsRes {
     val Queue = R.drawable.ic_queue
     val Robot = R.drawable.ic_robot
     val Skull = R.drawable.ic_skull
+    val VideoLibrary = R.drawable.ic_video_library
     val XCircle = R.drawable.ic_x_circle
 }

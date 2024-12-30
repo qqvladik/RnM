@@ -1,4 +1,4 @@
-package pl.mankevich.characterslist.presentation
+package pl.mankevich.episodeslist.presentation
 
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -34,17 +35,16 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
-import pl.mankevich.characterslist.presentation.viewmodel.CharactersListIntent
-import pl.mankevich.characterslist.presentation.viewmodel.CharactersListState
-import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
+import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListIntent
+import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListState
+import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListViewModel
 import pl.mankevich.core.util.cast
-import pl.mankevich.coreui.ui.CharacterCard
 import pl.mankevich.coreui.ui.filter.FilterGroup
+import pl.mankevich.coreui.ui.filter.FilterGroup.Companion.invoke
 import pl.mankevich.coreui.ui.filter.FilterView
-import pl.mankevich.coreui.utils.characterGenderIconResolver
-import pl.mankevich.coreui.utils.characterSpeciesIconResolver
-import pl.mankevich.coreui.utils.characterStatusIconResolver
-import pl.mankevich.coreui.utils.characterTypeIconResolver
+import pl.mankevich.coreui.utils.episodeEpisodeIconResolver
+import pl.mankevich.coreui.utils.episodeSeasonIconResolver
+import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.IconButton
@@ -53,16 +53,14 @@ import pl.mankevich.designsystem.component.SearchField
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
-import pl.mankevich.designsystem.utils.isLandscape
-import pl.mankevich.model.Character
-import pl.mankevich.model.CharacterFilter
-import pl.mankevich.model.LocationShort
+import pl.mankevich.model.Episode
+import pl.mankevich.model.EpisodeFilter
 
 private val PADDING = 12.dp
 
 @Composable
-fun CharactersListScreen(
-    viewModel: CharactersListViewModel,
+fun EpisodesListScreen(
+    viewModel: EpisodesListViewModel,
     onCharacterItemClick: (Int) -> Unit,
     onBackPress: (() -> Unit)? = null,
 ) {
@@ -75,34 +73,30 @@ fun CharactersListScreen(
         }
     }
 
-    CharactersListView(
+    EpisodesListView(
         state = state,
-        onSearchChange = { viewModel.sendIntent(CharactersListIntent.NameChanged(it)) },
-        onSearchClear = { viewModel.sendIntent(CharactersListIntent.NameChanged("")) },
-        onStatusSelected = { viewModel.sendIntent(CharactersListIntent.StatusChanged(it)) },
-        onSpeciesSelected = { viewModel.sendIntent(CharactersListIntent.SpeciesChanged(it)) },
-        onGenderSelected = { viewModel.sendIntent(CharactersListIntent.GenderChanged(it)) },
-        onTypeSelected = { viewModel.sendIntent(CharactersListIntent.TypeChanged(it)) },
-        onCharacterItemClick = onCharacterItemClick,
+        onSearchChange = { viewModel.sendIntent(EpisodesListIntent.NameChanged(it)) },
+        onSearchClear = { viewModel.sendIntent(EpisodesListIntent.NameChanged("")) },
+        onEpisodeSelected = { viewModel.sendIntent(EpisodesListIntent.EpisodeChanged(it)) },
+        onSeasonSelected = { viewModel.sendIntent(EpisodesListIntent.SeasonChanged(it)) },
+        onCharacterItemClick = { viewModel.sendIntent(EpisodesListIntent.CharacterItemClick(it)) },
         onBackPress = onBackPress,
         modifier = Modifier.fillMaxSize()
     )
 }
 
 @Composable
-fun CharactersListView(
-    state: CharactersListState,
+fun EpisodesListView(
+    state: EpisodesListState,
     onSearchChange: (String) -> Unit,
     onSearchClear: () -> Unit,
-    onStatusSelected: (String) -> Unit,
-    onSpeciesSelected: (String) -> Unit,
-    onGenderSelected: (String) -> Unit,
-    onTypeSelected: (String) -> Unit,
+    onEpisodeSelected: (String) -> Unit,
+    onSeasonSelected: (String) -> Unit,
     onCharacterItemClick: (Int) -> Unit,
     onBackPress: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    val pagingCharacterItems = state.characters.collectAsLazyPagingItems()
+    val pagingEpisodeItems = state.episodes.collectAsLazyPagingItems()
 
     Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(PADDING))
@@ -128,7 +122,7 @@ fun CharactersListView(
             }
 
             SearchField(
-                value = state.characterFilter.name,
+                value = state.episodeFilter.name,
                 onValueChange = onSearchChange,
                 onClearClick = onSearchClear,
                 placeholder = "Search...",
@@ -141,40 +135,24 @@ fun CharactersListView(
         Spacer(modifier = Modifier.height(PADDING))
 
         FilterView(
-            name = "Characters filter",
+            name = "Episodes filter",
             filterGroupList = listOf(
                 FilterGroup(
-                    name = "Status",
-                    selected = state.characterFilter.status,
-                    labelList = state.statusLabelList,
-                    isListFinished = true,
-                    resolveIcon = characterStatusIconResolver,
-                    onSelectedChanged = onStatusSelected,
-                ),
-                FilterGroup(
-                    name = "Species",
-                    selected = state.characterFilter.species,
-                    labelList = state.speciesLabelList,
+                    name = "Episode",
+                    selected = state.episodeFilter.episode,
+                    labelList = state.episodeLabelList,
                     isListFinished = false,
-                    resolveIcon = characterSpeciesIconResolver,
-                    onSelectedChanged = onSpeciesSelected,
+                    resolveIcon = episodeEpisodeIconResolver,
+                    onSelectedChanged = onEpisodeSelected,
                 ),
                 FilterGroup(
-                    name = "Gender",
-                    selected = state.characterFilter.gender,
-                    labelList = state.genderLabelList,
+                    name = "Season",
+                    selected = state.episodeFilter.episode,//TODO: add season
+                    labelList = state.seasonLabelList,
                     isListFinished = true,
-                    resolveIcon = characterGenderIconResolver,
-                    onSelectedChanged = onGenderSelected,
+                    resolveIcon = episodeSeasonIconResolver,
+                    onSelectedChanged = onSeasonSelected,
                 ),
-                FilterGroup(
-                    name = "Type",
-                    selected = state.characterFilter.type,
-                    labelList = state.typeLabelList,
-                    isListFinished = false,
-                    resolveIcon = characterTypeIconResolver,
-                    onSelectedChanged = onTypeSelected,
-                )
             ),
             scrollablePadding = PADDING,
             modifier = Modifier
@@ -200,20 +178,20 @@ fun CharactersListView(
             That 2 loadState brings flicking of progressbar. I found the issue: https://issuetracker.google.com/issues/288023763
             There is no such behavior when use pager without remoteMediator.
 
-            That's why pagingCharacterItems.loadState.append.endOfPaginationReached check was added.
+            That's why pagingEpisodeItems.loadState.append.endOfPaginationReached check was added.
         */
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = PADDING)
         ) {
-            if (pagingCharacterItems.loadState.refresh is LoadState.Loading
-                || (pagingCharacterItems.loadState.refresh is LoadState.NotLoading
-                        && pagingCharacterItems.itemCount == 0
-                        && !pagingCharacterItems.loadState.append.endOfPaginationReached)
+            if (pagingEpisodeItems.loadState.refresh is LoadState.Loading
+                || (pagingEpisodeItems.loadState.refresh is LoadState.NotLoading
+                        && pagingEpisodeItems.itemCount == 0
+                        && !pagingEpisodeItems.loadState.append.endOfPaginationReached)
             ) {
                 LoadingView(modifier = Modifier.fillMaxSize())
-            } else if (pagingCharacterItems.itemCount == 0 && pagingCharacterItems.loadState.append.endOfPaginationReached) {
+            } else if (pagingEpisodeItems.itemCount == 0 && pagingEpisodeItems.loadState.append.endOfPaginationReached) {
                 EmptyView(modifier = Modifier.fillMaxSize())
             } else {
                 val focusManager = LocalFocusManager.current
@@ -237,48 +215,38 @@ fun CharactersListView(
                     val stateItemModifier = Modifier.fillMaxWidth()
 
                     items(
-                        count = pagingCharacterItems.itemCount,
-                        key = pagingCharacterItems.itemKey { character -> character.id },
+                        count = pagingEpisodeItems.itemCount,
+                        key = pagingEpisodeItems.itemKey { episode -> episode.id },
                     ) { index ->
-                        pagingCharacterItems[index]?.let { character ->
-                            CharacterCard(
-                                name = character.name,
-                                status = character.status,
-                                species = character.species,
-                                origin = character.origin.name,
-                                imageUrl = character.image,
-                                isFavorite = false,
-                                onFavoriteClick = {
-                                },
-                                onCardClick = { onCharacterItemClick(character.id) },
-                            )
+                        pagingEpisodeItems[index]?.let { episode ->
+                            Text(text = episode.toString())
                         }
                     }
 
-                    if (pagingCharacterItems.loadState.append is LoadState.Loading) {
+                    if (pagingEpisodeItems.loadState.append is LoadState.Loading) {
                         item(span = FullLine) {
                             LoadingView(
                                 modifier = stateItemModifier
                             )
                         }
                     }
-                    if (pagingCharacterItems.loadState.refresh is LoadState.Error) {
+                    if (pagingEpisodeItems.loadState.refresh is LoadState.Error) {
                         item(span = FullLine) {
                             ErrorView(
-                                error = pagingCharacterItems.loadState.refresh.cast<LoadState.Error>().error,
+                                error = pagingEpisodeItems.loadState.refresh.cast<LoadState.Error>().error,
                                 modifier = stateItemModifier
                             ) {
-                                pagingCharacterItems.retry()
+                                pagingEpisodeItems.retry()
                             }
                         }
                     }
-                    if (pagingCharacterItems.loadState.append is LoadState.Error) {
+                    if (pagingEpisodeItems.loadState.append is LoadState.Error) {
                         item(span = FullLine) {
                             ErrorView(
-                                error = pagingCharacterItems.loadState.append.cast<LoadState.Error>().error,
+                                error = pagingEpisodeItems.loadState.append.cast<LoadState.Error>().error,
                                 modifier = stateItemModifier
                             ) {
-                                pagingCharacterItems.retry()
+                                pagingEpisodeItems.retry()
                             }
                         }
                     }
@@ -292,38 +260,26 @@ fun CharactersListView(
 
 @ThemePreviews
 @Composable
-fun CharactersListViewPreview() {
+fun EpisodesListViewPreview() {
     RnmTheme {
-        val character1 = Character(
+        val episode1 = Episode(
             id = 1,
-            name = "Rick Sanchez",
-            status = "Alive",
-            species = "Human",
-            type = "",
-            origin = LocationShort(
-                id = 1,
-                name = "Earth (C-137)",
-            ),
-            location = LocationShort(
-                id = 20,
-                name = "Earth (Replacement Dimension)",
-            ),
-            gender = "Male",
-            image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+            name = "Pilot",
+            airDate = "December 9, 2013",
+            episode = "S01E01",
         )
 
-        CharactersListView(
-            state = CharactersListState(
-                characterFilter = CharacterFilter(
+        EpisodesListView(
+            state = EpisodesListState(
+                episodeFilter = EpisodeFilter(
                     name = "",
-                    status = "",
-                    species = "",
+                    episode = "",
                 ),
-                characters = flowOf(
+                episodes = flowOf(
                     value = PagingData.from(
                         data = listOf(
-                            character1,
-                            character1.copy(id = 2)
+                            episode1,
+                            episode1.copy(id = 2)
                         ),
                         sourceLoadStates = LoadStates(
                             refresh = LoadState.NotLoading(false),
@@ -340,10 +296,8 @@ fun CharactersListViewPreview() {
             ),
             onSearchChange = {},
             onSearchClear = {},
-            onStatusSelected = {},
-            onSpeciesSelected = {},
-            onGenderSelected = {},
-            onTypeSelected = {},
+            onEpisodeSelected = {},
+            onSeasonSelected = {},
             onCharacterItemClick = {},
             onBackPress = {},
         )

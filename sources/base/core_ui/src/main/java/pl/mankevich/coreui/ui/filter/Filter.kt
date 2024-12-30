@@ -80,7 +80,8 @@ fun FilterView(
     filterGroupList: List<FilterGroup>,
     chipPadding: Dp = 4.dp,
     chipHeight: Dp = 32.dp,
-    startPadding: Dp = 0.dp,
+    scrollablePadding: Dp = 0.dp,
+    withDialogue: Boolean = true,
     modifier: Modifier = Modifier.height(32.dp)
 ) {
 
@@ -88,7 +89,6 @@ fun FilterView(
     if (showDialog) {
         FilterDialog(
             name = name,
-            showSettingsDialog = showDialog,
             filterGroupList = filterGroupList,
             chipPadding = chipPadding,
             chipHeight = chipHeight,
@@ -130,25 +130,32 @@ fun FilterView(
                     filterGroup = filterGroup,
                     modifier = Modifier
                         .then(
-                            if (index == 0) Modifier.padding(start = startPadding)
+                            if (index == 0) Modifier.padding(start = scrollablePadding)
                             else Modifier
+                        )
+                        .then(
+                            if (!showDialog && index == sortedLabelList.lastIndex) {
+                                Modifier.padding(end = scrollablePadding)
+                            } else Modifier
                         )
                         .height(chipHeight)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        if (withDialogue) {
+            Spacer(modifier = Modifier.width(8.dp))
 
-        SurfaceIconButton(
-            onClick = {
-                showDialog = true
-            },
-            imageVector = Icons.Default.Menu,
-            contentDescription = "Show filters",
-            iconSize = 16.dp,
-            modifier = Modifier.size(chipHeight)
-        )
+            SurfaceIconButton(
+                onClick = {
+                    showDialog = true
+                },
+                imageVector = Icons.Default.Menu,
+                contentDescription = "Show filters",
+                iconSize = 16.dp,
+                modifier = Modifier.size(chipHeight)
+            )
+        }
     }
 }
 
@@ -206,6 +213,46 @@ fun FilterViewPreview() {
                     onSelectedChanged = {},
                 )
             )
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+fun FilterViewWithoutDialoguePreview() {
+    RnmTheme {
+        val selectedSpecies by rememberSaveable { mutableStateOf("Alien") }
+        val speciesLabelList = rememberSaveableMutableStateListOf(
+            "Alien", "Human", "Humanoid", "Robo"
+        )
+
+        val selectedGender by rememberSaveable { mutableStateOf("") }
+        val genderLabelList = rememberSaveableMutableStateListOf(
+            "Male", "Female", "Genderless", "Unknown"
+        )
+
+        FilterView(
+            name = "Characters filter",
+            filterGroupList = listOf(
+                FilterGroup(
+                    name = "Species",
+                    selected = selectedSpecies,
+                    labelList = speciesLabelList,
+                    isListFinished = false,
+                    resolveIcon = { text -> RnmIcons.Alien },
+                    onSelectedChanged = {},
+                ),
+                FilterGroup(
+                    name = "Gender",
+                    selected = selectedGender,
+                    labelList = genderLabelList,
+                    isListFinished = true,
+                    resolveIcon = { text -> RnmIcons.GenderIntersex },
+                    onSelectedChanged = {},
+                )
+            ),
+            withDialogue = false,
+            scrollablePadding = 8.dp
         )
     }
 }

@@ -57,103 +57,100 @@ import pl.mankevich.designsystem.theme.ThemePreviews
 @Composable
 fun FilterDialog(
     name: String,
-    showSettingsDialog: Boolean,
     filterGroupList: List<FilterGroup>,
     chipPadding: Dp,
     chipHeight: Dp,
     onDismissed: () -> Unit,
 ) {
-    if (showSettingsDialog) {
-        val configuration = LocalConfiguration.current
+    val configuration = LocalConfiguration.current
 
-        /**
-         * usePlatformDefaultWidth = false is use as a temporary fix to allow
-         * height recalculation during recomposition. This, however, causes
-         * Dialog's to occupy full width in Compact mode. Therefore max width
-         * is configured below. This should be removed when there's fix to
-         * https://issuetracker.google.com/issues/221643630
-         */
-        AlertDialog(
-            properties = DialogProperties(usePlatformDefaultWidth = false),
-            modifier = Modifier.widthIn(max = (configuration.screenWidthDp * 0.9).dp),
-            onDismissRequest = { onDismissed() },
-            title = {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+    /**
+     * usePlatformDefaultWidth = false is use as a temporary fix to allow
+     * height recalculation during recomposition. This, however, causes
+     * Dialog's to occupy full width in Compact mode. Therefore max width
+     * is configured below. This should be removed when there's fix to
+     * https://issuetracker.google.com/issues/221643630
+     */
+    AlertDialog(
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        modifier = Modifier.widthIn(max = (configuration.screenWidthDp * 0.9).dp),
+        onDismissRequest = { onDismissed() },
+        title = {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        text = {
+            /* https://issuetracker.google.com/issues/270983047, https://issuetracker.google.com/issues/289117017 - only emulator bug.
+            1. Turn on your emulator/device Developer Options;
+            2. Scroll down to the section 'Hardware accelerated rendering';
+            3. Then, just enable the 'Disable HW overlays'.
+
+            (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0f) */
+
+            var focusedGroup by rememberSaveable { mutableStateOf<String?>(null) }
+            var inputValue by rememberSaveable { mutableStateOf("") }
+            val saveInputAndSetGroupFocus: (String?) -> Unit = {
+                filterGroupList.find { it.name == focusedGroup }?.run {
+                    if (inputValue.isNotBlank()) onSelectedChanged(inputValue)
+                }
+                inputValue = ""
+                focusedGroup = it
+            }
+
+            HorizontalDivider()
+
+            val listState = rememberScrollState()
+            LaunchedEffect(Unit) {
+                listState.interactionSource.interactions
+                    .distinctUntilChanged()
+                    .filterIsInstance<DragInteraction.Start>()
+                    .collect {
+                        saveInputAndSetGroupFocus(null)
+                    }
+            }
+
+            Column(
+                Modifier
+                    .verticalScroll(listState)
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = { saveInputAndSetGroupFocus(null) })
+                    },
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                filterGroupList.forEach { filterGroup ->
+                    FilterGroupView(
+                        inputValue = inputValue,
+                        onValueChange = { inputValue = it },
+                        isGroupFocused = focusedGroup == filterGroup.name,
+                        onGroupFocusChange = { saveInputAndSetGroupFocus(it) },
+                        filterGroup = filterGroup,
+                        chipPadding = chipPadding,
+                        chipHeight = chipHeight,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onDismissed() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
                 )
-            },
-            text = {
-                /* https://issuetracker.google.com/issues/270983047, https://issuetracker.google.com/issues/289117017 - only emulator bug.
-                1. Turn on your emulator/device Developer Options;
-                2. Scroll down to the section 'Hardware accelerated rendering';
-                3. Then, just enable the 'Disable HW overlays'.
-
-                (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0f) */
-
-                var focusedGroup by rememberSaveable { mutableStateOf<String?>(null) }
-                var inputValue by rememberSaveable { mutableStateOf("") }
-                val saveInputAndSetGroupFocus: (String?) -> Unit = {
-                    filterGroupList.find { it.name == focusedGroup }?.run {
-                        if (inputValue.isNotBlank()) onSelectedChanged(inputValue)
-                    }
-                    inputValue = ""
-                    focusedGroup = it
-                }
-
-                HorizontalDivider()
-
-                val listState = rememberScrollState()
-                LaunchedEffect(Unit) {
-                    listState.interactionSource.interactions
-                        .distinctUntilChanged()
-                        .filterIsInstance<DragInteraction.Start>()
-                        .collect {
-                            saveInputAndSetGroupFocus(null)
-                        }
-                }
-
-                Column(
-                    Modifier
-                        .verticalScroll(listState)
-                        .pointerInput(Unit) {
-                            detectTapGestures(onTap = { saveInputAndSetGroupFocus(null) })
-                        },
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    filterGroupList.forEach { filterGroup ->
-                        FilterGroupView(
-                            inputValue = inputValue,
-                            onValueChange = { inputValue = it },
-                            isGroupFocused = focusedGroup == filterGroup.name,
-                            onGroupFocusChange = { saveInputAndSetGroupFocus(it) },
-                            filterGroup = filterGroup,
-                            chipPadding = chipPadding,
-                            chipHeight = chipHeight,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = { onDismissed() },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                    )
-                ) {
-                    Text(
-                        text = "OK",
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.background,
-        )
-    }
+            ) {
+                Text(
+                    text = "OK",
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.background,
+    )
 }
 
 @Composable
@@ -257,7 +254,6 @@ fun FilterDialogPreview() {
     RnmTheme {
         FilterDialog(
             name = "Characters filter",
-            showSettingsDialog = true,
             filterGroupList = listOf(
                 FilterGroup(
                     name = "Species",

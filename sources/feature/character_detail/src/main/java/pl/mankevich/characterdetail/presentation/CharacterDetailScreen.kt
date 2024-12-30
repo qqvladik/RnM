@@ -47,6 +47,7 @@ import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 import pl.mankevich.coreui.utils.characterGenderIconResolver
 import pl.mankevich.coreui.utils.characterSpeciesIconResolver
 import pl.mankevich.coreui.utils.characterStatusIconResolver
+import pl.mankevich.coreui.utils.characterTypeIconResolver
 import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.model.Character
 import pl.mankevich.model.Episode
@@ -198,7 +199,7 @@ fun CharacterDetailView(
         CharacterDetail(
             name = "Type",
             value = character.type,
-            icon = RnmIcons.Blocks,
+            icon = characterTypeIconResolver(character.type),
             onDetailClick = { onTypeFilterClick(character.type) }
         )
 
