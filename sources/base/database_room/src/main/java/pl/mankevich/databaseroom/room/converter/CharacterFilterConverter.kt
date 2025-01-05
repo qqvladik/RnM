@@ -3,7 +3,7 @@ package pl.mankevich.databaseroom.room.converter
 import androidx.room.TypeConverter
 import pl.mankevich.databaseapi.entity.CharacterFilterEntity
 
-class FilterConverter {
+class CharacterFilterConverter {
 
     @TypeConverter
     fun fromFilter(filter: CharacterFilterEntity): String {
@@ -16,10 +16,6 @@ class FilterConverter {
         return nameStr.plus(statusStr).plus(speciesStr).plus(typeStr).plus(genderStr)
     }
 
-    private fun String.buildQueryParam(key: String): String {
-        return this.ifBlank { null }?.let { "&$key=$it" }.orEmpty()
-    }
-
     @TypeConverter
     fun toFilter(filterString: String): CharacterFilterEntity {
         val name = filterString.extractValue("name")
@@ -29,11 +25,5 @@ class FilterConverter {
         val gender = filterString.extractValue("gender")
 
         return CharacterFilterEntity(name, status, species, type, gender)
-    }
-
-    private fun String.extractValue(key: String): String {
-        return this
-            .substringAfter("&$key=", "")
-            .substringBefore("&")
     }
 }

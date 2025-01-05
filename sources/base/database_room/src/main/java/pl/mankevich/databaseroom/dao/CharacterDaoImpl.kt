@@ -30,11 +30,16 @@ class CharacterDaoImpl
         tableUpdateNotifier.notifyListeners()
     }
 
-    override suspend fun getCharacterById(id: Int): Flow<CharacterEntity> =
+    override fun getCharacterById(id: Int): Flow<CharacterEntity> =
         characterRoomDao.getCharacterById(id).map { it.mapToEntity() }
 
     override suspend fun getCharactersByIds(ids: List<Int>): List<CharacterEntity> =
         characterRoomDao.getCharactersByIds(ids).map { it.mapToEntity() }
+
+    override fun getCharactersFlowByIds(ids: List<Int>): Flow<List<CharacterEntity>> =
+        characterRoomDao.getCharactersFlowByIds(ids).map { list ->
+            list.map { it.mapToEntity() }
+        }
 
     override suspend fun getCharactersList(
         characterFilterEntity: CharacterFilterEntity,
@@ -60,13 +65,6 @@ class CharacterDaoImpl
             gender = characterFilterEntity.gender
         )
 
-    override suspend fun insertPageKeysList(pageKeys: List<CharacterPageKeyEntity>) {
-        characterPageKeyRoomDao.insertPageKeysList(
-            pageKeys.map { it.mapToRoom() }
-        )
-        tableUpdateNotifier.notifyListeners()
-    }
-
     override suspend fun getCharacterIds(
         characterFilterEntity: CharacterFilterEntity,
         limit: Int,
@@ -74,7 +72,17 @@ class CharacterDaoImpl
     ): List<Int> =
         characterPageKeyRoomDao.getCharacterIdsByFilter(characterFilterEntity, limit, offset)
 
-    override suspend fun getPageKey(characterId: Int, characterFilterEntity: CharacterFilterEntity): CharacterPageKeyEntity? =
+    override suspend fun insertPageKeysList(pageKeys: List<CharacterPageKeyEntity>) {
+        characterPageKeyRoomDao.insertPageKeysList(
+            pageKeys.map { it.mapToRoom() }
+        )
+        tableUpdateNotifier.notifyListeners()
+    }
+
+    override suspend fun getPageKey(
+        characterId: Int,
+        characterFilterEntity: CharacterFilterEntity
+    ): CharacterPageKeyEntity? =
         characterPageKeyRoomDao.getPageKey(characterId, characterFilterEntity)?.mapToEntity()
 
     override suspend fun getPageKeysCount(characterFilterEntity: CharacterFilterEntity): Int =

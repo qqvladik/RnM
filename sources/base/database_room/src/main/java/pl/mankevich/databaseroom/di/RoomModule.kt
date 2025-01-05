@@ -13,6 +13,8 @@ import pl.mankevich.databaseroom.room.dao.EpisodeRoomDao
 import pl.mankevich.databaseroom.room.dao.LocationRoomDao
 import pl.mankevich.databaseroom.room.dao.RelationsRoomDao
 import pl.mankevich.databaseapi.dao.Transaction
+import pl.mankevich.databaseroom.room.dao.EpisodePageKeyRoomDao
+import pl.mankevich.databaseroom.room.dao.LocationPageKeyRoomDao
 
 @Module
 class RoomModule {
@@ -51,6 +53,16 @@ class RoomModule {
     @Provides
     fun provideCharacterPageKeyDao(rnmDatabase: RnmDatabase): CharacterPageKeyRoomDao {
         return rnmDatabase.getCharacterPageKeyDao()
+    }
+
+    @Provides
+    fun provideEpisodePageKeyDao(rnmDatabase: RnmDatabase): EpisodePageKeyRoomDao {
+        return rnmDatabase.getEpisodePageKeyDao()
+    }
+
+    @Provides
+    fun provideEpisodeCharacterDao(rnmDatabase: RnmDatabase): LocationPageKeyRoomDao {
+        return rnmDatabase.getEpisodeCharacterDao()
     }
 
     @Provides

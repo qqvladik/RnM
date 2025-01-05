@@ -51,7 +51,7 @@ class EpisodeRepositoryImpl
                         Log.e("EpisodeRepositoryImpl", "Error while fetching Episodes By CharacterId") //TODO result.error
                     }
                 }.flatMapLatest {
-                    episodeDao.getEpisodesByIds(episodeIds)
+                    episodeDao.getEpisodesFlowByIds(episodeIds)
                         .distinctUntilChanged()
                         .map { list -> list.map { it.mapToEpisode() } }
                 }

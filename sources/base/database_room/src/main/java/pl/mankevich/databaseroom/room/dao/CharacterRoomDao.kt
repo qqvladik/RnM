@@ -1,9 +1,8 @@
 package pl.mankevich.databaseroom.room.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import pl.mankevich.databaseroom.room.entity.CharacterRoomEntity
 import pl.mankevich.databaseroom.room.entity.CharacterRoomEntity.Companion.CHARACTER_TABLE_NAME
@@ -20,10 +19,10 @@ import pl.mankevich.databaseroom.room.entity.LocationEmbedded
 @Dao
 interface CharacterRoomDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertCharacter(character: CharacterRoomEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertCharactersList(characters: List<CharacterRoomEntity>)
 
     @Query("SELECT * FROM $CHARACTER_TABLE_NAME WHERE $ID_COLUMN=(:id)")
@@ -32,8 +31,11 @@ interface CharacterRoomDao {
     @Query("SELECT * FROM $CHARACTER_TABLE_NAME WHERE $ID_COLUMN in (:ids)")
     suspend fun getCharactersByIds(ids: List<Int>): List<CharacterRoomEntity>
 
+    @Query("SELECT * FROM $CHARACTER_TABLE_NAME WHERE $ID_COLUMN in (:ids)")
+    fun getCharactersFlowByIds(ids: List<Int>): Flow<List<CharacterRoomEntity>>
+
     @Query(
-        "SELECT * FROM $CHARACTER_TABLE_NAME " +//todo add to lower case
+        "SELECT * FROM $CHARACTER_TABLE_NAME " +
                 "WHERE $NAME_COLUMN LIKE '%' || (:name) || '%' " +
                 "AND $STATUS_COLUMN LIKE '%' || (:status) || '%' " +
                 "AND $SPECIES_COLUMN LIKE '%' || (:species) || '%' " +
@@ -60,7 +62,7 @@ interface CharacterRoomDao {
     ): List<CharacterRoomEntity>
 
     @Query(
-        "SELECT COUNT(*) FROM ( $CHARACTER_TABLE_NAME )" +//todo add to lower case
+        "SELECT COUNT(*) FROM ( $CHARACTER_TABLE_NAME )" +
                 "WHERE $NAME_COLUMN LIKE '%' || (:name) || '%' " +
                 "AND $STATUS_COLUMN LIKE '%' || (:status) || '%' " +
                 "AND $SPECIES_COLUMN LIKE '%' || (:species) || '%' " +
