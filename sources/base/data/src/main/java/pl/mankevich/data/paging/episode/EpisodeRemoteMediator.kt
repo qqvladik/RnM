@@ -1,32 +1,33 @@
-package pl.mankevich.data.paging.character
+package pl.mankevich.data.paging.episode
 
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
+import androidx.paging.RemoteMediator.MediatorResult
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import pl.mankevich.data.mapper.mapToCharacterDto
+import pl.mankevich.data.mapper.mapToEpisodeDto
 import pl.mankevich.data.mapper.mapToEntity
 import pl.mankevich.data.mapper.mapToQuery
-import pl.mankevich.model.Character
-import pl.mankevich.model.CharacterFilter
-import pl.mankevich.remoteapi.api.CharacterApi
-import pl.mankevich.databaseapi.dao.CharacterDao
+import pl.mankevich.databaseapi.dao.EpisodeDao
 import pl.mankevich.databaseapi.dao.RelationsDao
 import pl.mankevich.databaseapi.dao.Transaction
-import pl.mankevich.databaseapi.entity.CharacterPageKeyEntity
+import pl.mankevich.databaseapi.entity.EpisodePageKeyEntity
+import pl.mankevich.model.Episode
+import pl.mankevich.model.EpisodeFilter
+import pl.mankevich.remoteapi.api.EpisodeApi
 
-class CharacterRemoteMediator @AssistedInject constructor(
+class EpisodeRemoteMediator @AssistedInject constructor(
     private val transaction: Transaction,
-    private val characterDao: CharacterDao,
+    private val episodeDao: EpisodeDao,
     private val relationsDao: RelationsDao,
-    private val characterApi: CharacterApi,
-    @Assisted private val characterFilter: CharacterFilter
-) : RemoteMediator<Int, Character>() {
+    private val episodeApi: EpisodeApi,
+    @Assisted private val episodeFilter: EpisodeFilter
+) : RemoteMediator<Int, Episode>() {
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, Character>
+        state: PagingState<Int, Episode>
     ): MediatorResult {
         return try {
             val currentPage = when (loadType) {
@@ -36,7 +37,7 @@ class CharacterRemoteMediator @AssistedInject constructor(
                     // infinitely because Room's PagingSource has such weird behavior
 //                    val remoteKey = state.anchorPosition?.let { position ->
 //                        state.closestItemToPosition(position)?.let {
-//                            characterDao.getPageKey(it.id, filter.mapToFilterDto())
+//                            episodeDao.getPageKey(it.id, filter.mapToFilterDto())
 //                        }
 //                    }
 //                    remoteKey?.value ?: 1
@@ -44,29 +45,29 @@ class CharacterRemoteMediator @AssistedInject constructor(
 
                 LoadType.PREPEND -> {
                     val remoteKey = state.firstItemOrNull()?.let {
-                        characterDao.getPageKey(it.id, characterFilter.mapToEntity())
+                        episodeDao.getPageKey(it.id, episodeFilter.mapToEntity())
                     }
                     remoteKey?.previousPageKey ?: return MediatorResult.Success(remoteKey != null)
                 }
 
                 LoadType.APPEND -> {
                     val remoteKey = state.lastItemOrNull()?.let {
-                        characterDao.getPageKey(it.id, characterFilter.mapToEntity())
+                        episodeDao.getPageKey(it.id, episodeFilter.mapToEntity())
                     }
                     remoteKey?.nextPageKey ?: return MediatorResult.Success(remoteKey != null)
                 }
             }
 
-            val charactersListResponse = characterApi.fetchCharactersList(
+            val episodesListResponse = episodeApi.fetchEpisodesList(
                 page = currentPage,
-                filter = characterFilter.mapToQuery()
+                filter = episodeFilter.mapToQuery()
             )
-            val responseInfo = charactersListResponse.info
+            val responseInfo = episodesListResponse.info
 
-            val idPageKeys = charactersListResponse.charactersResponse.map {
-                CharacterPageKeyEntity(
-                    characterId = it.id,
-                    filter = characterFilter.mapToEntity(),
+            val idPageKeys = episodesListResponse.episodesResponse.map {
+                EpisodePageKeyEntity(
+                    episodeId = it.id,
+                    filter = episodeFilter.mapToEntity(),
                     value = currentPage,
                     previousPageKey = responseInfo.prev,
                     nextPageKey = responseInfo.next
@@ -74,13 +75,13 @@ class CharacterRemoteMediator @AssistedInject constructor(
             }
 
             transaction {
-                val characters = charactersListResponse.charactersResponse.map { characterResponse ->
-                    relationsDao.insertCharacterEpisodes(characterResponse.id, characterResponse.episodeIds)
-                    characterResponse.mapToCharacterDto()
+                val episodes = episodesListResponse.episodesResponse.map { episodeResponse ->
+                    relationsDao.insertEpisodeCharacters(episodeResponse.id, episodeResponse.characterIds)
+                    episodeResponse.mapToEpisodeDto()
                 }
 
-                characterDao.insertPageKeysList(idPageKeys)
-                characterDao.insertCharactersList(characters)
+                episodeDao.insertPageKeysList(idPageKeys)
+                episodeDao.insertEpisodesList(episodes)
             }
             MediatorResult.Success(endOfPaginationReached = responseInfo.next == null)
         } catch (e: Exception) {

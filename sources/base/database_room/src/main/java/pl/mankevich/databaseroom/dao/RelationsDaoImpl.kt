@@ -53,4 +53,10 @@ class RelationsDaoImpl
 
     override fun getEpisodeIdsByCharacterId(characterId: Int): Flow<List<Int>> =
         relationsRoomDao.getEpisodeIdsByCharacterId(characterId)
+
+    override fun getCharacterIdsByEpisodeId(episodeId: Int): Flow<List<Int>> =
+        relationsRoomDao.getCharacterIdsByEpisodeId(episodeId)
+
+    override fun getCharacterIdsByLocationId(locationId: Int): Flow<List<Int>> =
+        relationsRoomDao.getCharacterIdsByLocationId(locationId)
 }

@@ -11,4 +11,8 @@ interface RelationsDao {
     fun insertEpisodeCharacters(episodeId: Int, characterIds: List<Int>)
 
     fun getEpisodeIdsByCharacterId(characterId: Int): Flow<List<Int>>
+
+    fun getCharacterIdsByEpisodeId(episodeId: Int): Flow<List<Int>>
+
+    fun getCharacterIdsByLocationId(locationId: Int): Flow<List<Int>>
 }

@@ -1,32 +1,33 @@
-package pl.mankevich.data.paging.character
+package pl.mankevich.data.paging.location
 
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
+import androidx.paging.RemoteMediator.MediatorResult
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import pl.mankevich.data.mapper.mapToCharacterDto
+import pl.mankevich.data.mapper.mapToLocationDto
 import pl.mankevich.data.mapper.mapToEntity
 import pl.mankevich.data.mapper.mapToQuery
-import pl.mankevich.model.Character
-import pl.mankevich.model.CharacterFilter
-import pl.mankevich.remoteapi.api.CharacterApi
-import pl.mankevich.databaseapi.dao.CharacterDao
+import pl.mankevich.databaseapi.dao.LocationDao
 import pl.mankevich.databaseapi.dao.RelationsDao
 import pl.mankevich.databaseapi.dao.Transaction
-import pl.mankevich.databaseapi.entity.CharacterPageKeyEntity
+import pl.mankevich.databaseapi.entity.LocationPageKeyEntity
+import pl.mankevich.model.Location
+import pl.mankevich.model.LocationFilter
+import pl.mankevich.remoteapi.api.LocationApi
 
-class CharacterRemoteMediator @AssistedInject constructor(
+class LocationRemoteMediator @AssistedInject constructor(
     private val transaction: Transaction,
-    private val characterDao: CharacterDao,
+    private val locationDao: LocationDao,
     private val relationsDao: RelationsDao,
-    private val characterApi: CharacterApi,
-    @Assisted private val characterFilter: CharacterFilter
-) : RemoteMediator<Int, Character>() {
+    private val locationApi: LocationApi,
+    @Assisted private val locationFilter: LocationFilter
+) : RemoteMediator<Int, Location>() {
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, Character>
+        state: PagingState<Int, Location>
     ): MediatorResult {
         return try {
             val currentPage = when (loadType) {
@@ -36,7 +37,7 @@ class CharacterRemoteMediator @AssistedInject constructor(
                     // infinitely because Room's PagingSource has such weird behavior
 //                    val remoteKey = state.anchorPosition?.let { position ->
 //                        state.closestItemToPosition(position)?.let {
-//                            characterDao.getPageKey(it.id, filter.mapToFilterDto())
+//                            locationDao.getPageKey(it.id, filter.mapToFilterDto())
 //                        }
 //                    }
 //                    remoteKey?.value ?: 1
@@ -44,29 +45,29 @@ class CharacterRemoteMediator @AssistedInject constructor(
 
                 LoadType.PREPEND -> {
                     val remoteKey = state.firstItemOrNull()?.let {
-                        characterDao.getPageKey(it.id, characterFilter.mapToEntity())
+                        locationDao.getPageKey(it.id, locationFilter.mapToEntity())
                     }
                     remoteKey?.previousPageKey ?: return MediatorResult.Success(remoteKey != null)
                 }
 
                 LoadType.APPEND -> {
                     val remoteKey = state.lastItemOrNull()?.let {
-                        characterDao.getPageKey(it.id, characterFilter.mapToEntity())
+                        locationDao.getPageKey(it.id, locationFilter.mapToEntity())
                     }
                     remoteKey?.nextPageKey ?: return MediatorResult.Success(remoteKey != null)
                 }
             }
 
-            val charactersListResponse = characterApi.fetchCharactersList(
+            val locationsListResponse = locationApi.fetchLocationsList(
                 page = currentPage,
-                filter = characterFilter.mapToQuery()
+                filter = locationFilter.mapToQuery()
             )
-            val responseInfo = charactersListResponse.info
+            val responseInfo = locationsListResponse.info
 
-            val idPageKeys = charactersListResponse.charactersResponse.map {
-                CharacterPageKeyEntity(
-                    characterId = it.id,
-                    filter = characterFilter.mapToEntity(),
+            val idPageKeys = locationsListResponse.locationsResponse.map {
+                LocationPageKeyEntity(
+                    locationId = it.id,
+                    filter = locationFilter.mapToEntity(),
                     value = currentPage,
                     previousPageKey = responseInfo.prev,
                     nextPageKey = responseInfo.next
@@ -74,13 +75,13 @@ class CharacterRemoteMediator @AssistedInject constructor(
             }
 
             transaction {
-                val characters = charactersListResponse.charactersResponse.map { characterResponse ->
-                    relationsDao.insertCharacterEpisodes(characterResponse.id, characterResponse.episodeIds)
-                    characterResponse.mapToCharacterDto()
+                val locations = locationsListResponse.locationsResponse.map { locationResponse ->
+                    relationsDao.insertLocationCharacters(locationResponse.id, locationResponse.residentIds)
+                    locationResponse.mapToLocationDto()
                 }
 
-                characterDao.insertPageKeysList(idPageKeys)
-                characterDao.insertCharactersList(characters)
+                locationDao.insertPageKeysList(idPageKeys)
+                locationDao.insertLocationsList(locations)
             }
             MediatorResult.Success(endOfPaginationReached = responseInfo.next == null)
         } catch (e: Exception) {

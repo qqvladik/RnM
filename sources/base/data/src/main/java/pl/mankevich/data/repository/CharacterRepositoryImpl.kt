@@ -1,6 +1,5 @@
 package pl.mankevich.data.repository
 
-import android.util.Log
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -9,6 +8,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingSourceFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -19,21 +19,26 @@ import pl.mankevich.data.mapper.mapToCharacterDto
 import pl.mankevich.data.paging.character.CharacterPagingSourceCreator
 import pl.mankevich.data.paging.character.CharacterRemoteMediatorCreator
 import pl.mankevich.dataapi.repository.CharacterRepository
+import pl.mankevich.dataapi.repository.ITEMS_PER_PAGE
+import pl.mankevich.dataapi.repository.QUERY_DELAY_MILLIS
+import pl.mankevich.databaseapi.dao.CharacterDao
+import pl.mankevich.databaseapi.dao.RelationsDao
+import pl.mankevich.databaseapi.dao.Transaction
 import pl.mankevich.model.Character
 import pl.mankevich.model.CharacterFilter
 import pl.mankevich.remoteapi.api.CharacterApi
-import pl.mankevich.databaseapi.dao.CharacterDao
 import javax.inject.Inject
-
-private const val ITEMS_PER_PAGE = 20
+import kotlin.collections.map
 
 class CharacterRepositoryImpl
 @Inject constructor(
     private val characterApi: CharacterApi,
     private val characterDao: CharacterDao,
+    private val relationsDao: RelationsDao,
+    private val transaction: Transaction,
     private val characterPagingSourceCreator: CharacterPagingSourceCreator,
     private val characterRemoteMediatorCreator: CharacterRemoteMediatorCreator,
-    private val networkManager: NetworkManager
+    private val networkManager: NetworkManager,
 ) : CharacterRepository {
 
     private lateinit var onTableUpdateListener: () -> Unit
@@ -61,12 +66,9 @@ class CharacterRepositoryImpl
         flow {
             emit(Unit)
 
-            try {
-                val characterResponse = characterApi.fetchCharacterById(characterId)
-                characterDao.insertCharacter(characterResponse.mapToCharacterDto())
-            } catch (_: Exception) {
-                Log.e("CharacterRepositoryImpl", "Error while fetching character detail") //TODO result.error
-            }
+            val characterResponse = characterApi.fetchCharacterById(characterId)
+            characterDao.insertCharacter(characterResponse.mapToCharacterDto())
+
         }.flatMapLatest {
             characterDao.getCharacterById(characterId)
                 .distinctUntilChanged()
@@ -84,5 +86,61 @@ class CharacterRepositoryImpl
         characterDao.addTableUpdateWeakListener(onTableUpdateListener)
 
         return invalidatingPagingSourceFactory
+    }
+
+    override fun getCharactersByEpisodeId(episodeId: Int): Flow<List<Character>> {
+        val characterIds = relationsDao.getCharacterIdsByEpisodeId(episodeId)
+        return characterIds
+            .distinctUntilChanged()
+            .debounce(QUERY_DELAY_MILLIS)
+            .flatMapLatest { characterIds ->
+                flow {
+                    emit(Unit)
+
+                    val charactersListResponse = characterApi.fetchCharactersByIds(characterIds)
+                    transaction {
+                        characterDao.insertCharactersList(charactersListResponse.map { it.mapToCharacterDto() })
+                        charactersListResponse.forEach { characterResponse ->
+                            relationsDao.insertEpisodeCharacters(
+                                characterResponse.id,
+                                characterResponse.episodeIds
+                            )
+                        }
+                    }
+
+                }.flatMapLatest {
+                    characterDao.getCharactersFlowByIds(characterIds)
+                        .distinctUntilChanged()
+                        .map { list -> list.map { it.mapToCharacter() } }
+                }
+            }
+    }
+
+    override fun getCharactersByLocationId(locationId: Int): Flow<List<Character>> {
+        val episodeIdsFlow = relationsDao.getCharacterIdsByLocationId(locationId)
+        return episodeIdsFlow
+            .distinctUntilChanged()
+            .debounce(QUERY_DELAY_MILLIS)
+            .flatMapLatest { characterIds ->
+                flow {
+                    emit(Unit)
+
+                    val charactersListResponse = characterApi.fetchCharactersByIds(characterIds)
+                    transaction {
+                        characterDao.insertCharactersList(charactersListResponse.map { it.mapToCharacterDto() })
+                        charactersListResponse.forEach { characterResponse ->
+                            relationsDao.insertEpisodeCharacters(
+                                characterResponse.id,
+                                characterResponse.episodeIds
+                            )
+                        }
+                    }
+
+                }.flatMapLatest {
+                    characterDao.getCharactersFlowByIds(characterIds)
+                        .distinctUntilChanged()
+                        .map { list -> list.map { it.mapToCharacter() } }
+                }
+            }
     }
 }
