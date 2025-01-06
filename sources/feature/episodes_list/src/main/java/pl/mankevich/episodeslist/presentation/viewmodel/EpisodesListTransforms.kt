@@ -5,10 +5,33 @@ import kotlinx.coroutines.flow.Flow
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.ui.filter.addLabelIfUnique
 import pl.mankevich.model.Episode
+import pl.mankevich.model.EpisodeFilter
 
 typealias EpisodesListTransform = Transform<EpisodesListStateWithEffects>
 
 object EpisodesListTransforms {
+
+    data class Init(
+        val filter: EpisodeFilter
+    ) : EpisodesListTransform {
+
+        override fun reduce(current: EpisodesListStateWithEffects): EpisodesListStateWithEffects {
+            return current.copy(
+                state = current.state.copy(
+                    episodeFilter = filter,
+                    seasonLabelList = current.state.seasonLabelList.addLabelIfUnique(
+                        filter.season?.toString() ?: ""
+                    ),
+                    episodeLabelList = current.state.episodeLabelList.addLabelIfUnique(
+                        filter.episode?.toString() ?: ""
+                    ),
+                ),
+                sideEffects = current.sideEffects.add(
+                    EpisodesListSideEffect.OnLoadEpisodesRequested(filter)
+                )
+            )
+        }
+    }
 
     data class ChangeName(
         val name: String
@@ -29,17 +52,19 @@ object EpisodesListTransforms {
     }
 
     data class ChangeSeason(
-        val season: String = "",
+        val season: Int?,
     ) : EpisodesListTransform {
 
         override fun reduce(current: EpisodesListStateWithEffects): EpisodesListStateWithEffects {
             val currentFilter = current.state.episodeFilter
             val newFilter =
-                currentFilter.copy(season = season.toIntOrNull())
+                currentFilter.copy(season = season)
             return current.copy(
                 state = current.state.copy(
                     episodeFilter = newFilter,
-                    seasonLabelList = current.state.seasonLabelList.addLabelIfUnique(season),
+                    seasonLabelList = current.state.seasonLabelList.addLabelIfUnique(
+                        season?.toString() ?: ""
+                    ),
                 ),
                 sideEffects = current.sideEffects.add(
                     EpisodesListSideEffect.OnLoadEpisodesRequested(newFilter)
@@ -49,17 +74,19 @@ object EpisodesListTransforms {
     }
 
     data class ChangeEpisode(
-        val episode: String = "",
+        val episode: Int?,
     ) : EpisodesListTransform {
 
         override fun reduce(current: EpisodesListStateWithEffects): EpisodesListStateWithEffects {
             val currentFilter = current.state.episodeFilter
             val newFilter =
-                currentFilter.copy(episode = episode.toIntOrNull())
+                currentFilter.copy(episode = episode)
             return current.copy(
                 state = current.state.copy(
                     episodeFilter = newFilter,
-                    episodeLabelList = current.state.episodeLabelList.addLabelIfUnique(episode),
+                    episodeLabelList = current.state.episodeLabelList.addLabelIfUnique(
+                        episode?.toString() ?: ""
+                    ),
                 ),
                 sideEffects = current.sideEffects.add(
                     EpisodesListSideEffect.OnLoadEpisodesRequested(newFilter)

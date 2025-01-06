@@ -4,11 +4,29 @@ import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.model.Location
+import pl.mankevich.model.LocationFilter
 import kotlin.collections.plus
 
 typealias LocationsListTransform = Transform<LocationsListStateWithEffects>
 
 object LocationsListTransforms {
+
+    data class Init(
+        val filter: LocationFilter
+    ) : LocationsListTransform {
+
+        override fun reduce(current: LocationsListStateWithEffects): LocationsListStateWithEffects {
+            return current.copy(
+                state = current.state.copy(
+                    locationFilter = filter,
+                    typeLabelList = current.state.typeLabelList.addLabelIfUnique(filter.type),
+                    dimensionLabelList = current.state.dimensionLabelList.addLabelIfUnique(filter.dimension),
+                ),
+                sideEffects = current.sideEffects
+                    .add(LocationsListSideEffect.OnLoadLocationsRequested(filter))
+            )
+        }
+    }
 
     data class ChangeName(
         val name: String

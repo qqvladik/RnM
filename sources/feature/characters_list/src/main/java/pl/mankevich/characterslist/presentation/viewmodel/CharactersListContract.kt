@@ -15,6 +15,8 @@ typealias CharactersListMviViewModel = MviViewModel<CharactersListIntent, Charac
 
 sealed class CharactersListIntent {
 
+    data class Init(val characterFilter: CharacterFilter) : CharactersListIntent(), UniqueIntent
+
     data class LoadCharacters(val characterFilter: CharacterFilter) : CharactersListIntent(), UniqueIntent
 
     data class Refresh(val characterFilter: CharacterFilter) : CharactersListIntent(), UniqueIntent
@@ -33,6 +35,8 @@ sealed class CharactersListIntent {
 }
 
 sealed interface CharactersListSideEffect {
+
+    data class OnInitRequested(val characterFilter: CharacterFilter) : CharactersListSideEffect
 
     data class OnCharacterItemClicked(val characterId: Int) : CharactersListSideEffect
 

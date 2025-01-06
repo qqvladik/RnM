@@ -25,11 +25,9 @@ class EpisodesListViewModel
     private val loadEpisodesListUseCase: LoadEpisodesListUseCase,
 ) : EpisodesListMviViewModel(
     initialStateWithEffects = EpisodesListStateWithEffects(
-        state = EpisodesListState(
-            episodeFilter = savedStateHandle.getEpisodeFilter()
-        ),
+        state = EpisodesListState(),
         sideEffects = SideEffects<EpisodesListSideEffect>().add(
-            EpisodesListSideEffect.OnRefreshRequested(
+            EpisodesListSideEffect.OnInitRequested(
                 savedStateHandle.getEpisodeFilter()
             )
         )
@@ -40,6 +38,10 @@ class EpisodesListViewModel
 
     override fun executeIntent(intent: EpisodesListIntent): Flow<Transform<EpisodesListStateWithEffects>> =
         when (intent) {
+            is EpisodesListIntent.Init -> flowOf(
+                EpisodesListTransforms.Init(intent.episodeFilter)
+            )
+
             is EpisodesListIntent.LoadEpisodes -> loadEpisodes(
                 instantRefresh = false,
                 intent.episodeFilter
@@ -84,6 +86,9 @@ class EpisodesListViewModel
         onCharacterItemClick: (Int) -> Unit
     ) {
         when (sideEffect) {
+            is EpisodesListSideEffect.OnInitRequested ->
+                sendIntent(EpisodesListIntent.Init(sideEffect.episodeFilter))
+
             is EpisodesListSideEffect.OnEpisodeItemClicked ->
                 onCharacterItemClick(sideEffect.episodeId)
 

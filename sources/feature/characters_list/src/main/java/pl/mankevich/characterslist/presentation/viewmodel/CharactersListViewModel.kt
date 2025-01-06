@@ -15,7 +15,6 @@ import pl.mankevich.coreui.mvi.SideEffects
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadCharactersListUseCase
-import pl.mankevich.model.CharacterFilter
 
 private const val QUERY_INPUT_DELAY_MILLIS = 500L
 
@@ -25,11 +24,9 @@ class CharactersListViewModel
     private val loadCharactersListUseCase: LoadCharactersListUseCase,
 ) : CharactersListMviViewModel(
     initialStateWithEffects = CharactersListStateWithEffects(
-        state = CharactersListState(
-            characterFilter = savedStateHandle.getCharacterFilter()
-        ),
+        state = CharactersListState(),
         sideEffects = SideEffects<CharactersListSideEffect>().add(
-            CharactersListSideEffect.OnRefreshRequested(
+            CharactersListSideEffect.OnInitRequested(
                 savedStateHandle.getCharacterFilter()
             )
         )
@@ -40,15 +37,26 @@ class CharactersListViewModel
 
     override fun executeIntent(intent: CharactersListIntent): Flow<Transform<CharactersListStateWithEffects>> =
         when (intent) {
-            is CharactersListIntent.LoadCharacters -> loadCharacters(
-                instantRefresh = false,
-                intent.characterFilter
+            is CharactersListIntent.Init -> flowOf(
+                CharactersListTransforms.Init(intent.characterFilter)
             )
 
-            is CharactersListIntent.Refresh -> loadCharacters(
-                instantRefresh = true,
-                intent.characterFilter
-            )
+            is CharactersListIntent.LoadCharacters -> flow {
+                delay(QUERY_INPUT_DELAY_MILLIS)
+                emit(
+                    CharactersListTransforms.LoadCharactersListSuccess(
+                        loadCharactersListUseCase(intent.characterFilter).cachedIn(viewModelScope)
+                    )
+                )
+            }
+
+            is CharactersListIntent.Refresh -> flow {
+                emit(
+                    CharactersListTransforms.LoadCharactersListSuccess(
+                        loadCharactersListUseCase(intent.characterFilter).cachedIn(viewModelScope)
+                    )
+                )
+            }
 
             is CharactersListIntent.NameChanged -> flowOf(
                 CharactersListTransforms.ChangeName(name = intent.name)
@@ -75,23 +83,14 @@ class CharactersListViewModel
             )
         }
 
-    private fun loadCharacters(
-        instantRefresh: Boolean,
-        characterFilter: CharacterFilter
-    ): Flow<Transform<CharactersListStateWithEffects>> = flow {
-        if (!instantRefresh) delay(QUERY_INPUT_DELAY_MILLIS)
-        emit(
-            CharactersListTransforms.LoadCharactersListSuccess(
-                loadCharactersListUseCase(characterFilter).cachedIn(viewModelScope)
-            )
-        )
-    }
-
     fun handleSideEffect(
         sideEffect: CharactersListSideEffect,
         onCharacterItemClick: (Int) -> Unit
     ) {
         when (sideEffect) {
+            is CharactersListSideEffect.OnInitRequested ->
+                sendIntent(CharactersListIntent.Init(sideEffect.characterFilter))
+
             is CharactersListSideEffect.OnCharacterItemClicked ->
                 onCharacterItemClick(sideEffect.characterId)
 

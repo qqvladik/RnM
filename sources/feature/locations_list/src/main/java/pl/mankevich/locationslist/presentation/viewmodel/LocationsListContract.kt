@@ -15,6 +15,8 @@ typealias LocationsListMviViewModel = MviViewModel<LocationsListIntent, Location
 
 sealed class LocationsListIntent {
 
+    data class Init(val locationFilter: LocationFilter) : LocationsListIntent(), UniqueIntent
+
     data class LoadLocations(val locationFilter: LocationFilter) : LocationsListIntent(), UniqueIntent
 
     data class Refresh(val locationFilter: LocationFilter) : LocationsListIntent(), UniqueIntent
@@ -29,6 +31,8 @@ sealed class LocationsListIntent {
 }
 
 sealed interface LocationsListSideEffect {
+
+    data class OnInitRequested(val locationFilter: LocationFilter) : LocationsListSideEffect
 
     data class OnCharacterItemClicked(val characterId: Int) : LocationsListSideEffect
 

@@ -25,11 +25,9 @@ class LocationsListViewModel
     private val loadLocationsListUseCase: LoadLocationsListUseCase,
 ) : LocationsListMviViewModel(
     initialStateWithEffects = LocationsListStateWithEffects(
-        state = LocationsListState(
-            locationFilter = savedStateHandle.getLocationFilter()
-        ),
+        state = LocationsListState(),
         sideEffects = SideEffects<LocationsListSideEffect>().add(
-            LocationsListSideEffect.OnRefreshRequested(
+            LocationsListSideEffect.OnInitRequested(
                 savedStateHandle.getLocationFilter()
             )
         )
@@ -40,6 +38,10 @@ class LocationsListViewModel
 
     override fun executeIntent(intent: LocationsListIntent): Flow<Transform<LocationsListStateWithEffects>> =
         when (intent) {
+            is LocationsListIntent.Init -> flowOf(
+                LocationsListTransforms.Init(intent.locationFilter)
+            )
+
             is LocationsListIntent.LoadLocations -> loadLocations(
                 instantRefresh = false,
                 intent.locationFilter
@@ -84,6 +86,9 @@ class LocationsListViewModel
         onLocationItemClick: (Int) -> Unit
     ) {
         when (sideEffect) {
+            is LocationsListSideEffect.OnInitRequested ->
+                sendIntent(LocationsListIntent.Init(sideEffect.locationFilter))
+
             is LocationsListSideEffect.OnCharacterItemClicked ->
                 onLocationItemClick(sideEffect.characterId)
 

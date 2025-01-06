@@ -15,6 +15,8 @@ typealias EpisodesListMviViewModel = MviViewModel<EpisodesListIntent, EpisodesLi
 
 sealed class EpisodesListIntent {
 
+    data class Init(val episodeFilter: EpisodeFilter) : EpisodesListIntent(), UniqueIntent
+
     data class LoadEpisodes(val episodeFilter: EpisodeFilter) : EpisodesListIntent(), UniqueIntent
 
     data class Refresh(val episodeFilter: EpisodeFilter) : EpisodesListIntent(), UniqueIntent
@@ -23,12 +25,14 @@ sealed class EpisodesListIntent {
 
     data class NameChanged(val name: String) : EpisodesListIntent()
 
-    data class EpisodeChanged(val episode: String) : EpisodesListIntent()
+    data class EpisodeChanged(val episode: Int?) : EpisodesListIntent()
 
-    data class SeasonChanged(val season: String) : EpisodesListIntent()
+    data class SeasonChanged(val season: Int?) : EpisodesListIntent()
 }
 
 sealed interface EpisodesListSideEffect {
+
+    data class OnInitRequested(val episodeFilter: EpisodeFilter) : EpisodesListSideEffect
 
     data class OnEpisodeItemClicked(val episodeId: Int) : EpisodesListSideEffect
 

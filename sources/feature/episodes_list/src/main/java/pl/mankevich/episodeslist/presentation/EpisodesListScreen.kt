@@ -77,8 +77,8 @@ fun EpisodesListScreen(
         state = state,
         onSearchChange = { viewModel.sendIntent(EpisodesListIntent.NameChanged(it)) },
         onSearchClear = { viewModel.sendIntent(EpisodesListIntent.NameChanged("")) },
-        onSeasonSelected = { viewModel.sendIntent(EpisodesListIntent.SeasonChanged(it)) },
-        onEpisodeSelected = { viewModel.sendIntent(EpisodesListIntent.EpisodeChanged(it)) },
+        onSeasonSelected = { viewModel.sendIntent(EpisodesListIntent.SeasonChanged(it.toIntOrNull())) },
+        onEpisodeSelected = { viewModel.sendIntent(EpisodesListIntent.EpisodeChanged(it.toIntOrNull())) },
         onEpisodeItemClick = { viewModel.sendIntent(EpisodesListIntent.EpisodeItemClick(it)) },
         onBackPress = onBackPress,
         modifier = Modifier.fillMaxSize()

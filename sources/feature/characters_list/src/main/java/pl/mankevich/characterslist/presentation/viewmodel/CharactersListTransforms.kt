@@ -5,10 +5,31 @@ import kotlinx.coroutines.flow.Flow
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.ui.filter.addLabelIfUnique
 import pl.mankevich.model.Character
+import pl.mankevich.model.CharacterFilter
 
 typealias CharactersListTransform = Transform<CharactersListStateWithEffects>
 
 object CharactersListTransforms {
+
+    data class Init(
+        val filter: CharacterFilter,
+    ) : CharactersListTransform {
+
+        override fun reduce(current: CharactersListStateWithEffects): CharactersListStateWithEffects {
+            return current.copy(
+                state = current.state.copy(
+                    characterFilter = filter,
+                    statusLabelList = current.state.statusLabelList.addLabelIfUnique(filter.status),
+                    speciesLabelList = current.state.speciesLabelList.addLabelIfUnique(filter.species),
+                    genderLabelList = current.state.genderLabelList.addLabelIfUnique(filter.gender),
+                    typeLabelList = current.state.typeLabelList.addLabelIfUnique(filter.type),
+                ),
+                sideEffects = current.sideEffects.add(
+                    CharactersListSideEffect.OnLoadCharactersRequested(filter)
+                )
+            )
+        }
+    }
 
     data class ChangeName(
         val name: String
