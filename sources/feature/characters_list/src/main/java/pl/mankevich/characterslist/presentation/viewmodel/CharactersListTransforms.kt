@@ -3,8 +3,8 @@ package pl.mankevich.characterslist.presentation.viewmodel
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import pl.mankevich.coreui.mvi.Transform
+import pl.mankevich.coreui.ui.filter.addLabelIfUnique
 import pl.mankevich.model.Character
-import kotlin.collections.plus
 
 typealias CharactersListTransform = Transform<CharactersListStateWithEffects>
 
@@ -123,10 +123,4 @@ object CharactersListTransforms {
             )
         }
     }
-}
-
-private fun List<String>.addLabelIfUnique(filter: String): List<String> {
-    if (filter.isBlank()) return this
-    if (this.any { it.equals(filter, ignoreCase = true) }) return this
-    return this.plus(filter)
 }

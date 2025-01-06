@@ -35,15 +35,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
-import pl.mankevich.locationslist.presentation.viewmodel.LocationsListIntent
-import pl.mankevich.locationslist.presentation.viewmodel.LocationsListState
-import pl.mankevich.locationslist.presentation.viewmodel.LocationsListViewModel
 import pl.mankevich.core.util.cast
 import pl.mankevich.coreui.ui.filter.FilterGroup
 import pl.mankevich.coreui.ui.filter.FilterView
+import pl.mankevich.coreui.utils.PADDING
 import pl.mankevich.coreui.utils.locationDimensionIconResolver
 import pl.mankevich.coreui.utils.locationTypeIconResolver
-import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.IconButton
@@ -52,10 +49,12 @@ import pl.mankevich.designsystem.component.SearchField
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.isLandscape
+import pl.mankevich.locationslist.presentation.viewmodel.LocationsListIntent
+import pl.mankevich.locationslist.presentation.viewmodel.LocationsListState
+import pl.mankevich.locationslist.presentation.viewmodel.LocationsListViewModel
 import pl.mankevich.model.Location
 import pl.mankevich.model.LocationFilter
-
-private val PADDING = 12.dp
 
 @Composable
 fun LocationsListScreen(
@@ -153,7 +152,7 @@ fun LocationsListView(
                     onSelectedChanged = onDimensionSelected,
                 ),
 
-            ),
+                ),
             scrollablePadding = PADDING,
             modifier = Modifier
                 .height(32.dp)
@@ -219,7 +218,7 @@ fun LocationsListView(
                         key = pagingLocationItems.itemKey { location -> location.id },
                     ) { index ->
                         pagingLocationItems[index]?.let { location ->
-                            Text(text=location.toString())
+                            Text(text = location.toString())
                         }
                     }
 

@@ -9,6 +9,7 @@ import pl.mankevich.characterdetailapi.CharacterDetailEntry
 import pl.mankevich.characterslistapi.CharactersListEntry
 import pl.mankevich.coreui.navigation.find
 import pl.mankevich.dependencies.LocalDependenciesProvider
+import pl.mankevich.episodedetailapi.EpisodeDetailEntry
 import pl.mankevich.episodeslistapi.EpisodesListEntry
 import pl.mankevich.locationslistapi.LocationsListEntry
 import pl.mankevich.rnm.presentation.ui.BottomMenuBar
@@ -22,6 +23,7 @@ fun Navigation() {
     val characterDetailEntry = featureEntries.find<CharacterDetailEntry>()
     val locationsListEntry = featureEntries.find<LocationsListEntry>()
     val episodesListEntry = featureEntries.find<EpisodesListEntry>()
+    val episodeDetailEntry = featureEntries.find<EpisodeDetailEntry>()
 
     Column {
         NavHost(
@@ -43,6 +45,10 @@ fun Navigation() {
             }
 
             with(episodesListEntry) {
+                composable(navController, featureEntries)
+            }
+
+            with(episodeDetailEntry) {
                 composable(navController, featureEntries)
             }
         }

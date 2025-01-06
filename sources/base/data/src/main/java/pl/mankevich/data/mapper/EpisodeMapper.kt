@@ -8,7 +8,8 @@ fun EpisodeEntity.mapToEpisode() = Episode(
     id = id,
     name = name,
     airDate = airDate,
-    episode = episode
+    season = extractSeason(episode)!!,
+    episode = extractEpisode(episode)!!,
 )
 
 fun EpisodeResponse.mapToEpisodeDto() = EpisodeEntity(

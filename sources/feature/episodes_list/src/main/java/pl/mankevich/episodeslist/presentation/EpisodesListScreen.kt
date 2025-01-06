@@ -1,5 +1,6 @@
 package pl.mankevich.episodeslist.presentation
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,16 +36,13 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
-import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListIntent
-import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListState
-import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListViewModel
 import pl.mankevich.core.util.cast
 import pl.mankevich.coreui.ui.filter.FilterGroup
 import pl.mankevich.coreui.ui.filter.FilterGroup.Companion.invoke
 import pl.mankevich.coreui.ui.filter.FilterView
+import pl.mankevich.coreui.utils.PADDING
 import pl.mankevich.coreui.utils.episodeEpisodeIconResolver
 import pl.mankevich.coreui.utils.episodeSeasonIconResolver
-import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.IconButton
@@ -53,15 +51,17 @@ import pl.mankevich.designsystem.component.SearchField
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.isLandscape
+import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListIntent
+import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListState
+import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListViewModel
 import pl.mankevich.model.Episode
 import pl.mankevich.model.EpisodeFilter
-
-private val PADDING = 12.dp
 
 @Composable
 fun EpisodesListScreen(
     viewModel: EpisodesListViewModel,
-    onCharacterItemClick: (Int) -> Unit,
+    onEpisodeItemClick: (Int) -> Unit,
     onBackPress: (() -> Unit)? = null,
 ) {
     val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
@@ -69,7 +69,7 @@ fun EpisodesListScreen(
 
     SideEffect {
         stateWithEffects.sideEffects.forEach { sideEffect ->
-            viewModel.handleSideEffect(sideEffect, onCharacterItemClick)
+            viewModel.handleSideEffect(sideEffect, onEpisodeItemClick)
         }
     }
 
@@ -77,9 +77,9 @@ fun EpisodesListScreen(
         state = state,
         onSearchChange = { viewModel.sendIntent(EpisodesListIntent.NameChanged(it)) },
         onSearchClear = { viewModel.sendIntent(EpisodesListIntent.NameChanged("")) },
-        onEpisodeSelected = { viewModel.sendIntent(EpisodesListIntent.EpisodeChanged(it)) },
         onSeasonSelected = { viewModel.sendIntent(EpisodesListIntent.SeasonChanged(it)) },
-        onCharacterItemClick = { viewModel.sendIntent(EpisodesListIntent.CharacterItemClick(it)) },
+        onEpisodeSelected = { viewModel.sendIntent(EpisodesListIntent.EpisodeChanged(it)) },
+        onEpisodeItemClick = { viewModel.sendIntent(EpisodesListIntent.EpisodeItemClick(it)) },
         onBackPress = onBackPress,
         modifier = Modifier.fillMaxSize()
     )
@@ -90,9 +90,9 @@ fun EpisodesListView(
     state: EpisodesListState,
     onSearchChange: (String) -> Unit,
     onSearchClear: () -> Unit,
-    onEpisodeSelected: (String) -> Unit,
     onSeasonSelected: (String) -> Unit,
-    onCharacterItemClick: (Int) -> Unit,
+    onEpisodeSelected: (String) -> Unit,
+    onEpisodeItemClick: (Int) -> Unit,
     onBackPress: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -138,20 +138,20 @@ fun EpisodesListView(
             name = "Episodes filter",
             filterGroupList = listOf(
                 FilterGroup(
-                    name = "Episode",
-                    selected = state.episodeFilter.episode,
-                    labelList = state.episodeLabelList,
-                    isListFinished = false,
-                    resolveIcon = episodeEpisodeIconResolver,
-                    onSelectedChanged = onEpisodeSelected,
-                ),
-                FilterGroup(
                     name = "Season",
-                    selected = state.episodeFilter.episode,//TODO: add season
+                    selected = state.episodeFilter.season.toString(),
                     labelList = state.seasonLabelList,
                     isListFinished = true,
                     resolveIcon = episodeSeasonIconResolver,
                     onSelectedChanged = onSeasonSelected,
+                ),
+                FilterGroup(
+                    name = "Episode",
+                    selected = state.episodeFilter.episode.toString(),
+                    labelList = state.episodeLabelList,
+                    isListFinished = false,
+                    resolveIcon = episodeEpisodeIconResolver,
+                    onSelectedChanged = onEpisodeSelected,
                 ),
             ),
             scrollablePadding = PADDING,
@@ -162,24 +162,6 @@ fun EpisodesListView(
 
         Spacer(modifier = Modifier.height(PADDING))
 
-        /*When use pager with remoteMediator there are strange loadStates when launch app(1->2->3):
-            1. loadState.refresh = Loading
-             loadState.mediator = null
-             loadState.source.refresh = Loading
-
-            2. loadState.refresh = NotLoading
-             loadState.mediator.refresh = NotLoading
-             loadState.source.refresh = Loading
-
-            3. loadState.refresh = Loading
-             loadState.mediator = Loading
-             loadState.source.refresh = Loading
-
-            That 2 loadState brings flicking of progressbar. I found the issue: https://issuetracker.google.com/issues/288023763
-            There is no such behavior when use pager without remoteMediator.
-
-            That's why pagingEpisodeItems.loadState.append.endOfPaginationReached check was added.
-        */
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -219,7 +201,12 @@ fun EpisodesListView(
                         key = pagingEpisodeItems.itemKey { episode -> episode.id },
                     ) { index ->
                         pagingEpisodeItems[index]?.let { episode ->
-                            Text(text = episode.toString())
+                            Text(
+                                text = episode.toString(),
+                                modifier = Modifier.clickable {
+                                    onEpisodeItemClick(episode.id)
+                                }
+                            )
                         }
                     }
 
@@ -266,14 +253,16 @@ fun EpisodesListViewPreview() {
             id = 1,
             name = "Pilot",
             airDate = "December 9, 2013",
-            episode = "S01E01",
+            season = 1,
+            episode = 2,
         )
 
         EpisodesListView(
             state = EpisodesListState(
                 episodeFilter = EpisodeFilter(
                     name = "",
-                    episode = "",
+                    episode = null,
+                    season = null,
                 ),
                 episodes = flowOf(
                     value = PagingData.from(
@@ -298,7 +287,7 @@ fun EpisodesListViewPreview() {
             onSearchClear = {},
             onEpisodeSelected = {},
             onSeasonSelected = {},
-            onCharacterItemClick = {},
+            onEpisodeItemClick = {},
             onBackPress = {},
         )
     }

@@ -57,6 +57,7 @@ fun RnmTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
@@ -92,25 +93,25 @@ fun RnmTheme(
 
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_NO,
-    name = "Light theme",
+    name = "1 Light theme portrait",
     showBackground = true,
     backgroundColor = 0xFFFFFFFF
 )
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Dark theme",
+    name = "1 Dark theme portrait",
     showBackground = true,
     backgroundColor = 0xFF1E1E20
 )
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_NO,
-    name = "Light theme",
+    name = "2 Light theme landscape",
     showBackground = true,
     backgroundColor = 0xFFFFFFFF, device = "spec:parent=pixel_5,orientation=landscape"
 )
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Dark theme",
+    name = "2 Dark theme landscape",
     showBackground = true,
     backgroundColor = 0xFF1E1E20, device = "spec:parent=pixel_5,orientation=landscape"
 )

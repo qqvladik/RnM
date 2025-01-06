@@ -41,6 +41,7 @@ import pl.mankevich.core.util.cast
 import pl.mankevich.coreui.ui.CharacterCard
 import pl.mankevich.coreui.ui.filter.FilterGroup
 import pl.mankevich.coreui.ui.filter.FilterView
+import pl.mankevich.coreui.utils.PADDING
 import pl.mankevich.coreui.utils.characterGenderIconResolver
 import pl.mankevich.coreui.utils.characterSpeciesIconResolver
 import pl.mankevich.coreui.utils.characterStatusIconResolver
@@ -57,8 +58,6 @@ import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.model.Character
 import pl.mankevich.model.CharacterFilter
 import pl.mankevich.model.LocationShort
-
-private val PADDING = 12.dp
 
 @Composable
 fun CharactersListScreen(

@@ -2,5 +2,6 @@ package pl.mankevich.model
 
 data class EpisodeFilter(
     val name: String = "",
-    val episode: String = "",
+    val season: Int? = null,
+    val episode: Int? = null,
 )

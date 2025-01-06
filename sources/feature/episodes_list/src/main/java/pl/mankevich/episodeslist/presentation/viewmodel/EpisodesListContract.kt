@@ -19,7 +19,7 @@ sealed class EpisodesListIntent {
 
     data class Refresh(val episodeFilter: EpisodeFilter) : EpisodesListIntent(), UniqueIntent
 
-    data class CharacterItemClick(val characterId: Int) : EpisodesListIntent()
+    data class EpisodeItemClick(val characterId: Int) : EpisodesListIntent()
 
     data class NameChanged(val name: String) : EpisodesListIntent()
 
@@ -44,6 +44,6 @@ data class EpisodesListState(
     // Flow is unstable, so it will always recompose https://issuetracker.google.com/issues/183495984
     // Currently there is no solution how to fit Paging in Unidirectional data flow (MVI)
     val episodes: Flow<PagingData<Episode>> = emptyFlow(),
-    val episodeLabelList: List<String> = emptyList(),
     val seasonLabelList: List<String> = listOf("1", "2", "3", "4", "5"),
+    val episodeLabelList: List<String> = emptyList(),
 )

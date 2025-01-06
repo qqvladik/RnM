@@ -34,7 +34,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailViewModel
-import pl.mankevich.designsystem.component.Chip
+import pl.mankevich.coreui.ui.Detail
+import pl.mankevich.coreui.utils.PADDING
+import pl.mankevich.coreui.utils.PADDING_SMALL
+import pl.mankevich.coreui.utils.characterGenderIconResolver
+import pl.mankevich.coreui.utils.characterSpeciesIconResolver
+import pl.mankevich.coreui.utils.characterStatusIconResolver
+import pl.mankevich.coreui.utils.characterTypeIconResolver
 import pl.mankevich.designsystem.component.LoadingView
 import pl.mankevich.designsystem.component.RnmCard
 import pl.mankevich.designsystem.component.SurfaceIconButton
@@ -44,17 +50,10 @@ import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithSharedTransitionScope
-import pl.mankevich.coreui.utils.characterGenderIconResolver
-import pl.mankevich.coreui.utils.characterSpeciesIconResolver
-import pl.mankevich.coreui.utils.characterStatusIconResolver
-import pl.mankevich.coreui.utils.characterTypeIconResolver
 import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.model.Character
 import pl.mankevich.model.Episode
 import pl.mankevich.model.LocationShort
-
-private val PADDING = 12.dp //TODO Move somewhere
-private val PADDING_SMALL = 6.dp
 
 @Composable
 fun CharacterDetailScreen(
@@ -169,37 +168,41 @@ fun CharacterDetailView(
 
         Spacer(modifier = Modifier.height(PADDING))
 
-        CharacterDetail(
+        Detail(
             name = "Status",
             value = character.status,
             icon = characterStatusIconResolver(character.status),
+            internalPadding = PADDING,
             onDetailClick = { onStatusFilterClick(character.status) }
         )
 
         Spacer(modifier = Modifier.height(PADDING_SMALL))
 
-        CharacterDetail(
+        Detail(
             name = "Species",
             value = character.species,
             icon = characterSpeciesIconResolver(character.species),
+            internalPadding = PADDING,
             onDetailClick = { onSpeciesFilterClick(character.species) }
         )
 
         Spacer(modifier = Modifier.height(PADDING_SMALL))
 
-        CharacterDetail(
+        Detail(
             name = "Gender",
             value = character.gender,
             icon = characterGenderIconResolver(character.gender),
+            internalPadding = PADDING,
             onDetailClick = { onGenderFilterClick(character.gender) }
         )
 
         Spacer(modifier = Modifier.height(PADDING_SMALL))
 
-        CharacterDetail(
+        Detail(
             name = "Type",
             value = character.type,
             icon = characterTypeIconResolver(character.type),
+            internalPadding = PADDING,
             onDetailClick = { onTypeFilterClick(character.type) }
         )
 
@@ -224,36 +227,6 @@ fun CharacterDetailView(
         }
 
         Text("episodes = ${episodes}")
-    }
-}
-
-@Composable
-fun CharacterDetail(
-    name: String,
-    value: String,
-    icon: ImageVector,
-    onDetailClick: () -> Unit = {}
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 0.dp)
-    ) {
-        Text(
-            text = "$name:",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(vertical = 0.dp)
-        )
-
-        Spacer(modifier = Modifier.width(PADDING))
-
-        Chip(
-            label = value,
-            icon = icon,
-            isSelected = false,
-            onClick = { onDetailClick() },
-            modifier = Modifier.height(32.dp)
-        )
     }
 }
 

@@ -54,16 +54,16 @@ class EpisodesListViewModel
                 EpisodesListTransforms.ChangeName(name = intent.name)
             )
 
+            is EpisodesListIntent.SeasonChanged -> flowOf(
+                EpisodesListTransforms.ChangeSeason(season = intent.season)
+            )
+
             is EpisodesListIntent.EpisodeChanged -> flowOf(
                 EpisodesListTransforms.ChangeEpisode(episode = intent.episode)
             )
 
-            is EpisodesListIntent.SeasonChanged -> flowOf(
-                EpisodesListTransforms.ChangeEpisode(season = intent.season)
-            )
-
-            is EpisodesListIntent.CharacterItemClick -> flowOf(
-                EpisodesListTransforms.CharacterItemClick(intent.characterId)
+            is EpisodesListIntent.EpisodeItemClick -> flowOf(
+                EpisodesListTransforms.EpisodeItemClick(intent.characterId)
             )
         }
 

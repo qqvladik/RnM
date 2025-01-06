@@ -9,6 +9,7 @@ plugins {
 
 dependencies {
     applyCoil()
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.androidx.lifecycle.runtimeCompose)
     implementation(libs.androidx.navigation.compose)

@@ -4,5 +4,6 @@ data class Episode(
     var id: Int,
     var name: String,
     var airDate: String,
-    var episode: String
+    var season: Int,
+    var episode: Int,
 )

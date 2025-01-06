@@ -2,6 +2,7 @@ package pl.mankevich.characterdetail.presentation.viewmodel
 
 import pl.mankevich.coreui.mvi.MviViewModel
 import pl.mankevich.coreui.mvi.StateWithEffects
+import pl.mankevich.coreui.mvi.UniqueIntent
 import pl.mankevich.model.Character
 import pl.mankevich.model.Episode
 
@@ -10,9 +11,9 @@ typealias CharacterDetailMviViewModel = MviViewModel<CharacterDetailIntent, Char
 
 sealed class CharacterDetailIntent {
 
-    data object LoadCharacter : CharacterDetailIntent()
+    data object LoadCharacter : CharacterDetailIntent(), UniqueIntent
 
-    data object LoadEpisodes : CharacterDetailIntent()
+    data object LoadEpisodes : CharacterDetailIntent(), UniqueIntent
 
     data class EpisodeItemClick(val episodeId: Int) : CharacterDetailIntent()
 }

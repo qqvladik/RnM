@@ -6,10 +6,10 @@ import pl.mankevich.remoteapi.query.EpisodeFilterQuery
 
 fun EpisodeFilter.mapToEntity() = EpisodeFilterEntity(
     name = name,
-    episode = episode,
+    episode = formatSeasonAndEpisode(season, episode),
 )
 
 fun EpisodeFilter.mapToQuery() = EpisodeFilterQuery(
     name = name,
-    episode = episode,
+    episode = formatSeasonAndEpisode(season, episode),
 )

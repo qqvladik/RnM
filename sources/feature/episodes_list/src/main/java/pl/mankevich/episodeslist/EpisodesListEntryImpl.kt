@@ -30,8 +30,8 @@ class EpisodesListEntryImpl @Inject constructor() : EpisodesListEntry() {
         )
         EpisodesListScreen(
             viewModel = viewModel,
-            onCharacterItemClick = { characterId ->
-                val destination = featureEntries.find<EpisodeDetailEntry>().destination(characterId)
+            onEpisodeItemClick = { episodeId ->
+                val destination = featureEntries.find<EpisodeDetailEntry>().destination(episodeId)
                 navController.navigate(destination)
             },
             onBackPress = if (navController.previousBackStackEntry != null) {
@@ -43,8 +43,12 @@ class EpisodesListEntryImpl @Inject constructor() : EpisodesListEntry() {
     }
 }
 
-fun SavedStateHandle.getEpisodeFilter(): EpisodeFilter =
-    EpisodeFilter(
+fun SavedStateHandle.getEpisodeFilter(): EpisodeFilter{
+    val season = get<Int>("season")
+    val episode = get<Int>("episode")
+    return EpisodeFilter(
         name = get<String>("name") ?: "",
-        episode = get<String>("episode") ?: "",
+        season = if (season == -1) null else season,
+        episode = if (episode == -1) null else episode,
     )
+}

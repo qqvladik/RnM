@@ -134,7 +134,7 @@ fun FilterView(
                             else Modifier
                         )
                         .then(
-                            if (!showDialog && index == sortedLabelList.lastIndex) {
+                            if (!withDialogue && index == sortedLabelList.lastIndex) {
                                 Modifier.padding(end = scrollablePadding)
                             } else Modifier
                         )
