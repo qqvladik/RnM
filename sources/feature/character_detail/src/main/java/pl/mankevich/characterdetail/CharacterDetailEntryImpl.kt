@@ -13,6 +13,7 @@ import pl.mankevich.coreui.navigation.FeatureEntries
 import pl.mankevich.coreui.navigation.find
 import pl.mankevich.coreui.viewmodel.daggerViewModel
 import pl.mankevich.dependencies.LocalDependenciesProvider
+import pl.mankevich.locationdetailapi.LocationDetailEntry
 import javax.inject.Inject
 
 class CharacterDetailEntryImpl @Inject constructor() : CharacterDetailEntry() {
@@ -31,21 +32,34 @@ class CharacterDetailEntryImpl @Inject constructor() : CharacterDetailEntry() {
         CharacterDetailScreen(
             viewModel = viewModel,
             onStatusFilterClick = { status ->
-                val destination = featureEntries.find<CharactersListEntry>().destination(status = status)
+                val destination =
+                    featureEntries.find<CharactersListEntry>().destination(status = status)
                 navController.navigate(destination)
             },
             onSpeciesFilterClick = { species ->
-                val destination = featureEntries.find<CharactersListEntry>().destination(species = species)
+                val destination =
+                    featureEntries.find<CharactersListEntry>().destination(species = species)
                 navController.navigate(destination)
             },
             onGenderFilterClick = { gender ->
-                val destination = featureEntries.find<CharactersListEntry>().destination(gender = gender)
+                val destination =
+                    featureEntries.find<CharactersListEntry>().destination(gender = gender)
                 navController.navigate(destination)
             },
             onTypeFilterClick = { type ->
-                val destination = featureEntries.find<CharactersListEntry>().destination(type = type)
+                val destination =
+                    featureEntries.find<CharactersListEntry>().destination(type = type)
                 navController.navigate(destination)
             },
+            onOriginClick = { originId ->
+                val destination = featureEntries.find<LocationDetailEntry>().destination(originId)
+                navController.navigate(destination)
+            },
+            onLocationClick = { locationId ->
+                val destination = featureEntries.find<LocationDetailEntry>().destination(locationId)
+                navController.navigate(destination)
+            },
+
             onBackPress = { navController.popBackStack() }
         )
     }

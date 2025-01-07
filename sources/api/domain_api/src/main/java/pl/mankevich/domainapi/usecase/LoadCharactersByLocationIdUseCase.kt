@@ -5,5 +5,5 @@ import pl.mankevich.model.Character
 
 interface LoadCharactersByLocationIdUseCase {
 
-    fun invoke(locationId: Int): Flow<List<Character>>
+    operator fun invoke(locationId: Int): Flow<List<Character>>
 }

@@ -5,6 +5,7 @@ import pl.mankevich.characterdetail.di.CharacterDetailEntryModule
 import pl.mankevich.characterslist.di.CharactersListEntryModule
 import pl.mankevich.episodedetail.di.EpisodeDetailEntryModule
 import pl.mankevich.episodeslist.di.EpisodesListEntryModule
+import pl.mankevich.locationdetail.di.LocationDetailEntryModule
 import pl.mankevich.locationslist.di.LocationsListEntryModule
 
 @Module(
@@ -13,7 +14,7 @@ import pl.mankevich.locationslist.di.LocationsListEntryModule
         LocationsListEntryModule::class,
         EpisodesListEntryModule::class,
         CharacterDetailEntryModule::class,
-//        LocationDetailEntryModule::class,
+        LocationDetailEntryModule::class,
         EpisodeDetailEntryModule::class,
     ]
 )

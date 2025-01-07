@@ -13,6 +13,9 @@ import pl.mankevich.episodeslist.di.EpisodesListComponent
 import pl.mankevich.episodeslist.presentation.EpisodesListScreen
 import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListViewModel
 import pl.mankevich.episodeslistapi.EpisodesListEntry
+import pl.mankevich.episodeslistapi.EpisodesListEntry.Companion.ARG_EPISODE
+import pl.mankevich.episodeslistapi.EpisodesListEntry.Companion.ARG_NAME
+import pl.mankevich.episodeslistapi.EpisodesListEntry.Companion.ARG_SEASON
 import pl.mankevich.model.EpisodeFilter
 import javax.inject.Inject
 
@@ -43,11 +46,11 @@ class EpisodesListEntryImpl @Inject constructor() : EpisodesListEntry() {
     }
 }
 
-fun SavedStateHandle.getEpisodeFilter(): EpisodeFilter{
-    val season = get<Int>("season")
-    val episode = get<Int>("episode")
+fun SavedStateHandle.getEpisodeFilter(): EpisodeFilter {
+    val season = get<Int>(ARG_SEASON)
+    val episode = get<Int>(ARG_EPISODE)
     return EpisodeFilter(
-        name = get<String>("name") ?: "",
+        name = get<String>(ARG_NAME) ?: "",
         season = if (season == -1) null else season,
         episode = if (episode == -1) null else episode,
     )

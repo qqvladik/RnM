@@ -1,5 +1,6 @@
 package pl.mankevich.locationslist.presentation
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -77,7 +78,7 @@ fun LocationsListScreen(
         onSearchClear = { viewModel.sendIntent(LocationsListIntent.NameChanged("")) },
         onTypeSelected = { viewModel.sendIntent(LocationsListIntent.TypeChanged(it)) },
         onDimensionSelected = { viewModel.sendIntent(LocationsListIntent.DimensionChanged(it)) },
-        onCharacterItemClick = { viewModel.sendIntent(LocationsListIntent.CharacterItemClick(it)) },
+        onLocationItemClick = { viewModel.sendIntent(LocationsListIntent.CharacterItemClick(it)) },
         onBackPress = onBackPress,
         modifier = Modifier.fillMaxSize()
     )
@@ -90,7 +91,7 @@ fun LocationsListView(
     onSearchClear: () -> Unit,
     onTypeSelected: (String) -> Unit,
     onDimensionSelected: (String) -> Unit,
-    onCharacterItemClick: (Int) -> Unit,
+    onLocationItemClick: (Int) -> Unit,
     onBackPress: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -218,7 +219,11 @@ fun LocationsListView(
                         key = pagingLocationItems.itemKey { location -> location.id },
                     ) { index ->
                         pagingLocationItems[index]?.let { location ->
-                            Text(text = location.toString())
+                            Text(
+                                text = location.toString(),
+                                modifier = Modifier.clickable {
+                                    onLocationItemClick(location.id)
+                                })
                         }
                     }
 
@@ -298,7 +303,7 @@ fun LocationsListViewPreview() {
             onSearchClear = {},
             onTypeSelected = {},
             onDimensionSelected = {},
-            onCharacterItemClick = {},
+            onLocationItemClick = {},
             onBackPress = {},
         )
     }

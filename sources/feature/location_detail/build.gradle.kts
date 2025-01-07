@@ -10,8 +10,7 @@ dependencies {
     applyCoil()
     implementation(libs.androidx.lifecycle.runtimeCompose)
 
-    api(project(":character_detail_api"))
-    implementation(project(":characters_list_api"))
-    implementation(project(":location_detail_api"))
+    api(project(":location_detail_api"))
+    implementation(project(":locations_list_api"))
     implementation(project(":dependencies"))
 }

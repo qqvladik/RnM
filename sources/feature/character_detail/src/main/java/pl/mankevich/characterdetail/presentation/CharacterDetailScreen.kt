@@ -62,8 +62,8 @@ fun CharacterDetailScreen(
     onSpeciesFilterClick: (String) -> Unit,
     onGenderFilterClick: (String) -> Unit,
     onTypeFilterClick: (String) -> Unit,
-    onOriginClick: (Int) -> Unit = {},
-    onLocationClick: (Int) -> Unit = {},
+    onOriginClick: (Int) -> Unit,
+    onLocationClick: (Int) -> Unit,
     onEpisodeItemClick: (Int) -> Unit = {},
     onBackPress: () -> Unit,
 ) {
@@ -213,7 +213,9 @@ fun CharacterDetailView(
                 name = "Origin",
                 value = character.origin.name,
                 icon = RnmIcons.Home,
-                onLocationClick = {}
+                onLocationClick = {
+                    character.origin.id?.let { onOriginClick(it) }
+                }
             )
 
             Spacer(modifier = Modifier.width(PADDING))
@@ -222,7 +224,9 @@ fun CharacterDetailView(
                 name = "Location",
                 value = character.location.name,
                 icon = RnmIcons.MapPin,
-                onLocationClick = {}
+                onLocationClick = {
+                    character.location.id?.let { onLocationClick(it) }
+                }
             )
         }
 
@@ -236,7 +240,7 @@ fun LocationCard(
     value: String,
     icon: ImageVector,
     onLocationClick: () -> Unit = {}
-) {
+) { //TODO add isLikeable and isClickable
     Box(
         modifier = Modifier.height(125.dp)
     ) {
