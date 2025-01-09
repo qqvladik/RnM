@@ -247,8 +247,7 @@ fun CharactersListView(
                                 origin = character.origin.name,
                                 imageUrl = character.image,
                                 isFavorite = false,
-                                onFavoriteClick = {
-                                },
+                                onFavoriteClick = {},
                                 onCardClick = { onCharacterItemClick(character.id) },
                             )
                         }

@@ -1,6 +1,5 @@
 package pl.mankevich.designsystem.component
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -30,7 +29,6 @@ fun LikeButton(
             imageVector = if (isLiked) iconLiked else iconNotLiked,
             contentDescription = "Favorite",
             tint = if (isLiked) colorLiked else colorNotLiked,
-            modifier = Modifier.fillMaxSize(0.8f)
         )
     }
 

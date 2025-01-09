@@ -1,6 +1,5 @@
 package pl.mankevich.episodeslist.presentation
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,7 +16,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -37,6 +35,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
 import pl.mankevich.core.util.cast
+import pl.mankevich.coreui.ui.EpisodeCard
 import pl.mankevich.coreui.ui.filter.FilterGroup
 import pl.mankevich.coreui.ui.filter.FilterGroup.Companion.invoke
 import pl.mankevich.coreui.ui.filter.FilterView
@@ -201,11 +200,15 @@ fun EpisodesListView(
                         key = pagingEpisodeItems.itemKey { episode -> episode.id },
                     ) { index ->
                         pagingEpisodeItems[index]?.let { episode ->
-                            Text(
-                                text = episode.toString(),
-                                modifier = Modifier.clickable {
+                            EpisodeCard(
+                                name = episode.name,
+                                season = episode.season.toString(),
+                                episode = episode.episode.toString(),
+                                isFavorite = false,
+                                onFavoriteClick = {},
+                                onCardClick = {
                                     onEpisodeItemClick(episode.id)
-                                }
+                                },
                             )
                         }
                     }

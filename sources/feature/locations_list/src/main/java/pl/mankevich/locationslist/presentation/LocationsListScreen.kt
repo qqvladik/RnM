@@ -1,6 +1,5 @@
 package pl.mankevich.locationslist.presentation
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,7 +16,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -37,6 +35,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
 import pl.mankevich.core.util.cast
+import pl.mankevich.coreui.ui.LocationCard
 import pl.mankevich.coreui.ui.filter.FilterGroup
 import pl.mankevich.coreui.ui.filter.FilterView
 import pl.mankevich.coreui.utils.PADDING
@@ -219,11 +218,14 @@ fun LocationsListView(
                         key = pagingLocationItems.itemKey { location -> location.id },
                     ) { index ->
                         pagingLocationItems[index]?.let { location ->
-                            Text(
-                                text = location.toString(),
-                                modifier = Modifier.clickable {
-                                    onLocationItemClick(location.id)
-                                })
+                            LocationCard(
+                                name = location.type,
+                                value = location.name,
+                                icon = locationTypeIconResolver(location.type),
+                                isFavorite = false,
+                                onFavoriteClick = {},
+                                onLocationClick = { onLocationItemClick(location.id) },
+                            )
                         }
                     }
 
@@ -268,9 +270,9 @@ fun LocationsListViewPreview() {
     RnmTheme {
         val location1 = Location(
             id = 1,
-            name = "Rick Sanchez",
-            type = "",
-            dimension = "",
+            name = "Earth (C-137)",
+            type = "Planet",
+            dimension = "Dimension C-137",
         )
 
         LocationsListView(

@@ -1,6 +1,5 @@
 package pl.mankevich.characterdetail.presentation
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,17 +22,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailViewModel
 import pl.mankevich.coreui.ui.Detail
+import pl.mankevich.coreui.ui.LocationCard
 import pl.mankevich.coreui.utils.PADDING
 import pl.mankevich.coreui.utils.PADDING_SMALL
 import pl.mankevich.coreui.utils.characterGenderIconResolver
@@ -42,7 +38,6 @@ import pl.mankevich.coreui.utils.characterSpeciesIconResolver
 import pl.mankevich.coreui.utils.characterStatusIconResolver
 import pl.mankevich.coreui.utils.characterTypeIconResolver
 import pl.mankevich.designsystem.component.LoadingView
-import pl.mankevich.designsystem.component.RnmCard
 import pl.mankevich.designsystem.component.SurfaceIconButton
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
@@ -213,9 +208,14 @@ fun CharacterDetailView(
                 name = "Origin",
                 value = character.origin.name,
                 icon = RnmIcons.Home,
+                isLikeable = false,
+                isClickable = character.origin.id != null,
                 onLocationClick = {
                     character.origin.id?.let { onOriginClick(it) }
-                }
+                },
+                modifier = Modifier
+                    .height(125.dp)
+                    .width(140.dp)
             )
 
             Spacer(modifier = Modifier.width(PADDING))
@@ -224,66 +224,18 @@ fun CharacterDetailView(
                 name = "Location",
                 value = character.location.name,
                 icon = RnmIcons.MapPin,
+                isLikeable = false,
+                isClickable = character.location.id != null,
                 onLocationClick = {
                     character.location.id?.let { onLocationClick(it) }
-                }
+                },
+                modifier = Modifier
+                    .height(125.dp)
+                    .width(140.dp)
             )
         }
 
         Text("episodes = ${episodes}")
-    }
-}
-
-@Composable
-fun LocationCard(
-    name: String,
-    value: String,
-    icon: ImageVector,
-    onLocationClick: () -> Unit = {}
-) { //TODO add isLikeable and isClickable
-    Box(
-        modifier = Modifier.height(125.dp)
-    ) {
-        RnmCard(
-            onCardClick = onLocationClick,
-            modifier = Modifier
-                .width(140.dp)
-                .height(100.dp)
-                .align(Alignment.BottomCenter)
-        ) {
-            Column {
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text(
-                    text = name,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = value,
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-
-        Icon(
-            painter = rememberVectorPainter(icon),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .size(40.dp)
-        )
     }
 }
 

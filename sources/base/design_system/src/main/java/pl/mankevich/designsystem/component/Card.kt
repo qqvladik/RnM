@@ -18,9 +18,10 @@ import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 
 @Composable
-fun RnmCard(
+fun Card(
     onCardClick: () -> Unit = {},
     internalPadding: Dp = 12.dp,
+    isClickable: Boolean = true,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -28,8 +29,10 @@ fun RnmCard(
         shape = RoundedCornerShape(16.dp),
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .clickable { onCardClick() },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            .clickable(enabled = isClickable) { onCardClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = if (isClickable) 1f else 0.5f)
+        ),
     ) {
         Box(
             modifier = Modifier
@@ -45,8 +48,22 @@ fun RnmCard(
 @Composable
 fun RnmCardPreview() {
     RnmTheme {
-        RnmCard(
+        Card(
             onCardClick = { },
+            modifier = Modifier
+                .size(200.dp)
+                .padding(16.dp)
+        ) {}
+    }
+}
+
+@ThemePreviews
+@Composable
+fun RnmCardNotClickablePreview() {
+    RnmTheme {
+        Card(
+            onCardClick = { },
+            isClickable = false,
             modifier = Modifier
                 .size(200.dp)
                 .padding(16.dp)

@@ -4,14 +4,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,34 +20,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import pl.mankevich.coreui.utils.LIKE_SIZE
 import pl.mankevich.coreui.utils.PADDING
-import pl.mankevich.coreui.utils.characterSpeciesIconResolver
-import pl.mankevich.coreui.utils.characterStatusIconResolver
+import pl.mankevich.coreui.utils.episodeEpisodeIconResolver
+import pl.mankevich.coreui.utils.episodeSeasonIconResolver
 import pl.mankevich.designsystem.component.Card
 import pl.mankevich.designsystem.component.IconText
 import pl.mankevich.designsystem.component.LikeButton
-import pl.mankevich.designsystem.icons.RnmIcons
-import pl.mankevich.designsystem.theme.Pear
-import pl.mankevich.designsystem.theme.Red
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
-import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
-import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 
 @Composable
-fun CharacterCard(
+fun EpisodeCard(
     name: String,
-    status: String,
-    species: String,
-    origin: String,
-    imageUrl: String,
+    season: String,
+    episode: String,
     isFavorite: Boolean,
     onFavoriteClick: () -> Unit,
     onCardClick: () -> Unit,
@@ -58,28 +49,6 @@ fun CharacterCard(
         modifier = modifier
     ) {
         Column {
-            WithSharedTransitionScope {
-                val shape = RoundedCornerShape(8.dp)
-                AsyncImage(
-                    model = imageUrl,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1.2f)
-                        .clip(shape)
-                        .sharedElement(
-                            state = rememberSharedContentState(
-                                key = "image-${imageUrl}"
-                            ),
-                            animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
-                            clipInOverlayDuringTransition = OverlayClip(shape),
-                        )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(PADDING))
-
             Column {
                 Text(
                     text = name,
@@ -93,34 +62,32 @@ fun CharacterCard(
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom,
                     modifier = Modifier.fillMaxWidth()
                 ) {
 
-                    Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.wrapContentSize()
+                    ) {
                         IconText(
-                            text = status,
-                            icon = characterStatusIconResolver(status),
-                            iconTint = if (status == "Dead") Red else Pear,
-                            modifier = Modifier.fillMaxWidth()
+                            text = season,
+                            icon = episodeSeasonIconResolver(season),
                         )
 
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        IconText(
-                            text = species,
-                            icon = characterSpeciesIconResolver(species),
-                            modifier = Modifier.fillMaxWidth()
+                        VerticalDivider(
+                            thickness = 1.dp,
+                            modifier = Modifier
+                                .height(16.dp)
+                                .padding(horizontal = 4.dp)
                         )
 
-                        Spacer(modifier = Modifier.height(4.dp))
-
                         IconText(
-                            text = origin,
-                            icon = RnmIcons.Planet,
-                            modifier = Modifier.fillMaxWidth()
+                            text = episode,
+                            icon = episodeEpisodeIconResolver(episode),
                         )
                     }
+
+                    Spacer(modifier = Modifier.weight(1f))
 
                     var isLiked by remember { mutableStateOf(false) }
 
@@ -143,16 +110,14 @@ fun CharacterCard(
 
 @ThemePreviews
 @Composable
-fun CharacterCardPreview() {
+fun EpisodeCardPreview() {
     RnmTheme {
         WithAnimatedVisibilityScope {
-            CharacterCard(
+            EpisodeCard(
                 modifier = Modifier.width(200.dp),
-                name = "Rick Sanchez",
-                status = "Alive",
-                species = "Human",
-                origin = "Earth (C-137)",
-                imageUrl = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+                name = "Pilot asdfklsnakljdsnfkljsdbnfkls",
+                season = "1",
+                episode = "1",
                 isFavorite = false,
                 onFavoriteClick = { /* Handle Favorite Click */ },
                 onCardClick = { /* Handle Card Click */ }
