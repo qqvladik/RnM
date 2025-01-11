@@ -1,5 +1,6 @@
 package pl.mankevich.data.repository
 
+import android.util.Log
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -27,6 +28,7 @@ import pl.mankevich.databaseapi.dao.Transaction
 import pl.mankevich.model.Character
 import pl.mankevich.model.CharacterFilter
 import pl.mankevich.remoteapi.api.CharacterApi
+import java.net.UnknownHostException
 import javax.inject.Inject
 import kotlin.collections.map
 
@@ -65,10 +67,12 @@ class CharacterRepositoryImpl
     override fun getCharacterDetail(characterId: Int): Flow<Character> =
         flow {
             emit(Unit)
-
-            val characterResponse = characterApi.fetchCharacterById(characterId)
-            characterDao.insertCharacter(characterResponse.mapToCharacterDto())
-
+            try {
+                val characterResponse = characterApi.fetchCharacterById(characterId)
+                characterDao.insertCharacter(characterResponse.mapToCharacterDto())
+            } catch (e: UnknownHostException) { //TODO custom errors or Result
+                Log.w("CharacterRepositoryImpl", "getCharacterDetail: $e")
+            }
         }.flatMapLatest {
             characterDao.getCharacterById(characterId)
                 .distinctUntilChanged()
@@ -97,17 +101,20 @@ class CharacterRepositoryImpl
                 flow {
                     emit(Unit)
 
-                    val charactersListResponse = characterApi.fetchCharactersByIds(characterIds)
-                    transaction {
-                        characterDao.insertCharactersList(charactersListResponse.map { it.mapToCharacterDto() })
-                        charactersListResponse.forEach { characterResponse ->
-                            relationsDao.insertEpisodeCharacters(
-                                characterResponse.id,
-                                characterResponse.episodeIds
-                            )
+                    try {
+                        val charactersListResponse = characterApi.fetchCharactersByIds(characterIds)
+                        transaction {
+                            characterDao.insertCharactersList(charactersListResponse.map { it.mapToCharacterDto() })
+                            charactersListResponse.forEach { characterResponse ->
+                                relationsDao.insertEpisodeCharacters(
+                                    characterResponse.id,
+                                    characterResponse.episodeIds
+                                )
+                            }
                         }
+                    } catch (e: UnknownHostException) { //TODO custom errors or Result
+                        Log.w("CharacterRepositoryImpl", "getCharactersByEpisodeId: $e") //TODO tag
                     }
-
                 }.flatMapLatest {
                     characterDao.getCharactersFlowByIds(characterIds)
                         .distinctUntilChanged()
@@ -125,17 +132,20 @@ class CharacterRepositoryImpl
                 flow {
                     emit(Unit)
 
-                    val charactersListResponse = characterApi.fetchCharactersByIds(characterIds)
-                    transaction {
-                        characterDao.insertCharactersList(charactersListResponse.map { it.mapToCharacterDto() })
-                        charactersListResponse.forEach { characterResponse ->
-                            relationsDao.insertEpisodeCharacters(
-                                characterResponse.id,
-                                characterResponse.episodeIds
-                            )
+                    try {
+                        val charactersListResponse = characterApi.fetchCharactersByIds(characterIds)
+                        transaction {
+                            characterDao.insertCharactersList(charactersListResponse.map { it.mapToCharacterDto() })
+                            charactersListResponse.forEach { characterResponse ->
+                                relationsDao.insertEpisodeCharacters(
+                                    characterResponse.id,
+                                    characterResponse.episodeIds
+                                )
+                            }
                         }
+                    } catch (e: UnknownHostException) { //TODO custom errors or Result
+                        Log.w("CharacterRepositoryImpl", "getCharactersByLocationId: $e")
                     }
-
                 }.flatMapLatest {
                     characterDao.getCharactersFlowByIds(characterIds)
                         .distinctUntilChanged()

@@ -37,17 +37,25 @@ class CharacterDetailViewModel
         when (intent) {
             is CharacterDetailIntent.LoadCharacter -> flowOf(
                 CharacterDetailTransforms.LoadCharacter(savedStateHandle.getCharacterId())
-            )
-                .flatMapMerge {
+            ).flatMapMerge {
+                try {
                     loadCharacterDetailUseCase(characterId = savedStateHandle.getCharacterId())
                         .map { CharacterDetailTransforms.LoadCharacterSuccess(it) }
+                } catch (e: Throwable) {
+                    flowOf(CharacterDetailTransforms.LoadCharacterError(e))
                 }
+
+            }
 
             is CharacterDetailIntent.LoadEpisodes -> flowOf(
                 CharacterDetailTransforms.LoadEpisodes(savedStateHandle.getCharacterId())
             ).flatMapMerge {
-                loadEpisodesByCharacterIdUseCase(characterId = savedStateHandle.getCharacterId())
-                    .map { CharacterDetailTransforms.LoadEpisodesSuccess(it) }
+                try {
+                    loadEpisodesByCharacterIdUseCase(characterId = savedStateHandle.getCharacterId())
+                        .map { CharacterDetailTransforms.LoadEpisodesSuccess(it) }
+                } catch (e: Throwable) {
+                    flowOf(CharacterDetailTransforms.LoadEpisodesError(e))
+                }
             }
 
             is CharacterDetailIntent.EpisodeItemClick -> emptyFlow()

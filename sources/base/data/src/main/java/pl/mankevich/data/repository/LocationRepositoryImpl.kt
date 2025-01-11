@@ -1,5 +1,6 @@
 package pl.mankevich.data.repository
 
+import android.util.Log
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -23,6 +24,7 @@ import pl.mankevich.databaseapi.dao.LocationDao
 import pl.mankevich.model.Location
 import pl.mankevich.model.LocationFilter
 import pl.mankevich.remoteapi.api.LocationApi
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 class LocationRepositoryImpl
@@ -59,8 +61,12 @@ class LocationRepositoryImpl
         flow {
             emit(Unit)
 
-            val locationResponse = locationApi.fetchLocationById(locationId)
-            locationDao.insertLocation(locationResponse.mapToLocationDto())
+            try {
+                val locationResponse = locationApi.fetchLocationById(locationId)
+                locationDao.insertLocation(locationResponse.mapToLocationDto())
+            } catch (e: UnknownHostException) {
+                Log.w("LocationRepositoryImpl", "getLocationDetail: $e")
+            }
         }.flatMapLatest {
             locationDao.getLocationById(locationId)
                 .distinctUntilChanged()

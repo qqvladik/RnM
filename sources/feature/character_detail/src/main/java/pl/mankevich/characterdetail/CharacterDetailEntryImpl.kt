@@ -13,6 +13,7 @@ import pl.mankevich.coreui.navigation.FeatureEntries
 import pl.mankevich.coreui.navigation.find
 import pl.mankevich.coreui.viewmodel.daggerViewModel
 import pl.mankevich.dependencies.LocalDependenciesProvider
+import pl.mankevich.episodedetailapi.EpisodeDetailEntry
 import pl.mankevich.locationdetailapi.LocationDetailEntry
 import javax.inject.Inject
 
@@ -59,7 +60,10 @@ class CharacterDetailEntryImpl @Inject constructor() : CharacterDetailEntry() {
                 val destination = featureEntries.find<LocationDetailEntry>().destination(locationId)
                 navController.navigate(destination)
             },
-
+            onEpisodeItemClick = { episodeId ->
+                val destination = featureEntries.find<EpisodeDetailEntry>().destination(episodeId)
+                navController.navigate(destination)
+            },
             onBackPress = { navController.popBackStack() }
         )
     }

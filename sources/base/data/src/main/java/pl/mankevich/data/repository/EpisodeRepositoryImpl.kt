@@ -1,5 +1,6 @@
 package pl.mankevich.data.repository
 
+import android.util.Log
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -27,6 +28,7 @@ import pl.mankevich.databaseapi.dao.Transaction
 import pl.mankevich.model.Episode
 import pl.mankevich.model.EpisodeFilter
 import pl.mankevich.remoteapi.api.EpisodeApi
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 class EpisodeRepositoryImpl
@@ -65,9 +67,12 @@ class EpisodeRepositoryImpl
         flow {
             emit(Unit)
 
-            val episodeResponse = episodeApi.fetchEpisodeById(episodeId)
-            episodeDao.insertEpisode(episodeResponse.mapToEpisodeDto())
-
+            try {
+                val episodeResponse = episodeApi.fetchEpisodeById(episodeId)
+                episodeDao.insertEpisode(episodeResponse.mapToEpisodeDto())
+            } catch (e: UnknownHostException) {
+                Log.w("EpisodeRepositoryImpl", "getEpisodeDetail: $e")
+            }
         }.flatMapLatest {
             episodeDao.getEpisodeById(episodeId)
                 .distinctUntilChanged()
@@ -79,7 +84,8 @@ class EpisodeRepositoryImpl
     private fun createPagingSourceFactory(
         pagingSourceFactory: () -> PagingSource<Int, Episode>
     ): PagingSourceFactory<Int, Episode> {
-        val invalidatingPagingSourceFactory = InvalidatingPagingSourceFactory(pagingSourceFactory)
+        val invalidatingPagingSourceFactory =
+            InvalidatingPagingSourceFactory(pagingSourceFactory)
 
         onTableUpdateListener = { invalidatingPagingSourceFactory.invalidate() }
         episodeDao.addTableUpdateWeakListener(onTableUpdateListener)
@@ -96,15 +102,19 @@ class EpisodeRepositoryImpl
                 flow {
                     emit(Unit)
 
-                    val episodesListResponse = episodeApi.fetchEpisodesByIds(episodeIds)
-                    transaction {
-                        episodeDao.insertEpisodesList(episodesListResponse.map { it.mapToEpisodeDto() })
-                        episodesListResponse.forEach { episodeResponse ->
-                            relationsDao.insertEpisodeCharacters(
-                                episodeResponse.id,
-                                episodeResponse.characterIds
-                            )
+                    try {
+                        val episodesListResponse = episodeApi.fetchEpisodesByIds(episodeIds)
+                        transaction {
+                            episodeDao.insertEpisodesList(episodesListResponse.map { it.mapToEpisodeDto() })
+                            episodesListResponse.forEach { episodeResponse ->
+                                relationsDao.insertEpisodeCharacters(
+                                    episodeResponse.id,
+                                    episodeResponse.characterIds
+                                )
+                            }
                         }
+                    } catch (e: UnknownHostException) {
+                        Log.w("EpisodeRepositoryImpl", "getEpisodesByCharacterId: $e")
                     }
                 }.flatMapLatest {
                     episodeDao.getEpisodesFlowByIds(episodeIds)

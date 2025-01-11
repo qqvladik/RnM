@@ -75,7 +75,6 @@ fun EpisodeCard(
                         )
 
                         VerticalDivider(
-                            thickness = 1.dp,
                             modifier = Modifier
                                 .height(16.dp)
                                 .padding(horizontal = 4.dp)

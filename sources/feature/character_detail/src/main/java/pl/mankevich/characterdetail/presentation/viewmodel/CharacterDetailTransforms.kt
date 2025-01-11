@@ -12,7 +12,7 @@ object CharacterDetailTransforms {
 
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
-                state = current.state.copy(isCharacterLoading = true),
+                state = current.state.copy(),
                 sideEffects = current.sideEffects.add(
                     CharacterDetailSideEffect.OnLoadCharacterRequested
                 )
@@ -25,8 +25,20 @@ object CharacterDetailTransforms {
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
-                    isCharacterLoading = false,
-                    character = character
+                    character = character,
+                    characterError = null
+                )
+            )
+        }
+    }
+
+    data class LoadCharacterError(val error: Throwable) : CharacterDetailTransform {
+
+        override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
+            return current.copy(
+                state = current.state.copy(
+                    character = null,
+                    characterError = error
                 )
             )
         }
@@ -36,7 +48,7 @@ object CharacterDetailTransforms {
 
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
-                state = current.state.copy(isEpisodesLoading = true),
+                state = current.state.copy(),
                 sideEffects = current.sideEffects.add(
                     CharacterDetailSideEffect.OnLoadEpisodesRequested
                 )
@@ -49,8 +61,20 @@ object CharacterDetailTransforms {
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
-                    isEpisodesLoading = false,
-                    episodes = episodes
+                    episodes = episodes,
+                    episodesError = null
+                )
+            )
+        }
+    }
+
+    data class LoadEpisodesError(val error: Throwable) : CharacterDetailTransform {
+
+        override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
+            return current.copy(
+                state = current.state.copy(
+                    episodes = null,
+                    episodesError = error
                 )
             )
         }
