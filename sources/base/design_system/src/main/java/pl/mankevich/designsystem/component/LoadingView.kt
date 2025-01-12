@@ -18,7 +18,7 @@ fun LoadingView(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.size(35.dp),
+            modifier = Modifier.size(36.dp),
             strokeWidth = 5.dp
         )
     }

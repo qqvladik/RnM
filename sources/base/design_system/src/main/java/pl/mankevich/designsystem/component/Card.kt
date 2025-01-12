@@ -16,19 +16,22 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.theme.PADDING
+import pl.mankevich.designsystem.theme.CARD_CORNERS_SIZE
 
 @Composable
 fun Card(
     onCardClick: () -> Unit = {},
-    internalPadding: Dp = 12.dp,
+    internalPadding: Dp = PADDING,
     isClickable: Boolean = true,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    val shape = RoundedCornerShape(CARD_CORNERS_SIZE)
     Card(
-        shape = RoundedCornerShape(16.dp),
+        shape = shape,
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
+            .clip(shape)
             .clickable(enabled = isClickable) { onCardClick() },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface.copy(alpha = if (isClickable) 1f else 0.5f)

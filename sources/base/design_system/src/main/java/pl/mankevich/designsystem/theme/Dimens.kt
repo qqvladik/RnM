@@ -1,7 +1,7 @@
-package pl.mankevich.coreui.utils
+package pl.mankevich.designsystem.theme
 
 import androidx.compose.ui.unit.dp
 
 val PADDING = 12.dp
 val PADDING_SMALL = 6.dp
-val LIKE_SIZE = 30.dp
+val CARD_CORNERS_SIZE = 16.dp

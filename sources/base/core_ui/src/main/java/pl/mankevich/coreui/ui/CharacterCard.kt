@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -24,14 +23,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import pl.mankevich.coreui.utils.LIKE_SIZE
-import pl.mankevich.coreui.utils.PADDING
 import pl.mankevich.coreui.utils.characterSpeciesIconResolver
 import pl.mankevich.coreui.utils.characterStatusIconResolver
 import pl.mankevich.designsystem.component.Card
 import pl.mankevich.designsystem.component.IconText
 import pl.mankevich.designsystem.component.LikeButton
 import pl.mankevich.designsystem.icons.RnmIcons
+import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.Pear
 import pl.mankevich.designsystem.theme.Red
 import pl.mankevich.designsystem.theme.RnmTheme
@@ -54,7 +52,6 @@ fun CharacterCard(
 ) {
     Card(
         onCardClick = onCardClick,
-        internalPadding = PADDING,
         modifier = modifier
     ) {
         Column {
@@ -66,7 +63,7 @@ fun CharacterCard(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(1.2f)
+                        .weight(1f)
                         .clip(shape)
                         .sharedElement(
                             state = rememberSharedContentState(
@@ -147,7 +144,9 @@ fun CharacterCardPreview() {
     RnmTheme {
         WithAnimatedVisibilityScope {
             CharacterCard(
-                modifier = Modifier.width(200.dp),
+                modifier = Modifier
+                    .height(300.dp)
+                    .width(200.dp),
                 name = "Rick Sanchez",
                 status = "Alive",
                 species = "Human",

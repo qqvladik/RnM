@@ -39,7 +39,7 @@ import pl.mankevich.coreui.ui.EpisodeCard
 import pl.mankevich.coreui.ui.filter.FilterGroup
 import pl.mankevich.coreui.ui.filter.FilterGroup.Companion.invoke
 import pl.mankevich.coreui.ui.filter.FilterView
-import pl.mankevich.coreui.utils.PADDING
+import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.coreui.utils.episodeEpisodeIconResolver
 import pl.mankevich.coreui.utils.episodeSeasonIconResolver
 import pl.mankevich.designsystem.component.EmptyView

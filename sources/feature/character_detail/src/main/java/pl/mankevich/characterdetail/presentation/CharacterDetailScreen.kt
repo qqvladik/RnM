@@ -38,8 +38,8 @@ import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailViewMo
 import pl.mankevich.coreui.ui.Detail
 import pl.mankevich.coreui.ui.EpisodeCard
 import pl.mankevich.coreui.ui.LocationCard
-import pl.mankevich.coreui.utils.PADDING
-import pl.mankevich.coreui.utils.PADDING_SMALL
+import pl.mankevich.designsystem.theme.PADDING
+import pl.mankevich.designsystem.theme.PADDING_SMALL
 import pl.mankevich.coreui.utils.characterGenderIconResolver
 import pl.mankevich.coreui.utils.characterSpeciesIconResolver
 import pl.mankevich.coreui.utils.characterStatusIconResolver
@@ -148,7 +148,7 @@ fun CharacterDetailView(
             key = "header",
             span = FullLine
         ) {
-            if (characterError != null && character == null) {
+            if (characterError != null) {
                 ErrorView(
                     error = characterError,
                     modifier = Modifier.fillMaxWidth(),
@@ -290,7 +290,7 @@ fun CharacterDetailView(
         }
 
 
-        if (episodesError != null && episodes == null) {
+        if (episodesError != null) {
             item(span = FullLine) {
                 ErrorView(
                     error = episodesError,

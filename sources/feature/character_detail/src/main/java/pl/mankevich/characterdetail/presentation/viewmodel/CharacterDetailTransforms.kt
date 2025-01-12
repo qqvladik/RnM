@@ -12,7 +12,7 @@ object CharacterDetailTransforms {
 
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
-                state = current.state.copy(),
+                state = current.state.copy(character = null,),
                 sideEffects = current.sideEffects.add(
                     CharacterDetailSideEffect.OnLoadCharacterRequested
                 )
@@ -48,7 +48,7 @@ object CharacterDetailTransforms {
 
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
-                state = current.state.copy(),
+                state = current.state.copy(episodes = null),
                 sideEffects = current.sideEffects.add(
                     CharacterDetailSideEffect.OnLoadEpisodesRequested
                 )

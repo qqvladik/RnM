@@ -1,7 +1,10 @@
 package pl.mankevich.characterslist.presentation
 
+import androidx.compose.animation.core.InfiniteTransition
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
@@ -28,6 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import kotlinx.coroutines.flow.collectLatest
@@ -41,7 +46,6 @@ import pl.mankevich.core.util.cast
 import pl.mankevich.coreui.ui.CharacterCard
 import pl.mankevich.coreui.ui.filter.FilterGroup
 import pl.mankevich.coreui.ui.filter.FilterView
-import pl.mankevich.coreui.utils.PADDING
 import pl.mankevich.coreui.utils.characterGenderIconResolver
 import pl.mankevich.coreui.utils.characterSpeciesIconResolver
 import pl.mankevich.coreui.utils.characterStatusIconResolver
@@ -54,7 +58,9 @@ import pl.mankevich.designsystem.component.SearchField
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.utils.isLandscape
+import pl.mankevich.designsystem.utils.placeholderConnecting
 import pl.mankevich.model.Character
 import pl.mankevich.model.CharacterFilter
 import pl.mankevich.model.LocationShort
@@ -201,91 +207,123 @@ fun CharactersListView(
 
             That's why pagingCharacterItems.loadState.append.endOfPaginationReached check was added.
         */
-        Column(
+        val focusManager = LocalFocusManager.current
+        val gridState = rememberLazyStaggeredGridState()
+        LaunchedEffect(Unit) {//TODO: create custom LazyVerticalGrid with state to clear focus when scroll
+            gridState.interactionSource.interactions
+                .distinctUntilChanged()
+                .filterIsInstance<DragInteraction.Start>()
+                .collectLatest {
+                    focusManager.clearFocus()
+                }
+        }
+
+        val infiniteTransition =
+            rememberInfiniteTransition(label = "CharactersListScreen transition")
+
+        LazyVerticalStaggeredGrid(
+            state = gridState,
+            columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
+            verticalItemSpacing = PADDING,
+            horizontalArrangement = Arrangement.spacedBy(PADDING),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = PADDING)
         ) {
+            val itemModifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(0.75f)
+
             if (pagingCharacterItems.loadState.refresh is LoadState.Loading
                 || (pagingCharacterItems.loadState.refresh is LoadState.NotLoading
                         && pagingCharacterItems.itemCount == 0
                         && !pagingCharacterItems.loadState.append.endOfPaginationReached)
             ) {
-                LoadingView(modifier = Modifier.fillMaxSize())
+                charactersListViewPlaceholder(
+                    infiniteTransition = infiniteTransition,
+                    itemModifier = itemModifier
+                )
             } else if (pagingCharacterItems.itemCount == 0 && pagingCharacterItems.loadState.append.endOfPaginationReached) {
-                EmptyView(modifier = Modifier.fillMaxSize())
+                item(span = FullLine) {
+                    EmptyView(modifier = Modifier.fillMaxSize())
+                }
             } else {
-                val focusManager = LocalFocusManager.current
-                val gridState = rememberLazyStaggeredGridState()
-                LaunchedEffect(Unit) {//TODO: create custom LazyVerticalGrid with state to clear focus when scroll
-                    gridState.interactionSource.interactions
-                        .distinctUntilChanged()
-                        .filterIsInstance<DragInteraction.Start>()
-                        .collectLatest {
-                            focusManager.clearFocus()
-                        }
-                }
-
-                LazyVerticalStaggeredGrid(
-                    state = gridState,
-                    columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
-                    verticalItemSpacing = PADDING,
-                    horizontalArrangement = Arrangement.spacedBy(PADDING),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    val stateItemModifier = Modifier.fillMaxWidth()
-
-                    items(
-                        count = pagingCharacterItems.itemCount,
-                        key = pagingCharacterItems.itemKey { character -> character.id },
-                    ) { index ->
-                        pagingCharacterItems[index]?.let { character ->
-                            CharacterCard(
-                                name = character.name,
-                                status = character.status,
-                                species = character.species,
-                                origin = character.origin.name,
-                                imageUrl = character.image,
-                                isFavorite = false,
-                                onFavoriteClick = {},
-                                onCardClick = { onCharacterItemClick(character.id) },
-                            )
-                        }
-                    }
-
-                    if (pagingCharacterItems.loadState.append is LoadState.Loading) {
-                        item(span = FullLine) {
-                            LoadingView(
-                                modifier = stateItemModifier
-                            )
-                        }
-                    }
-                    if (pagingCharacterItems.loadState.refresh is LoadState.Error) {
-                        item(span = FullLine) {
-                            ErrorView(
-                                error = pagingCharacterItems.loadState.refresh.cast<LoadState.Error>().error,
-                                modifier = stateItemModifier
-                            ) {
-                                pagingCharacterItems.retry()
-                            }
-                        }
-                    }
-                    if (pagingCharacterItems.loadState.append is LoadState.Error) {
-                        item(span = FullLine) {
-                            ErrorView(
-                                error = pagingCharacterItems.loadState.append.cast<LoadState.Error>().error,
-                                modifier = stateItemModifier
-                            ) {
-                                pagingCharacterItems.retry()
-                            }
-                        }
-                    }
-
-                    item(span = FullLine) {}
-                }
+                charactersListViewData(
+                    pagingCharacterItems = pagingCharacterItems,
+                    onCharacterItemClick = onCharacterItemClick,
+                    itemModifier = itemModifier
+                )
             }
         }
     }
+}
+
+fun LazyStaggeredGridScope.charactersListViewPlaceholder(
+    infiniteTransition: InfiniteTransition,
+    itemModifier: Modifier
+) {
+    items(20) {
+        Box(
+            modifier = itemModifier.placeholderConnecting(infiniteTransition = infiniteTransition)
+        )
+    }
+}
+
+fun LazyStaggeredGridScope.charactersListViewData(
+    pagingCharacterItems: LazyPagingItems<Character>,
+    onCharacterItemClick: (Int) -> Unit,
+    itemModifier: Modifier
+) {
+    items(
+        count = pagingCharacterItems.itemCount,
+        key = pagingCharacterItems.itemKey { character -> character.id },
+    ) { index ->
+        pagingCharacterItems[index]?.let { character ->
+            CharacterCard(
+                name = character.name,
+                status = character.status,
+                species = character.species,
+                origin = character.origin.name,
+                imageUrl = character.image,
+                isFavorite = false,
+                onFavoriteClick = {},
+                onCardClick = { onCharacterItemClick(character.id) },
+                modifier = itemModifier
+            )
+        }
+    }
+
+    val stateItemModifier = Modifier.fillMaxWidth()
+
+    if (pagingCharacterItems.loadState.append is LoadState.Loading) {
+        item(span = FullLine) {
+            LoadingView(
+                modifier = stateItemModifier
+            )
+        }
+    }
+    if (pagingCharacterItems.loadState.refresh is LoadState.Error) {
+        item(span = FullLine) {
+            ErrorView(
+                error = pagingCharacterItems.loadState.refresh.cast<LoadState.Error>().error,
+                modifier = stateItemModifier
+            ) {
+                pagingCharacterItems.retry()
+            }
+        }
+    }
+    if (pagingCharacterItems.loadState.append is LoadState.Error) {
+        item(span = FullLine) {
+            ErrorView(
+                error = pagingCharacterItems.loadState.append.cast<LoadState.Error>().error,
+                modifier = stateItemModifier
+            ) {
+                pagingCharacterItems.retry()
+            }
+        }
+    }
+
+    item(span = FullLine) {}
 }
 
 @ThemePreviews

@@ -23,8 +23,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.mankevich.coreui.ui.Detail
-import pl.mankevich.coreui.utils.PADDING
-import pl.mankevich.coreui.utils.PADDING_SMALL
+import pl.mankevich.designsystem.theme.PADDING
+import pl.mankevich.designsystem.theme.PADDING_SMALL
 import pl.mankevich.coreui.utils.locationDimensionIconResolver
 import pl.mankevich.coreui.utils.locationTypeIconResolver
 import pl.mankevich.designsystem.component.LoadingView

@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import pl.mankevich.coreui.utils.LIKE_SIZE
 import pl.mankevich.designsystem.component.Card
 import pl.mankevich.designsystem.component.LikeButton
 import pl.mankevich.designsystem.icons.RnmIcons

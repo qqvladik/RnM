@@ -3,7 +3,6 @@ package pl.mankevich.episodedetail.presentation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,8 +25,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.mankevich.coreui.ui.Detail
-import pl.mankevich.coreui.utils.PADDING
-import pl.mankevich.coreui.utils.PADDING_SMALL
+import pl.mankevich.designsystem.theme.PADDING
+import pl.mankevich.designsystem.theme.PADDING_SMALL
 import pl.mankevich.coreui.utils.episodeEpisodeIconResolver
 import pl.mankevich.coreui.utils.episodeSeasonIconResolver
 import pl.mankevich.designsystem.component.LoadingView

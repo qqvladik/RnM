@@ -22,8 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import pl.mankevich.coreui.utils.LIKE_SIZE
-import pl.mankevich.coreui.utils.PADDING
+import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.coreui.utils.episodeEpisodeIconResolver
 import pl.mankevich.coreui.utils.episodeSeasonIconResolver
 import pl.mankevich.designsystem.component.Card
@@ -45,7 +44,6 @@ fun EpisodeCard(
 ) {
     Card(
         onCardClick = onCardClick,
-        internalPadding = PADDING,
         modifier = modifier
     ) {
         Column {

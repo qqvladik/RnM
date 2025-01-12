@@ -38,7 +38,7 @@ import pl.mankevich.core.util.cast
 import pl.mankevich.coreui.ui.LocationCard
 import pl.mankevich.coreui.ui.filter.FilterGroup
 import pl.mankevich.coreui.ui.filter.FilterView
-import pl.mankevich.coreui.utils.PADDING
+import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.coreui.utils.locationDimensionIconResolver
 import pl.mankevich.coreui.utils.locationTypeIconResolver
 import pl.mankevich.designsystem.component.EmptyView
