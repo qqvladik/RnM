@@ -2,6 +2,7 @@ package pl.mankevich.characterslist.presentation
 
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
@@ -20,13 +22,24 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
@@ -56,9 +69,9 @@ import pl.mankevich.designsystem.component.IconButton
 import pl.mankevich.designsystem.component.LoadingView
 import pl.mankevich.designsystem.component.SearchField
 import pl.mankevich.designsystem.icons.RnmIcons
+import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
-import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.designsystem.utils.placeholderConnecting
 import pl.mankevich.model.Character
@@ -109,106 +122,31 @@ fun CharactersListView(
 ) {
     val pagingCharacterItems = state.characters.collectAsLazyPagingItems()
 
-    Column(modifier = modifier) {
-        Spacer(modifier = Modifier.height(PADDING))
+    //TODO unite nestedScroll logic somewhere
+    val gridState = rememberLazyStaggeredGridState()
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .height(40.dp)
-                .fillMaxWidth(),
-        ) {
-            if (onBackPress != null) {
-                IconButton(
-                    onClick = onBackPress,
-                    imageVector = RnmIcons.CaretLeft,
-                    contentDescription = "Show filters",
-                    iconSize = 20.dp,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .aspectRatio(1.2f)
-                )
-            } else {
-                Spacer(modifier = Modifier.width(PADDING))
+    val appBarHeight = 108.dp
+    var appBarHeightPx = with(LocalDensity.current) { appBarHeight.toPx() }
+    var appBarOffsetPx by remember { mutableFloatStateOf(0f) }
+
+    // connection to the nested scroll system and listen to the scroll
+    // happening inside child LazyColumn
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+
+                val delta = available.y
+                val newOffset = appBarOffsetPx + delta
+                appBarOffsetPx = newOffset.coerceIn(-appBarHeightPx, 0f)
+
+                return Offset.Zero
             }
-
-            SearchField(
-                value = state.characterFilter.name,
-                onValueChange = onSearchChange,
-                onClearClick = onSearchClear,
-                placeholder = "Search...",
-                modifier = Modifier.weight(1f),
-            )
-
-            Spacer(modifier = Modifier.width(PADDING))
         }
+    }
 
-        Spacer(modifier = Modifier.height(PADDING))
-
-        FilterView(
-            name = "Characters filter",
-            filterGroupList = listOf(
-                FilterGroup(
-                    name = "Status",
-                    selected = state.characterFilter.status,
-                    labelList = state.statusLabelList,
-                    isListFinished = true,
-                    resolveIcon = characterStatusIconResolver,
-                    onSelectedChanged = onStatusSelected,
-                ),
-                FilterGroup(
-                    name = "Species",
-                    selected = state.characterFilter.species,
-                    labelList = state.speciesLabelList,
-                    isListFinished = false,
-                    resolveIcon = characterSpeciesIconResolver,
-                    onSelectedChanged = onSpeciesSelected,
-                ),
-                FilterGroup(
-                    name = "Gender",
-                    selected = state.characterFilter.gender,
-                    labelList = state.genderLabelList,
-                    isListFinished = true,
-                    resolveIcon = characterGenderIconResolver,
-                    onSelectedChanged = onGenderSelected,
-                ),
-                FilterGroup(
-                    name = "Type",
-                    selected = state.characterFilter.type,
-                    labelList = state.typeLabelList,
-                    isListFinished = false,
-                    resolveIcon = characterTypeIconResolver,
-                    onSelectedChanged = onTypeSelected,
-                )
-            ),
-            scrollablePadding = PADDING,
-            modifier = Modifier
-                .height(32.dp)
-                .padding(end = PADDING)
-        )
-
-        Spacer(modifier = Modifier.height(PADDING))
-
-        /*When use pager with remoteMediator there are strange loadStates when launch app(1->2->3):
-            1. loadState.refresh = Loading
-             loadState.mediator = null
-             loadState.source.refresh = Loading
-
-            2. loadState.refresh = NotLoading
-             loadState.mediator.refresh = NotLoading
-             loadState.source.refresh = Loading
-
-            3. loadState.refresh = Loading
-             loadState.mediator = Loading
-             loadState.source.refresh = Loading
-
-            That 2 loadState brings flicking of progressbar. I found the issue: https://issuetracker.google.com/issues/288023763
-            There is no such behavior when use pager without remoteMediator.
-
-            That's why pagingCharacterItems.loadState.append.endOfPaginationReached check was added.
-        */
+    Box(modifier = modifier.nestedScroll(nestedScrollConnection)) {
         val focusManager = LocalFocusManager.current
-        val gridState = rememberLazyStaggeredGridState()
+
         LaunchedEffect(Unit) {//TODO: create custom LazyVerticalGrid with state to clear focus when scroll
             gridState.interactionSource.interactions
                 .distinctUntilChanged()
@@ -230,10 +168,32 @@ fun CharactersListView(
                 .fillMaxSize()
                 .padding(horizontal = PADDING)
         ) {
+            item(span = FullLine) {
+                Spacer(modifier = Modifier.height(appBarHeight - PADDING))
+            }
+
             val itemModifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(0.75f)
 
+            /*When use pager with remoteMediator there are strange loadStates when launch app(1->2->3):
+            1. loadState.refresh = Loading
+             loadState.mediator = null
+             loadState.source.refresh = Loading
+
+            2. loadState.refresh = NotLoading
+             loadState.mediator.refresh = NotLoading
+             loadState.source.refresh = Loading
+
+            3. loadState.refresh = Loading
+             loadState.mediator = Loading
+             loadState.source.refresh = Loading
+
+            That 2 loadState brings flicking of progressbar. I found the issue: https://issuetracker.google.com/issues/288023763
+            There is no such behavior when use pager without remoteMediator.
+
+            That's why pagingCharacterItems.loadState.append.endOfPaginationReached check was added.
+            */
             if (pagingCharacterItems.loadState.refresh is LoadState.Loading
                 || (pagingCharacterItems.loadState.refresh is LoadState.NotLoading
                         && pagingCharacterItems.itemCount == 0
@@ -253,6 +213,101 @@ fun CharactersListView(
                     onCharacterItemClick = onCharacterItemClick,
                     itemModifier = itemModifier
                 )
+            }
+        }
+
+        //AppBar
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(appBarHeight)
+                .offset { IntOffset(x = 0, y = appBarOffsetPx.toInt()) }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .pointerInput(Unit) {} //Helps to prevent clicking on the underlying card elements through spacers
+            ) {
+                Spacer(modifier = Modifier.height(PADDING))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .weight(1f)
+//                    .height(40.dp)
+                        .fillMaxWidth(),
+                ) {
+                    if (onBackPress != null) {
+                        IconButton(
+                            onClick = onBackPress,
+                            imageVector = RnmIcons.CaretLeft,
+                            contentDescription = "Show filters",
+                            iconSize = 20.dp,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .aspectRatio(1.2f)
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.width(PADDING))
+                    }
+
+                    SearchField(
+                        value = state.characterFilter.name,
+                        onValueChange = onSearchChange,
+                        onClearClick = onSearchClear,
+                        placeholder = "Search...",
+                        modifier = Modifier.weight(1f),
+                    )
+
+                    Spacer(modifier = Modifier.width(PADDING))
+                }
+
+                Spacer(modifier = Modifier.height(PADDING))
+
+                FilterView(
+                    name = "Characters filter",
+                    filterGroupList = listOf(
+                        FilterGroup(
+                            name = "Status",
+                            selected = state.characterFilter.status,
+                            labelList = state.statusLabelList,
+                            isListFinished = true,
+                            resolveIcon = characterStatusIconResolver,
+                            onSelectedChanged = onStatusSelected,
+                        ),
+                        FilterGroup(
+                            name = "Species",
+                            selected = state.characterFilter.species,
+                            labelList = state.speciesLabelList,
+                            isListFinished = false,
+                            resolveIcon = characterSpeciesIconResolver,
+                            onSelectedChanged = onSpeciesSelected,
+                        ),
+                        FilterGroup(
+                            name = "Gender",
+                            selected = state.characterFilter.gender,
+                            labelList = state.genderLabelList,
+                            isListFinished = true,
+                            resolveIcon = characterGenderIconResolver,
+                            onSelectedChanged = onGenderSelected,
+                        ),
+                        FilterGroup(
+                            name = "Type",
+                            selected = state.characterFilter.type,
+                            labelList = state.typeLabelList,
+                            isListFinished = false,
+                            resolveIcon = characterTypeIconResolver,
+                            onSelectedChanged = onTypeSelected,
+                        )
+                    ),
+                    scrollablePadding = PADDING,
+                    modifier = Modifier
+                        .height(32.dp)
+                        .padding(end = PADDING)
+                )
+
+                Spacer(modifier = Modifier.height(PADDING))
             }
         }
     }

@@ -94,13 +94,25 @@ object RnmIcons {
         @Composable
         get() = ImageVector.vectorResource(RnmIconsRes.MapPin)
 
+    val MapPinFilled: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(RnmIconsRes.MapPinFilled)
+
     val MonitorPlay: ImageVector
         @Composable
         get() = ImageVector.vectorResource(RnmIconsRes.MonitorPlay)
 
+    val MonitorPlayFilled: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(RnmIconsRes.MonitorPlayFilled)
+
     val Person: ImageVector
         @Composable
         get() = ImageVector.vectorResource(RnmIconsRes.Person)
+
+    val PersonFilled: ImageVector
+        @Composable
+        get() = ImageVector.vectorResource(RnmIconsRes.PersonFilled)
 
     val Planet: ImageVector
         @Composable
@@ -155,8 +167,11 @@ object RnmIconsRes {
     val HouseSimple = R.drawable.ic_house_simple
     val Info = R.drawable.ic_info
     val MapPin = R.drawable.ic_map_pin
+    val MapPinFilled = R.drawable.ic_map_pin_filled
     val MonitorPlay = R.drawable.ic_monitor_play
+    val MonitorPlayFilled = R.drawable.ic_monitor_play_filled
     val Person = R.drawable.ic_person
+    val PersonFilled = R.drawable.ic_person_filled
     val Planet = R.drawable.ic_planet
     val Pulse = R.drawable.ic_pulse
     val Question = R.drawable.ic_question
