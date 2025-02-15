@@ -16,5 +16,5 @@ interface LocationDetailEntryModule {
     @FeatureScope
     @IntoMap
     @FeatureEntryKey(LocationDetailEntry::class)
-    fun locationDetailEntry(entry: LocationDetailEntryImpl): FeatureEntry
+    fun locationDetailEntry(entry: LocationDetailEntryImpl): FeatureEntry<*>
 }

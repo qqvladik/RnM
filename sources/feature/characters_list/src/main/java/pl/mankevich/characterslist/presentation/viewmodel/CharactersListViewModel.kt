@@ -10,7 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import pl.mankevich.characterslist.getCharacterFilter
+import pl.mankevich.characterslist.getCharacterFilterTypesafe
 import pl.mankevich.coreui.mvi.SideEffects
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
@@ -27,7 +27,7 @@ class CharactersListViewModel
         state = CharactersListState(),
         sideEffects = SideEffects<CharactersListSideEffect>().add(
             CharactersListSideEffect.OnInitRequested(
-                savedStateHandle.getCharacterFilter()
+                savedStateHandle.getCharacterFilterTypesafe()
             )
         )
     )

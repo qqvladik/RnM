@@ -1,29 +1,35 @@
 package pl.mankevich.characterdetailapi
 
 import androidx.navigation.NavDeepLink
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import pl.mankevich.characterdetailapi.CharacterDetailEntry.Companion.ARG_CHARACTER_ID
 import pl.mankevich.core.API_URL
-import pl.mankevich.core.APP_ROUTE
 import pl.mankevich.core.CHARACTER_RELATIVE_PATH
-import pl.mankevich.coreui.navigation.AnimatedFeatureEntry
+import pl.mankevich.coreui.navigation.typesafe.TypesafeComposableFeatureEntry
 
-abstract class CharacterDetailEntry : AnimatedFeatureEntry() {
+@Serializable
+data class CharacterDetailRoute(
+    @SerialName(ARG_CHARACTER_ID)
+    val characterId: Int
+)
 
-    final override val featureRoute = "$APP_ROUTE/$CHARACTER_RELATIVE_PATH/{$ARG_CHARACTER_ID}"
+abstract class CharacterDetailEntry : TypesafeComposableFeatureEntry<CharacterDetailRoute>() {
 
-    final override val arguments = listOf(
-        navArgument(ARG_CHARACTER_ID) {
-            type = NavType.IntType
+    final override val featureRoute = CharacterDetailRoute::class
+
+    final override val deepLinks: List<NavDeepLink> = listOf(
+        navDeepLink(
+            route = featureRoute,
+            basePath = "$API_URL/$CHARACTER_RELATIVE_PATH"
+        ) {
+            uriPattern = "$API_URL/$CHARACTER_RELATIVE_PATH/{$ARG_CHARACTER_ID}"
         }
     )
 
-    final override val deepLinks: List<NavDeepLink>
-        get() = listOf(navDeepLink { uriPattern = "$API_URL/$CHARACTER_RELATIVE_PATH/{$ARG_CHARACTER_ID}" })
-
     fun destination(characterId: Int) =
-        "$APP_ROUTE/$CHARACTER_RELATIVE_PATH/$characterId"
+        CharacterDetailRoute(characterId = characterId)
 
     companion object {
         const val ARG_CHARACTER_ID = "characterId"

@@ -33,13 +33,15 @@ class CharacterDetailViewModel
     @AssistedFactory
     interface Factory : ViewModelAssistedFactory<CharacterDetailViewModel>
 
+    private val characterId = savedStateHandle.getCharacterId()
+
     override fun executeIntent(intent: CharacterDetailIntent): Flow<Transform<CharacterDetailStateWithEffects>> =
         when (intent) {
             is CharacterDetailIntent.LoadCharacter -> flowOf(
-                CharacterDetailTransforms.LoadCharacter(savedStateHandle.getCharacterId())
+                CharacterDetailTransforms.LoadCharacter(characterId)
             ).flatMapMerge {
                 try {
-                    loadCharacterDetailUseCase(characterId = savedStateHandle.getCharacterId())
+                    loadCharacterDetailUseCase(characterId = characterId)
                         .map { CharacterDetailTransforms.LoadCharacterSuccess(it) }
                 } catch (e: Throwable) {
                     flowOf(CharacterDetailTransforms.LoadCharacterError(e))
@@ -48,10 +50,10 @@ class CharacterDetailViewModel
             }
 
             is CharacterDetailIntent.LoadEpisodes -> flowOf(
-                CharacterDetailTransforms.LoadEpisodes(savedStateHandle.getCharacterId())
+                CharacterDetailTransforms.LoadEpisodes(characterId)
             ).flatMapMerge {
                 try {
-                    loadEpisodesByCharacterIdUseCase(characterId = savedStateHandle.getCharacterId())
+                    loadEpisodesByCharacterIdUseCase(characterId = characterId)
                         .map { CharacterDetailTransforms.LoadEpisodesSuccess(it) }
                 } catch (e: Throwable) {
                     flowOf(CharacterDetailTransforms.LoadEpisodesError(e))

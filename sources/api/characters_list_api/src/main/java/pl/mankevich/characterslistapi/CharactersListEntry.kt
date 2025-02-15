@@ -1,55 +1,49 @@
 package pl.mankevich.characterslistapi
 
 import androidx.navigation.NavDeepLink
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import pl.mankevich.characterslistapi.CharactersListEntry.Companion.ARG_GENDER
+import pl.mankevich.characterslistapi.CharactersListEntry.Companion.ARG_NAME
+import pl.mankevich.characterslistapi.CharactersListEntry.Companion.ARG_SPECIES
+import pl.mankevich.characterslistapi.CharactersListEntry.Companion.ARG_STATUS
+import pl.mankevich.characterslistapi.CharactersListEntry.Companion.ARG_TYPE
 import pl.mankevich.core.API_URL
-import pl.mankevich.core.APP_ROUTE
 import pl.mankevich.core.CHARACTER_RELATIVE_PATH
-import pl.mankevich.coreui.navigation.AnimatedFeatureEntry
+import pl.mankevich.coreui.navigation.typesafe.TypesafeComposableFeatureEntry
 
-abstract class CharactersListEntry : AnimatedFeatureEntry() {
+@Serializable
+data class CharactersListRoute(
+    @SerialName(ARG_NAME)
+    val name: String? = null,
+    @SerialName(ARG_STATUS)
+    val status: String? = null,
+    @SerialName(ARG_SPECIES)
+    val species: String? = null,
+    @SerialName(ARG_GENDER)
+    val gender: String? = null,
+    @SerialName(ARG_TYPE)
+    val type: String? = null
+)
 
-    final override val featureRoute = "$APP_ROUTE/$CHARACTER_RELATIVE_PATH/" +
-            "?$ARG_NAME={$ARG_NAME}" +
-            "&$ARG_STATUS={$ARG_STATUS}" +
-            "&$ARG_SPECIES={$ARG_SPECIES}" +
-            "&$ARG_GENDER={$ARG_GENDER}" +
-            "&$ARG_TYPE={$ARG_TYPE}"
+abstract class CharactersListEntry : TypesafeComposableFeatureEntry<CharactersListRoute>() {
 
-    final override val arguments = listOf(
-        navArgument(ARG_NAME) {
-            type = NavType.StringType
-            nullable = true
-        },
-        navArgument(ARG_STATUS) {
-            type = NavType.StringType
-            nullable = true
-        },
-        navArgument(ARG_SPECIES) {
-            type = NavType.StringType
-            nullable = true
-        },
-        navArgument(ARG_GENDER) {
-            type = NavType.StringType
-            nullable = true
-        },
-        navArgument(ARG_TYPE) {
-            type = NavType.StringType
-            nullable = true
-        }
-    )
+    final override val featureRoute = CharactersListRoute::class
 
-    final override val deepLinks: List<NavDeepLink>
-        get() = listOf(navDeepLink {
+    final override val deepLinks: List<NavDeepLink> = listOf(
+        navDeepLink(
+            route = featureRoute,
+            basePath = "$API_URL/$CHARACTER_RELATIVE_PATH"
+        ) {
             uriPattern = "$API_URL/$CHARACTER_RELATIVE_PATH/" +
                     "?$ARG_NAME={$ARG_NAME}" +
                     "&$ARG_STATUS={$ARG_STATUS}" +
                     "&$ARG_SPECIES={$ARG_SPECIES}" +
                     "&$ARG_GENDER={$ARG_GENDER}" +
                     "&$ARG_TYPE={$ARG_TYPE}"
-        })
+        }
+    )
 
     fun destination(
         name: String? = null,
@@ -57,12 +51,13 @@ abstract class CharactersListEntry : AnimatedFeatureEntry() {
         species: String? = null,
         gender: String? = null,
         type: String? = null
-    ) = "$APP_ROUTE/$CHARACTER_RELATIVE_PATH/" +
-            "?$ARG_NAME=$name" +
-            "&$ARG_STATUS=$status" +
-            "&$ARG_SPECIES=$species" +
-            "&$ARG_GENDER=$gender" +
-            "&$ARG_TYPE=$type"
+    ) = CharactersListRoute(
+        name = name,
+        status = status,
+        species = species,
+        gender = gender,
+        type = type
+    )
 
     companion object {
         const val ARG_NAME = "name"

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.navigation.toRoute
 import pl.mankevich.coreui.navigation.FeatureEntries
 import pl.mankevich.coreui.navigation.find
 import pl.mankevich.coreui.viewmodel.daggerViewModel
@@ -13,9 +14,7 @@ import pl.mankevich.episodeslist.di.EpisodesListComponent
 import pl.mankevich.episodeslist.presentation.EpisodesListScreen
 import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListViewModel
 import pl.mankevich.episodeslistapi.EpisodesListEntry
-import pl.mankevich.episodeslistapi.EpisodesListEntry.Companion.ARG_EPISODE
-import pl.mankevich.episodeslistapi.EpisodesListEntry.Companion.ARG_NAME
-import pl.mankevich.episodeslistapi.EpisodesListEntry.Companion.ARG_SEASON
+import pl.mankevich.episodeslistapi.EpisodesListRoute
 import pl.mankevich.model.EpisodeFilter
 import javax.inject.Inject
 
@@ -34,7 +33,8 @@ class EpisodesListEntryImpl @Inject constructor() : EpisodesListEntry() {
         EpisodesListScreen(
             viewModel = viewModel,
             onEpisodeItemClick = { episodeId ->
-                val destination = featureEntries.find<EpisodeDetailEntry>().destination(episodeId)
+                val destination =
+                    featureEntries.find<EpisodeDetailEntry>().destination(episodeId)
                 navController.navigate(destination)
             },
             onBackPress = if (navController.previousBackStackEntry != null) {
@@ -46,12 +46,12 @@ class EpisodesListEntryImpl @Inject constructor() : EpisodesListEntry() {
     }
 }
 
-fun SavedStateHandle.getEpisodeFilter(): EpisodeFilter {
-    val season = get<Int>(ARG_SEASON)
-    val episode = get<Int>(ARG_EPISODE)
-    return EpisodeFilter(
-        name = get<String>(ARG_NAME) ?: "",
+fun SavedStateHandle.getEpisodeFilter(): EpisodeFilter =
+    toRoute<EpisodesListRoute>().toEpisodeFilter()
+
+fun EpisodesListRoute.toEpisodeFilter() =
+    EpisodeFilter(
+        name = name ?: "",
         season = if (season == -1) null else season,
         episode = if (episode == -1) null else episode,
     )
-}

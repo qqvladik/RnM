@@ -5,8 +5,8 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import pl.mankevich.characterslist.CharactersListEntryImpl
 import pl.mankevich.characterslistapi.CharactersListEntry
-import pl.mankevich.coreui.di.FeatureEntryKey
 import pl.mankevich.core.di.FeatureScope
+import pl.mankevich.coreui.di.FeatureEntryKey
 import pl.mankevich.coreui.navigation.FeatureEntry
 
 @Module
@@ -16,5 +16,5 @@ interface CharactersListEntryModule {
     @FeatureScope
     @IntoMap
     @FeatureEntryKey(CharactersListEntry::class)
-    fun charactersListEntry(entry: CharactersListEntryImpl): FeatureEntry
+    fun charactersListEntryTypesafe(entry: CharactersListEntryImpl): FeatureEntry<*>
 }

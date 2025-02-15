@@ -5,131 +5,83 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import pl.mankevich.characterdetailapi.CharacterDetailEntry
-import pl.mankevich.characterslistapi.CharactersListEntry
-import pl.mankevich.coreui.navigation.find
 import pl.mankevich.coreui.navigation.navigateToTopLevelDestination
+import pl.mankevich.coreui.navigation.toComposableFeatureEntries
 import pl.mankevich.dependencies.LocalDependenciesProvider
 import pl.mankevich.designsystem.component.RnmNavigationSuiteScaffold
-import pl.mankevich.designsystem.icons.RnmIcons
-import pl.mankevich.episodedetailapi.EpisodeDetailEntry
-import pl.mankevich.episodeslistapi.EpisodesListEntry
-import pl.mankevich.locationdetailapi.LocationDetailEntry
-import pl.mankevich.locationslistapi.LocationsListEntry
 
 @Composable
 fun Navigation() {
-    val navController = rememberNavController()
+    val rootNavController = rememberNavController()
     val featureEntries = LocalDependenciesProvider.current.featureEntries
 
-    val charactersListEntry = featureEntries.find<CharactersListEntry>()
-    val characterDetailEntry = featureEntries.find<CharacterDetailEntry>()
-    val locationsListEntry = featureEntries.find<LocationsListEntry>()
-    val locationsDetailEntry = featureEntries.find<LocationDetailEntry>()
-    val episodesListEntry = featureEntries.find<EpisodesListEntry>()
-    val episodeDetailEntry = featureEntries.find<EpisodeDetailEntry>()
-
-    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val navBackStackEntry by rootNavController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
     RnmNavigationSuiteScaffold(
         navigationSuiteItems = {
-            item(
-                selected = charactersListEntry.featureRoute == currentRoute,
-                icon = {
-                    Icon(
-                        imageVector = RnmIcons.Person,
-                        contentDescription = "Characters",
-                        modifier = Modifier.size(30.dp)
-                    )
-                },
-                selectedIcon = {
-                    Icon(
-                        imageVector = RnmIcons.PersonFilled,
-                        contentDescription = "Characters",
-                        modifier = Modifier.size(30.dp)
-                    )
-                },
-                label = { Text("Characters") },
-                onClick = {
-                    navController.navigateToTopLevelDestination(charactersListEntry.destination())
-                },
-            )
-            item(
-                selected = locationsListEntry.featureRoute == currentRoute,
-                icon = {
-                    Icon(
-                        imageVector = RnmIcons.MapPin,
-                        contentDescription = "Locations",
-                        modifier = Modifier.size(30.dp)
-                    )
-                },
-                selectedIcon = {
-                    Icon(
-                        imageVector = RnmIcons.MapPinFilled,
-                        contentDescription = "Locations",
-                        modifier = Modifier.size(30.dp)
-                    )
-                },
-                label = { Text("Locations") },
-                onClick = {
-                    navController.navigateToTopLevelDestination(locationsListEntry.destination())
-                },
-            )
-            item(
-                selected = episodesListEntry.featureRoute == currentRoute,
-                icon = {
-                    Icon(
-                        imageVector = RnmIcons.MonitorPlay,
-                        contentDescription = "Episodes",
-                        modifier = Modifier.size(30.dp)
-                    )
-                },
-                selectedIcon = {
-                    Icon(
-                        imageVector = RnmIcons.MonitorPlayFilled,
-                        contentDescription = "Episodes",
-                        modifier = Modifier.size(30.dp)
-                    )
-                },
-                label = { Text("Episodes") },
-                onClick = {
-                    navController.navigateToTopLevelDestination(episodesListEntry.destination())
-                },
-            )
+            TopLevelDestination.entries.forEach { topLevelDestination ->
+                item(
+                    selected = currentDestination?.hierarchy?.any { it.hasRoute(topLevelDestination.destination::class) } == true,
+                    icon = {
+                        Icon(
+                            imageVector = topLevelDestination.icon(),
+                            contentDescription = topLevelDestination.titleText,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    },
+                    selectedIcon = {
+                        Icon(
+                            imageVector = topLevelDestination.selectedIcon(),
+                            contentDescription = topLevelDestination.titleText,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    },
+                    label = { Text(topLevelDestination.titleText) },
+                    onClick = {
+                        rootNavController.navigateToTopLevelDestination(topLevelDestination.destination)
+                    },
+                )
+            }
         },
     ) {
         NavHost(
-            navController = navController,
-            startDestination = charactersListEntry.destination(),
+            navController = rootNavController,
+            startDestination = TopLevelDestination.CHARACTERS.destination,
             modifier = Modifier.fillMaxSize()
         ) {
 
-            with(charactersListEntry) {
-                composable(navController, featureEntries)
+            fun NavGraphBuilder.allComposable(navController: NavHostController = rootNavController) {
+                featureEntries.toComposableFeatureEntries().forEach { composableFeatureEntry ->
+                    with(composableFeatureEntry) {
+                        composable(navController, featureEntries)
+                    }
+                }
             }
 
-            with(characterDetailEntry) {
-                composable(navController, featureEntries)
-            }
-
-            with(locationsListEntry) {
-                composable(navController, featureEntries)
-            }
-
-            with(locationsDetailEntry) {
-                composable(navController, featureEntries)
-            }
-
-            with(episodesListEntry) {
-                composable(navController, featureEntries)
-            }
-
-            with(episodeDetailEntry) {
-                composable(navController, featureEntries)
+            TopLevelDestination.entries.forEach { topLevelDestination ->
+                composable(
+                    route = topLevelDestination.destination::class,
+                ) {
+                    val nestedNavController = rememberNavController()
+                    NavHost(
+                        navController = nestedNavController,
+                        startDestination = topLevelDestination.startDestination,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        allComposable(nestedNavController)
+                    }
+                }
             }
         }
     }

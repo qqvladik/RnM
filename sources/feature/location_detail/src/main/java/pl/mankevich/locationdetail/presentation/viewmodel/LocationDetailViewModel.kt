@@ -34,20 +34,22 @@ class LocationDetailViewModel
     @AssistedFactory
     interface Factory : ViewModelAssistedFactory<LocationDetailViewModel>
 
+    private val locationId = savedStateHandle.getLocationId()
+
     override fun executeIntent(intent: LocationDetailIntent): Flow<Transform<LocationDetailStateWithEffects>> =
         when (intent) {
             is LocationDetailIntent.LoadLocation -> flowOf(
-                LocationDetailTransforms.LoadLocation(savedStateHandle.getLocationId())
+                LocationDetailTransforms.LoadLocation(locationId)
             )
                 .flatMapMerge {
-                    loadLocationDetailUseCase(locationId = savedStateHandle.getLocationId())
+                    loadLocationDetailUseCase(locationId = locationId)
                         .map { LocationDetailTransforms.LoadLocationSuccess(it) }
                 }
 
             is LocationDetailIntent.LoadCharacters -> flowOf(
-                LocationDetailTransforms.LoadCharacters(savedStateHandle.getLocationId())
+                LocationDetailTransforms.LoadCharacters(locationId)
             ).flatMapMerge {
-                loadCharactersByLocationIdUseCase(locationId = savedStateHandle.getLocationId())
+                loadCharactersByLocationIdUseCase(locationId = locationId)
                     .map { LocationDetailTransforms.LoadCharactersSuccess(it) }
             }
 

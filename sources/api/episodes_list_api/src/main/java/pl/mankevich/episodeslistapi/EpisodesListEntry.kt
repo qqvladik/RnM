@@ -1,50 +1,45 @@
 package pl.mankevich.episodeslistapi
 
 import androidx.navigation.NavDeepLink
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import pl.mankevich.core.API_URL
-import pl.mankevich.core.APP_ROUTE
 import pl.mankevich.core.EPISODE_RELATIVE_PATH
-import pl.mankevich.coreui.navigation.AnimatedFeatureEntry
+import pl.mankevich.coreui.navigation.typesafe.TypesafeComposableFeatureEntry
+import pl.mankevich.episodeslistapi.EpisodesListEntry.Companion.ARG_NAME
 
-abstract class EpisodesListEntry : AnimatedFeatureEntry() {
+@Serializable
+data class EpisodesListRoute(
+    @SerialName(ARG_NAME)
+    val name: String? = null,
+    val season: Int = -1,
+    val episode: Int = -1, //TODO string
+)
 
-    final override val featureRoute = "$APP_ROUTE/$EPISODE_RELATIVE_PATH/" +
-            "?$ARG_NAME={$ARG_NAME}" +
-            "&$ARG_SEASON={$ARG_SEASON}" +
-            "&$ARG_EPISODE={$ARG_EPISODE}"
+abstract class EpisodesListEntry : TypesafeComposableFeatureEntry<EpisodesListRoute>() {
 
-    final override val arguments = listOf(
-        navArgument(ARG_NAME) {
-            type = NavType.StringType
-            nullable = true
-        },
-        navArgument(ARG_SEASON) {
-            type = NavType.IntType
-        },
-        navArgument(ARG_EPISODE) {
-            type = NavType.IntType
-        }
-    )
+    final override val featureRoute = EpisodesListRoute::class
 
-    final override val deepLinks: List<NavDeepLink>
-        get() = listOf(navDeepLink {
-            uriPattern = "$API_URL/$EPISODE_RELATIVE_PATH/" +
-                    "?$ARG_NAME={$ARG_NAME}" +
-                    "&$ARG_SEASON={$ARG_SEASON}" +
-                    "&$ARG_EPISODE={$ARG_EPISODE}"
-        })
+    final override val deepLinks: List<NavDeepLink> = listOf(navDeepLink(
+        route = featureRoute,
+        basePath = "$API_URL/$EPISODE_RELATIVE_PATH",
+    ) {
+        uriPattern = "$API_URL/$EPISODE_RELATIVE_PATH/" +
+                "?$ARG_NAME={$ARG_NAME}" +
+                "&$ARG_SEASON={$ARG_SEASON}" +
+                "&$ARG_EPISODE={$ARG_EPISODE}"
+    })
 
     fun destination(
         name: String? = null,
-        season: Int = -1,
-        episode: Int = -1,
-    ) = "$APP_ROUTE/$EPISODE_RELATIVE_PATH/" +
-            "?$ARG_NAME=$name" +
-            "&$ARG_SEASON=$season" +
-            "&$ARG_EPISODE=$episode"
+        season: Int = -1, //TODO make nullable?
+        episode: Int = -1, //TODO make nullable?
+    ) = EpisodesListRoute(
+        name = name,
+        season = season,
+        episode = episode
+    )
 
     companion object {
         const val ARG_NAME = "name"

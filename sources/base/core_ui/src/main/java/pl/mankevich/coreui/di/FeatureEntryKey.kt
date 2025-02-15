@@ -7,4 +7,4 @@ import kotlin.reflect.KClass
 @MapKey
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class FeatureEntryKey(val value: KClass<out FeatureEntry>)
+annotation class FeatureEntryKey(val value: KClass<out FeatureEntry<*>>)

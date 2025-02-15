@@ -4,16 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.navigation.toRoute
 import pl.mankevich.characterdetailapi.CharacterDetailEntry
 import pl.mankevich.characterslist.di.CharactersListComponent
 import pl.mankevich.characterslist.presentation.CharactersListScreen
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
 import pl.mankevich.characterslistapi.CharactersListEntry
-import pl.mankevich.characterslistapi.CharactersListEntry.Companion.ARG_GENDER
-import pl.mankevich.characterslistapi.CharactersListEntry.Companion.ARG_NAME
-import pl.mankevich.characterslistapi.CharactersListEntry.Companion.ARG_SPECIES
-import pl.mankevich.characterslistapi.CharactersListEntry.Companion.ARG_STATUS
-import pl.mankevich.characterslistapi.CharactersListEntry.Companion.ARG_TYPE
+import pl.mankevich.characterslistapi.CharactersListRoute
 import pl.mankevich.coreui.navigation.FeatureEntries
 import pl.mankevich.coreui.navigation.find
 import pl.mankevich.coreui.viewmodel.daggerViewModel
@@ -36,7 +33,8 @@ class CharactersListEntryImpl @Inject constructor() : CharactersListEntry() {
         CharactersListScreen(
             viewModel = viewModel,
             onCharacterItemClick = { characterId ->
-                val destination = featureEntries.find<CharacterDetailEntry>().destination(characterId)
+                val destination =
+                    featureEntries.find<CharacterDetailEntry>().destination(characterId)
                 navController.navigate(destination)
             },
             onBackPress = if (navController.previousBackStackEntry != null) {
@@ -48,11 +46,13 @@ class CharactersListEntryImpl @Inject constructor() : CharactersListEntry() {
     }
 }
 
-fun SavedStateHandle.getCharacterFilter(): CharacterFilter =
-    CharacterFilter(
-        name = get<String>(ARG_NAME) ?: "",
-        status = get<String>(ARG_STATUS) ?: "",
-        species = get<String>(ARG_SPECIES) ?: "",
-        type = get<String>(ARG_TYPE) ?: "",
-        gender = get<String>(ARG_GENDER) ?: ""
-    )
+fun SavedStateHandle.getCharacterFilterTypesafe(): CharacterFilter =
+    this.toRoute<CharactersListRoute>().toCharacterFilter()
+
+fun CharactersListRoute.toCharacterFilter() = CharacterFilter(
+    name = name ?: "",
+    status = status ?: "",
+    species = species ?: "",
+    type = type ?: "",
+    gender = gender ?: ""
+)

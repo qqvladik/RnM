@@ -6,8 +6,8 @@ import dagger.multibindings.IntoMap
 import pl.mankevich.core.di.FeatureScope
 import pl.mankevich.coreui.di.FeatureEntryKey
 import pl.mankevich.coreui.navigation.FeatureEntry
-import pl.mankevich.locationslistapi.LocationsListEntry
 import pl.mankevich.locationslist.LocationsListEntryImpl
+import pl.mankevich.locationslistapi.LocationsListEntry
 
 @Module
 interface LocationsListEntryModule {
@@ -16,5 +16,5 @@ interface LocationsListEntryModule {
     @FeatureScope
     @IntoMap
     @FeatureEntryKey(LocationsListEntry::class)
-    fun locationsListEntry(entry: LocationsListEntryImpl): FeatureEntry
+    fun locationsListEntry(entry: LocationsListEntryImpl): FeatureEntry<*>
 }

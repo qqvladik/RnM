@@ -1,6 +1,5 @@
 package pl.mankevich.core.paging
 
-import android.annotation.SuppressLint
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams.Append
 import androidx.paging.PagingSource.LoadParams.Prepend
@@ -10,7 +9,6 @@ import androidx.paging.PagingState
 
 typealias PagingSourceFactory<Value> = PagingSourceFactory<Int, Value>
 
-@SuppressLint("RestrictedApi")
 abstract class PagingSource<Value : Any> : PagingSource<Int, Value>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Value> {
@@ -69,6 +67,7 @@ abstract class PagingSource<Value : Any> : PagingSource<Int, Value>() {
                 } else {
                     params.loadSize
                 }
+
             else -> params.loadSize
         }
     }
@@ -103,6 +102,7 @@ abstract class PagingSource<Value : Any> : PagingSource<Int, Value>() {
                 } else {
                     key - params.loadSize
                 }
+
             is Append -> key
             is Refresh ->
                 if (key >= itemCount) {

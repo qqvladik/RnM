@@ -7,13 +7,13 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
+import pl.mankevich.designsystem.utils.ProvideAnimatedVisibilityScope
 
-typealias FeatureEntries = Map<Class<out FeatureEntry>, @JvmSuppressWildcards FeatureEntry>
+typealias FeatureEntries = Map<Class<out FeatureEntry<*>>, @JvmSuppressWildcards FeatureEntry<*>>
 
-interface FeatureEntry {
+interface FeatureEntry<T : Any> {
 
-    val featureRoute: String
+    val featureRoute: T
 
     val arguments: List<NamedNavArgument>
         get() = emptyList()
@@ -22,33 +22,55 @@ interface FeatureEntry {
         get() = emptyList()
 }
 
-interface ComposableFeatureEntry : FeatureEntry {
+abstract class ComposableFeatureEntry<T : Any> : FeatureEntry<T> {
 
-    fun NavGraphBuilder.composable(
+    abstract fun NavGraphBuilder.composable(
         navController: NavHostController,
         featureEntries: FeatureEntries
-    ) {
-        composable(featureRoute, arguments, deepLinks) { backStackEntry ->
-            Composable(navController, featureEntries, backStackEntry)
-        }
-    }
+    )
 
     @Composable
-    fun AnimatedContentScope.Composable(
+    protected abstract fun AnimatedContentScope.Composable(
         navController: NavHostController,
         featureEntries: FeatureEntries,
         backStackEntry: NavBackStackEntry
     )
 }
 
-interface AggregateFeatureEntry : FeatureEntry {
+abstract class AnimatedFeatureEntry<T : Any> : ComposableFeatureEntry<T>() {
+
+    @Composable
+    override fun AnimatedContentScope.Composable(
+        navController: NavHostController,
+        featureEntries: FeatureEntries,
+        backStackEntry: NavBackStackEntry
+    ) {
+        ProvideAnimatedVisibilityScope {
+            AnimatedComposable(navController, featureEntries, backStackEntry)
+        }
+    }
+
+    @Composable
+    protected abstract fun AnimatedComposable(
+        navController: NavHostController,
+        featureEntries: FeatureEntries,
+        backStackEntry: NavBackStackEntry
+    )
+}
+
+interface AggregateFeatureEntry : FeatureEntry<String> {
 
     fun NavGraphBuilder.navigation(navController: NavHostController, featureEntries: FeatureEntries)
 }
 
-
-inline fun <reified T : FeatureEntry> FeatureEntries.find(): T =
+inline fun <reified T : FeatureEntry<*>> FeatureEntries.find(): T =
     findOrNull() ?: error("Unable to find '${T::class.java}' in feature entries map.")
 
-inline fun <reified T : FeatureEntry> FeatureEntries.findOrNull(): T? =
+inline fun <reified T : FeatureEntry<*>> FeatureEntries.findOrNull(): T? =
     this[T::class.java] as? T
+
+fun FeatureEntries.toComposableFeatureEntries(): List<@JvmSuppressWildcards ComposableFeatureEntry<*>> =
+    map {
+        it.value as? ComposableFeatureEntry<*>
+            ?: error("Feature entry '${it.key}' is not a ComposableFeatureEntry.")
+    }

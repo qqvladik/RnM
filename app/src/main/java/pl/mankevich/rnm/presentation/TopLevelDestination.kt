@@ -2,31 +2,48 @@ package pl.mankevich.rnm.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
-import pl.mankevich.characterslistapi.CharactersListEntry
-import pl.mankevich.coreui.navigation.FeatureEntry
+import kotlinx.serialization.Serializable
+import pl.mankevich.characterslistapi.CharactersListRoute
 import pl.mankevich.designsystem.icons.RnmIcons
-import pl.mankevich.episodeslistapi.EpisodesListEntry
-import pl.mankevich.locationslistapi.LocationsListEntry
-import kotlin.reflect.KClass
+import pl.mankevich.episodeslistapi.EpisodesListRoute
+import pl.mankevich.locationslistapi.LocationsListRoute
 
+@Serializable
+data object CharactersTopRoute
+
+@Serializable
+data object LocationsTopRoute
+
+@Serializable
+data object EpisodesTopRoute
+
+@Serializable
 enum class TopLevelDestination(
     val icon: @Composable () -> ImageVector,
+    val selectedIcon: @Composable () -> ImageVector,
     val titleText: String,
-    val route: Class<out FeatureEntry>,
+    val destination: Any,
+    val startDestination: Any,
 ) {
-    Characters(
+    CHARACTERS(
         icon = { RnmIcons.Person },
+        selectedIcon = { RnmIcons.PersonFilled },
         titleText = "Characters",
-        route = CharactersListEntry::class.java,
+        destination = CharactersTopRoute,
+        startDestination = CharactersListRoute(),
     ),
-    Locations(
+    LOCATIONS(
         icon = { RnmIcons.MapPin },
+        selectedIcon = { RnmIcons.MapPinFilled },
         titleText = "Locations",
-        route = LocationsListEntry::class.java,
+        destination = LocationsTopRoute,
+        startDestination = LocationsListRoute(),
     ),
-    Episodes(
+    EPISODES(
         icon = { RnmIcons.MonitorPlay },
+        selectedIcon = { RnmIcons.MonitorPlayFilled },
         titleText = "Episodes",
-        route = EpisodesListEntry::class.java,
+        destination = EpisodesTopRoute,
+        startDestination = EpisodesListRoute(),
     ),
 }

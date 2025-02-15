@@ -1,20 +1,19 @@
 [versions]
-androidGradlePlugin = "8.7.3"
+activity = "1.10.0"
+androidGradlePlugin = "8.8.1"
 atomicfu = "0.25.0"
-kotlin = "2.1.0"
-coreKtx = "1.15.0"
 coil = "3.0.4"
+composeBom = "2025.02.00"
+coreKtx = "1.15.0"
+dagger = "2.53.1"
+kotlin = "2.1.0"
+kotlinxSerializationJson = "1.7.3"
 ksp = "2.1.0-1.0.29"
 lifecycle = "2.8.7"
-dagger = "2.53.1"
-paging = "3.3.5"
+navigationCompose = "2.9.0-alpha06"
+paging = "3.3.6"
 room = "2.6.1"
 secrets = "2.0.1"
-
-# Compose
-activity = "1.9.3"
-composeBom = "2024.12.01"
-navigationCompose = "2.8.5"
 
 # Network
 retrofit = "2.11.0"
@@ -36,7 +35,6 @@ androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
-
 androidx-lifecycle-runtimeCompose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-lifecycle-viewModelCompose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 
@@ -55,6 +53,8 @@ coil-kt-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okht
 dagger-core = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
 
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
@@ -64,7 +64,7 @@ chucker-library-debug = { group = "com.github.chuckerteam.chucker", name = "libr
 chucker-library-release = { group = "com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }
 
 
-# Dependencies of the included buildSrc
+# Dependencies of the included build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 compose-gradlePlugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
@@ -78,6 +78,7 @@ atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 room = { id = "androidx.room", version.ref = "room" }
 secrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secrets" }
 

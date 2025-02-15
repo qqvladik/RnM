@@ -4,15 +4,17 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
-import pl.mankevich.locationdetail.di.LocationDetailComponent
-import pl.mankevich.locationdetail.presentation.LocationDetailScreen
-import pl.mankevich.locationdetail.presentation.viewmodel.LocationDetailViewModel
-import pl.mankevich.locationdetailapi.LocationDetailEntry
-import pl.mankevich.locationslistapi.LocationsListEntry
+import androidx.navigation.toRoute
 import pl.mankevich.coreui.navigation.FeatureEntries
 import pl.mankevich.coreui.navigation.find
 import pl.mankevich.coreui.viewmodel.daggerViewModel
 import pl.mankevich.dependencies.LocalDependenciesProvider
+import pl.mankevich.locationdetail.di.LocationDetailComponent
+import pl.mankevich.locationdetail.presentation.LocationDetailScreen
+import pl.mankevich.locationdetail.presentation.viewmodel.LocationDetailViewModel
+import pl.mankevich.locationdetailapi.LocationDetailEntry
+import pl.mankevich.locationdetailapi.LocationDetailRoute
+import pl.mankevich.locationslistapi.LocationsListEntry
 import javax.inject.Inject
 
 class LocationDetailEntryImpl @Inject constructor() : LocationDetailEntry() {
@@ -31,11 +33,14 @@ class LocationDetailEntryImpl @Inject constructor() : LocationDetailEntry() {
         LocationDetailScreen(
             viewModel = viewModel,
             onTypeFilterClick = { type ->
-                val destination = featureEntries.find<LocationsListEntry>().destination(type = type)
+                val destination =
+                    featureEntries.find<LocationsListEntry>().destination(type = type)
                 navController.navigate(destination)
             },
             onDimensionFilterClick = { dimension ->
-                val destination = featureEntries.find<LocationsListEntry>().destination(dimension = dimension)
+                val destination =
+                    featureEntries.find<LocationsListEntry>()
+                        .destination(dimension = dimension)
                 navController.navigate(destination)
             },
             onBackPress = { navController.popBackStack() }
@@ -44,4 +49,4 @@ class LocationDetailEntryImpl @Inject constructor() : LocationDetailEntry() {
 }
 
 fun SavedStateHandle.getLocationId(): Int =
-    get<Int>(LocationDetailEntry.ARG_LOCATION_ID)!!
+    toRoute<LocationDetailRoute>().locationId

@@ -4,10 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.navigation.toRoute
 import pl.mankevich.characterdetail.di.CharacterDetailComponent
 import pl.mankevich.characterdetail.presentation.CharacterDetailScreen
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailViewModel
 import pl.mankevich.characterdetailapi.CharacterDetailEntry
+import pl.mankevich.characterdetailapi.CharacterDetailRoute
 import pl.mankevich.characterslistapi.CharactersListEntry
 import pl.mankevich.coreui.navigation.FeatureEntries
 import pl.mankevich.coreui.navigation.find
@@ -39,7 +41,8 @@ class CharacterDetailEntryImpl @Inject constructor() : CharacterDetailEntry() {
             },
             onSpeciesFilterClick = { species ->
                 val destination =
-                    featureEntries.find<CharactersListEntry>().destination(species = species)
+                    featureEntries.find<CharactersListEntry>()
+                        .destination(species = species)
                 navController.navigate(destination)
             },
             onGenderFilterClick = { gender ->
@@ -53,15 +56,18 @@ class CharacterDetailEntryImpl @Inject constructor() : CharacterDetailEntry() {
                 navController.navigate(destination)
             },
             onOriginClick = { originId ->
-                val destination = featureEntries.find<LocationDetailEntry>().destination(originId)
+                val destination =
+                    featureEntries.find<LocationDetailEntry>().destination(originId)
                 navController.navigate(destination)
             },
             onLocationClick = { locationId ->
-                val destination = featureEntries.find<LocationDetailEntry>().destination(locationId)
+                val destination =
+                    featureEntries.find<LocationDetailEntry>().destination(locationId)
                 navController.navigate(destination)
             },
             onEpisodeItemClick = { episodeId ->
-                val destination = featureEntries.find<EpisodeDetailEntry>().destination(episodeId)
+                val destination =
+                    featureEntries.find<EpisodeDetailEntry>().destination(episodeId)
                 navController.navigate(destination)
             },
             onBackPress = { navController.popBackStack() }
@@ -70,4 +76,4 @@ class CharacterDetailEntryImpl @Inject constructor() : CharacterDetailEntry() {
 }
 
 fun SavedStateHandle.getCharacterId(): Int =
-    get<Int>(CharacterDetailEntry.ARG_CHARACTER_ID)!!
+    toRoute<CharacterDetailRoute>().characterId

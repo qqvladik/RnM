@@ -16,5 +16,5 @@ interface EpisodeDetailEntryModule {
     @FeatureScope
     @IntoMap
     @FeatureEntryKey(EpisodeDetailEntry::class)
-    fun episodeDetailEntry(entry: EpisodeDetailEntryImpl): FeatureEntry
+    fun episodeDetailEntry(entry: EpisodeDetailEntryImpl): FeatureEntry<*>
 }

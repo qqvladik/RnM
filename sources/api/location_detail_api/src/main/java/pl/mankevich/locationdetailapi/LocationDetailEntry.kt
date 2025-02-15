@@ -1,29 +1,32 @@
 package pl.mankevich.locationdetailapi
 
 import androidx.navigation.NavDeepLink
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import pl.mankevich.core.API_URL
-import pl.mankevich.core.APP_ROUTE
 import pl.mankevich.core.LOCATION_RELATIVE_PATH
-import pl.mankevich.coreui.navigation.AnimatedFeatureEntry
+import pl.mankevich.coreui.navigation.typesafe.TypesafeComposableFeatureEntry
+import pl.mankevich.locationdetailapi.LocationDetailEntry.Companion.ARG_LOCATION_ID
 
-abstract class LocationDetailEntry : AnimatedFeatureEntry() {
+@Serializable
+data class LocationDetailRoute(
+    @SerialName(ARG_LOCATION_ID)
+    val locationId: Int
+)
 
-    final override val featureRoute = "$APP_ROUTE/$LOCATION_RELATIVE_PATH/{$ARG_LOCATION_ID}"
+abstract class LocationDetailEntry : TypesafeComposableFeatureEntry<LocationDetailRoute>() {
 
-    final override val arguments = listOf(
-        navArgument(ARG_LOCATION_ID) {
-            type = NavType.IntType
-        }
-    )
+    final override val featureRoute = LocationDetailRoute::class
 
-    final override val deepLinks: List<NavDeepLink>
-        get() = listOf(navDeepLink { uriPattern = "$API_URL/$LOCATION_RELATIVE_PATH/{$ARG_LOCATION_ID}" })
+    final override val deepLinks: List<NavDeepLink> = listOf(navDeepLink(
+        route = featureRoute,
+        basePath = "$API_URL/$LOCATION_RELATIVE_PATH"
+    ) {
+        uriPattern = "$API_URL/$LOCATION_RELATIVE_PATH/{$ARG_LOCATION_ID}"
+    })
 
-    fun destination(locationId: Int) =
-        "$APP_ROUTE/$LOCATION_RELATIVE_PATH/$locationId"
+    fun destination(locationId: Int) = LocationDetailRoute(locationId)
 
     companion object {
         const val ARG_LOCATION_ID = "locationId"

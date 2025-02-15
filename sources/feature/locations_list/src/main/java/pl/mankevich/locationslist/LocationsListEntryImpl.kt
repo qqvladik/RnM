@@ -4,15 +4,17 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.navigation.toRoute
 import pl.mankevich.coreui.navigation.FeatureEntries
 import pl.mankevich.coreui.navigation.find
 import pl.mankevich.coreui.viewmodel.daggerViewModel
 import pl.mankevich.dependencies.LocalDependenciesProvider
-import pl.mankevich.locationslistapi.LocationsListEntry
 import pl.mankevich.locationdetailapi.LocationDetailEntry
 import pl.mankevich.locationslist.di.LocationsListComponent
 import pl.mankevich.locationslist.presentation.LocationsListScreen
 import pl.mankevich.locationslist.presentation.viewmodel.LocationsListViewModel
+import pl.mankevich.locationslistapi.LocationsListEntry
+import pl.mankevich.locationslistapi.LocationsListRoute
 import pl.mankevich.model.LocationFilter
 import javax.inject.Inject
 
@@ -31,7 +33,8 @@ class LocationsListEntryImpl @Inject constructor() : LocationsListEntry() {
         LocationsListScreen(
             viewModel = viewModel,
             onLocationItemClick = { locationId ->
-                val destination = featureEntries.find<LocationDetailEntry>().destination(locationId)
+                val destination =
+                    featureEntries.find<LocationDetailEntry>().destination(locationId)
                 navController.navigate(destination)
             },
             onBackPress = if (navController.previousBackStackEntry != null) {
@@ -44,8 +47,11 @@ class LocationsListEntryImpl @Inject constructor() : LocationsListEntry() {
 }
 
 fun SavedStateHandle.getLocationFilter(): LocationFilter =
+    toRoute<LocationsListRoute>().toLocationFilter()
+
+fun LocationsListRoute.toLocationFilter() =
     LocationFilter(
-        name = get<String>("name") ?: "",
-        type = get<String>("type") ?: "",
-        dimension = get<String>("dimension") ?: ""
+        name = name ?: "",
+        type = type ?: "",
+        dimension = dimension ?: ""
     )
