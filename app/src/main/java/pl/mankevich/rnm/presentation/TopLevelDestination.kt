@@ -17,7 +17,6 @@ data object LocationsTopRoute
 @Serializable
 data object EpisodesTopRoute
 
-@Serializable
 enum class TopLevelDestination(
     val icon: @Composable () -> ImageVector,
     val selectedIcon: @Composable () -> ImageVector,

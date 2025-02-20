@@ -70,7 +70,7 @@ class CharacterDetailEntryImpl @Inject constructor() : CharacterDetailEntry() {
                     featureEntries.find<EpisodeDetailEntry>().destination(episodeId)
                 navController.navigate(destination)
             },
-            onBackPress = { navController.popBackStack() }
+            onBackPress = { navController.navigateUp() }
         )
     }
 }

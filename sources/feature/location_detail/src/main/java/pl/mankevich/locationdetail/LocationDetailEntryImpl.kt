@@ -43,7 +43,7 @@ class LocationDetailEntryImpl @Inject constructor() : LocationDetailEntry() {
                         .destination(dimension = dimension)
                 navController.navigate(destination)
             },
-            onBackPress = { navController.popBackStack() }
+            onBackPress = { navController.navigateUp() }
         )
     }
 }

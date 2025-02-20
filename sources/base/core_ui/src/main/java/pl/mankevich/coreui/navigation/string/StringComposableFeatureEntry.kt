@@ -10,12 +10,13 @@ abstract class StringComposableFeatureEntry : AnimatedFeatureEntry<String>() {
 
     override fun NavGraphBuilder.composable(
         navController: NavHostController,
-        featureEntries: FeatureEntries
+        featureEntries: FeatureEntries,
+        useDeepLink: Boolean
     ) {
         composable(
             route = featureRoute,
             arguments = arguments,
-            deepLinks = deepLinks
+            deepLinks = if (useDeepLink) deepLinks else emptyList(),
         ) { backStackEntry ->
             Composable(navController, featureEntries, backStackEntry)
         }

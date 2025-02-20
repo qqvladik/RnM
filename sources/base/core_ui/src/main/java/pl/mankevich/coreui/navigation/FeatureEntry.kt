@@ -26,7 +26,8 @@ abstract class ComposableFeatureEntry<T : Any> : FeatureEntry<T> {
 
     abstract fun NavGraphBuilder.composable(
         navController: NavHostController,
-        featureEntries: FeatureEntries
+        featureEntries: FeatureEntries,
+        useDeepLink: Boolean = true
     )
 
     @Composable
@@ -69,7 +70,7 @@ inline fun <reified T : FeatureEntry<*>> FeatureEntries.find(): T =
 inline fun <reified T : FeatureEntry<*>> FeatureEntries.findOrNull(): T? =
     this[T::class.java] as? T
 
-fun FeatureEntries.toComposableFeatureEntries(): List<@JvmSuppressWildcards ComposableFeatureEntry<*>> =
+fun FeatureEntries.toComposableFeatureEntries(): List<ComposableFeatureEntry<*>> =
     map {
         it.value as? ComposableFeatureEntry<*>
             ?: error("Feature entry '${it.key}' is not a ComposableFeatureEntry.")

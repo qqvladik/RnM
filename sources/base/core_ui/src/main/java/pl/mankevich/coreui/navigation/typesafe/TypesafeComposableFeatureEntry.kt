@@ -14,11 +14,12 @@ abstract class TypesafeComposableFeatureEntry<T : Any> : AnimatedFeatureEntry<KC
 
     override fun NavGraphBuilder.composable(
         navController: NavHostController,
-        featureEntries: FeatureEntries
+        featureEntries: FeatureEntries,
+        useDeepLink: Boolean
     ) {
         composable(
             route = featureRoute,
-            deepLinks = deepLinks
+            deepLinks = if (useDeepLink) deepLinks else emptyList(),
         ) { backStackEntry ->
             Composable(navController, featureEntries, backStackEntry)
         }
