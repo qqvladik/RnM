@@ -25,15 +25,27 @@ abstract class LocationsListEntry : TypesafeComposableFeatureEntry<LocationsList
 
     final override val featureRoute = LocationsListRoute::class
 
-    final override val deepLinks: List<NavDeepLink> = listOf(navDeepLink(
-        route = featureRoute,
-        basePath = "$API_URL/$LOCATION_RELATIVE_PATH"
-    ) {
-        uriPattern = "$API_URL/$LOCATION_RELATIVE_PATH/" +
-                "?$ARG_NAME={$ARG_NAME}" +
-                "&$ARG_TYPE={$ARG_TYPE}" +
-                "&$ARG_DIMENSION={$ARG_DIMENSION}"
-    })
+    final override val deepLinks: List<NavDeepLink> = listOf(
+        navDeepLink(
+            route = featureRoute,
+            basePath = "$API_URL/$LOCATION_RELATIVE_PATH"
+        ) {
+            uriPattern = "$API_URL/$LOCATION_RELATIVE_PATH/" +
+                    "?$ARG_NAME={$ARG_NAME}" +
+                    "&$ARG_TYPE={$ARG_TYPE}" +
+                    "&$ARG_DIMENSION={$ARG_DIMENSION}"
+        },
+        // Without slash (/) after relative path
+        navDeepLink(
+            route = featureRoute,
+            basePath = "$API_URL/$LOCATION_RELATIVE_PATH"
+        ) {
+            uriPattern = "$API_URL/$LOCATION_RELATIVE_PATH" +
+                    "?$ARG_NAME={$ARG_NAME}" +
+                    "&$ARG_TYPE={$ARG_TYPE}" +
+                    "&$ARG_DIMENSION={$ARG_DIMENSION}"
+        },
+    )
 
     fun destination(
         name: String? = null,

@@ -42,7 +42,19 @@ abstract class CharactersListEntry : TypesafeComposableFeatureEntry<CharactersLi
                     "&$ARG_SPECIES={$ARG_SPECIES}" +
                     "&$ARG_GENDER={$ARG_GENDER}" +
                     "&$ARG_TYPE={$ARG_TYPE}"
-        }
+        },
+        // Without slash (/) after relative path
+        navDeepLink(
+            route = featureRoute,
+            basePath = "$API_URL/$CHARACTER_RELATIVE_PATH"
+        ) {
+            uriPattern = "$API_URL/$CHARACTER_RELATIVE_PATH" +
+                    "?$ARG_NAME={$ARG_NAME}" +
+                    "&$ARG_STATUS={$ARG_STATUS}" +
+                    "&$ARG_SPECIES={$ARG_SPECIES}" +
+                    "&$ARG_GENDER={$ARG_GENDER}" +
+                    "&$ARG_TYPE={$ARG_TYPE}"
+        },
     )
 
     fun destination(

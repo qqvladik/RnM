@@ -5,6 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.toRoute
+import pl.mankevich.core.util.extractEpisode
+import pl.mankevich.core.util.extractSeason
 import pl.mankevich.coreui.navigation.FeatureEntries
 import pl.mankevich.coreui.navigation.find
 import pl.mankevich.coreui.viewmodel.daggerViewModel
@@ -52,6 +54,6 @@ fun SavedStateHandle.getEpisodeFilter(): EpisodeFilter =
 fun EpisodesListRoute.toEpisodeFilter() =
     EpisodeFilter(
         name = name ?: "",
-        season = if (season == -1) null else season,
-        episode = if (episode == -1) null else episode,
+        season = episode.extractSeason(),
+        episode = episode.extractEpisode(),
     )
