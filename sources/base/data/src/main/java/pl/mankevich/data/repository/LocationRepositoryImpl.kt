@@ -10,6 +10,7 @@ import androidx.paging.PagingSourceFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -18,7 +19,6 @@ import pl.mankevich.data.mapper.mapToLocation
 import pl.mankevich.data.mapper.mapToLocationDto
 import pl.mankevich.data.paging.location.LocationPagingSourceCreator
 import pl.mankevich.data.paging.location.LocationRemoteMediatorCreator
-import pl.mankevich.dataapi.repository.ITEMS_PER_PAGE
 import pl.mankevich.dataapi.repository.LocationRepository
 import pl.mankevich.databaseapi.dao.LocationDao
 import pl.mankevich.model.Location
@@ -70,6 +70,7 @@ class LocationRepositoryImpl
         }.flatMapLatest {
             locationDao.getLocationById(locationId)
                 .distinctUntilChanged()
+                .filterNotNull()
                 .map {
                     it.mapToLocation()
                 }

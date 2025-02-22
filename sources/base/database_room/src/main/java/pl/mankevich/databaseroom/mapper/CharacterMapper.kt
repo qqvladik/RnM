@@ -1,9 +1,9 @@
 package pl.mankevich.databaseroom.mapper
 
 import pl.mankevich.databaseapi.entity.CharacterEntity
-import pl.mankevich.databaseroom.room.entity.LocationEmbedded
 import pl.mankevich.databaseapi.entity.LocationShortEntity
 import pl.mankevich.databaseroom.room.entity.CharacterRoomEntity
+import pl.mankevich.databaseroom.room.entity.LocationEmbedded
 
 fun CharacterEntity.mapToRoom() =
     CharacterRoomEntity(

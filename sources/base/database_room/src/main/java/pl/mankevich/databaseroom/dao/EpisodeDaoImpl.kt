@@ -29,8 +29,8 @@ class EpisodeDaoImpl
         tableUpdateNotifier.notifyListeners()
     }
 
-    override fun getEpisodeById(id: Int): Flow<EpisodeEntity> =
-        episodeRoomDao.getEpisodeById(id).map { it.mapToEntity() }
+    override fun getEpisodeById(id: Int): Flow<EpisodeEntity?> =
+        episodeRoomDao.getEpisodeById(id).map { it?.mapToEntity() }
 
     override suspend fun getEpisodesByIds(ids: List<Int>): List<EpisodeEntity> =
         episodeRoomDao.getEpisodesByIds(ids).map { it.mapToEntity() }

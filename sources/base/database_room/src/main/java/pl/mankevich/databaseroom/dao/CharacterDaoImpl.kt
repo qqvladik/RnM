@@ -4,8 +4,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import pl.mankevich.databaseapi.dao.CharacterDao
 import pl.mankevich.databaseapi.entity.CharacterEntity
-import pl.mankevich.databaseapi.entity.CharacterPageKeyEntity
 import pl.mankevich.databaseapi.entity.CharacterFilterEntity
+import pl.mankevich.databaseapi.entity.CharacterPageKeyEntity
 import pl.mankevich.databaseroom.mapper.mapToEntity
 import pl.mankevich.databaseroom.mapper.mapToRoom
 import pl.mankevich.databaseroom.room.dao.CharacterPageKeyRoomDao
@@ -30,8 +30,8 @@ class CharacterDaoImpl
         tableUpdateNotifier.notifyListeners()
     }
 
-    override fun getCharacterById(id: Int): Flow<CharacterEntity> =
-        characterRoomDao.getCharacterById(id).map { it.mapToEntity() }
+    override fun getCharacterById(id: Int): Flow<CharacterEntity?> =
+        characterRoomDao.getCharacterById(id).map { it?.mapToEntity() }
 
     override suspend fun getCharactersByIds(ids: List<Int>): List<CharacterEntity> =
         characterRoomDao.getCharactersByIds(ids).map { it.mapToEntity() }

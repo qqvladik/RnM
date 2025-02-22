@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -20,8 +21,6 @@ import pl.mankevich.data.mapper.mapToCharacterDto
 import pl.mankevich.data.paging.character.CharacterPagingSourceCreator
 import pl.mankevich.data.paging.character.CharacterRemoteMediatorCreator
 import pl.mankevich.dataapi.repository.CharacterRepository
-import pl.mankevich.dataapi.repository.ITEMS_PER_PAGE
-import pl.mankevich.dataapi.repository.QUERY_DELAY_MILLIS
 import pl.mankevich.databaseapi.dao.CharacterDao
 import pl.mankevich.databaseapi.dao.RelationsDao
 import pl.mankevich.databaseapi.dao.Transaction
@@ -64,6 +63,7 @@ class CharacterRepositoryImpl
         return pager.flow.flowOn(Dispatchers.IO)
     }
 
+    //TODO get coroutineScope/context as parameter, start Coroutine in this scope, then return flow, which observes database
     override fun getCharacterDetail(characterId: Int): Flow<Character> =
         flow {
             emit(Unit)
@@ -71,11 +71,12 @@ class CharacterRepositoryImpl
                 val characterResponse = characterApi.fetchCharacterById(characterId)
                 characterDao.insertCharacter(characterResponse.mapToCharacterDto())
             } catch (e: UnknownHostException) { //TODO custom errors or Result
-                Log.w("CharacterRepositoryImpl", "getCharacterDetail: $e")
+                Log.w("CharacterRepositoryImpl", "getCharacterDetail: $e") //TODO tag
             }
         }.flatMapLatest {
             characterDao.getCharacterById(characterId)
                 .distinctUntilChanged()
+                .filterNotNull()
                 .map {
                     it.mapToCharacter()
                 }
@@ -112,8 +113,8 @@ class CharacterRepositoryImpl
                                 )
                             }
                         }
-                    } catch (e: UnknownHostException) { //TODO custom errors or Result
-                        Log.w("CharacterRepositoryImpl", "getCharactersByEpisodeId: $e") //TODO tag
+                    } catch (e: UnknownHostException) {
+                        Log.w("CharacterRepositoryImpl", "getCharactersByEpisodeId: $e")
                     }
                 }.flatMapLatest {
                     characterDao.getCharactersFlowByIds(characterIds)
@@ -143,7 +144,7 @@ class CharacterRepositoryImpl
                                 )
                             }
                         }
-                    } catch (e: UnknownHostException) { //TODO custom errors or Result
+                    } catch (e: UnknownHostException) {
                         Log.w("CharacterRepositoryImpl", "getCharactersByLocationId: $e")
                     }
                 }.flatMapLatest {

@@ -11,7 +11,7 @@ abstract class CharacterDao : DaoBase() {
 
     abstract suspend fun insertCharactersList(characters: List<CharacterEntity>)
 
-    abstract fun getCharacterById(id: Int): Flow<CharacterEntity>
+    abstract fun getCharacterById(id: Int): Flow<CharacterEntity?>
 
     abstract suspend fun getCharactersByIds(ids: List<Int>): List<CharacterEntity>
 

@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -20,8 +21,6 @@ import pl.mankevich.data.mapper.mapToEpisodeDto
 import pl.mankevich.data.paging.episode.EpisodePagingSourceCreator
 import pl.mankevich.data.paging.episode.EpisodeRemoteMediatorCreator
 import pl.mankevich.dataapi.repository.EpisodeRepository
-import pl.mankevich.dataapi.repository.ITEMS_PER_PAGE
-import pl.mankevich.dataapi.repository.QUERY_DELAY_MILLIS
 import pl.mankevich.databaseapi.dao.EpisodeDao
 import pl.mankevich.databaseapi.dao.RelationsDao
 import pl.mankevich.databaseapi.dao.Transaction
@@ -76,6 +75,7 @@ class EpisodeRepositoryImpl
         }.flatMapLatest {
             episodeDao.getEpisodeById(episodeId)
                 .distinctUntilChanged()
+                .filterNotNull()
                 .map {
                     it.mapToEpisode()
                 }

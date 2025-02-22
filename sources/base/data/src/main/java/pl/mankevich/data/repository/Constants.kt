@@ -1,4 +1,4 @@
-package pl.mankevich.dataapi.repository
+package pl.mankevich.data.repository
 
 const val ITEMS_PER_PAGE = 20
 

@@ -11,7 +11,7 @@ abstract class EpisodeDao : DaoBase() {
 
     abstract suspend fun insertEpisodesList(episodes: List<EpisodeEntity>)
 
-    abstract fun getEpisodeById(id: Int): Flow<EpisodeEntity>
+    abstract fun getEpisodeById(id: Int): Flow<EpisodeEntity?>
 
     abstract suspend fun getEpisodesByIds(ids: List<Int>): List<EpisodeEntity>
 

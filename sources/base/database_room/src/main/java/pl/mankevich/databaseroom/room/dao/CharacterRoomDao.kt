@@ -26,7 +26,7 @@ interface CharacterRoomDao {
     suspend fun insertCharactersList(characters: List<CharacterRoomEntity>)
 
     @Query("SELECT * FROM $CHARACTER_TABLE_NAME WHERE $ID_COLUMN=(:id)")
-    fun getCharacterById(id: Int): Flow<CharacterRoomEntity>
+    fun getCharacterById(id: Int): Flow<CharacterRoomEntity?>
 
     @Query("SELECT * FROM $CHARACTER_TABLE_NAME WHERE $ID_COLUMN in (:ids)")
     suspend fun getCharactersByIds(ids: List<Int>): List<CharacterRoomEntity>

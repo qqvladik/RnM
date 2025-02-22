@@ -21,7 +21,7 @@ interface LocationRoomDao {
     suspend fun insertLocationsList(locations: List<LocationRoomEntity>)
 
     @Query("SELECT * FROM $LOCATION_TABLE_NAME WHERE $ID_COLUMN=(:id)")
-    fun getLocationById(id: Int): Flow<LocationRoomEntity>
+    fun getLocationById(id: Int): Flow<LocationRoomEntity?>
 
     @Query("SELECT * FROM $LOCATION_TABLE_NAME WHERE $ID_COLUMN in (:ids)")
     suspend fun getLocationsByIds(ids: List<Int>): List<LocationRoomEntity>

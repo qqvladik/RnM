@@ -11,7 +11,7 @@ abstract class LocationDao : DaoBase() {
 
     abstract suspend fun insertLocationsList(locations: List<LocationEntity>)
 
-    abstract fun getLocationById(id: Int): Flow<LocationEntity>
+    abstract fun getLocationById(id: Int): Flow<LocationEntity?>
 
     abstract suspend fun getLocationsByIds(ids: List<Int>): List<LocationEntity>
 

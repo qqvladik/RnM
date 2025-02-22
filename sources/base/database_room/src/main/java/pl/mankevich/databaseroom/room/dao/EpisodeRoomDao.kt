@@ -20,7 +20,7 @@ interface EpisodeRoomDao {
     suspend fun insertEpisodesList(episodes: List<EpisodeRoomEntity>)
 
     @Query("SELECT * FROM $EPISODE_TABLE_NAME WHERE $ID_COLUMN=(:id)")
-    fun getEpisodeById(id: Int): Flow<EpisodeRoomEntity>
+    fun getEpisodeById(id: Int): Flow<EpisodeRoomEntity?>
 
     @Query("SELECT * FROM $EPISODE_TABLE_NAME WHERE $ID_COLUMN in (:ids)")
     suspend fun getEpisodesByIds(ids: List<Int>): List<EpisodeRoomEntity>

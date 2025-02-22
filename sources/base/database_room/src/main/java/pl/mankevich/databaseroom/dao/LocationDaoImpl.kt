@@ -28,8 +28,8 @@ class LocationDaoImpl
         tableUpdateNotifier.notifyListeners()
     }
 
-    override fun getLocationById(id: Int): Flow<LocationEntity> =
-        locationRoomDao.getLocationById(id).map { it.mapToEntity() }
+    override fun getLocationById(id: Int): Flow<LocationEntity?> =
+        locationRoomDao.getLocationById(id).map { it?.mapToEntity() }
 
     override suspend fun getLocationsByIds(ids: List<Int>): List<LocationEntity> =
         locationRoomDao.getLocationsByIds(ids).map { it.mapToEntity() }
