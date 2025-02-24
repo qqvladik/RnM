@@ -24,7 +24,9 @@ dependencies {
     add("implementation", libs.androidx.compose.material3)
     add("implementation", libs.androidx.compose.runtime)
     add("implementation", libs.androidx.compose.ui)
-    add("debugImplementation", libs.androidx.compose.ui.tooling)
+//    add("debugImplementation", libs.androidx.compose.ui.tooling)
+    //Temporarily added to be able see previews while testing UI in release build
+    add("implementation", libs.androidx.compose.ui.tooling)
     add("implementation", libs.androidx.compose.ui.tooling.preview)
     add("implementation", libs.androidx.compose.animation)
 }

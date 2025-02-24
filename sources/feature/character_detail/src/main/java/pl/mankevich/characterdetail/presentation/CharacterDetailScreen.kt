@@ -35,11 +35,11 @@ import coil3.compose.AsyncImage
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailIntent
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailState
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailViewModel
+import pl.mankevich.coreui.ui.CharacterSharedElementKey
+import pl.mankevich.coreui.ui.CharacterSharedElementType
 import pl.mankevich.coreui.ui.Detail
 import pl.mankevich.coreui.ui.EpisodeCard
 import pl.mankevich.coreui.ui.LocationCard
-import pl.mankevich.designsystem.theme.PADDING
-import pl.mankevich.designsystem.theme.PADDING_SMALL
 import pl.mankevich.coreui.utils.characterGenderIconResolver
 import pl.mankevich.coreui.utils.characterSpeciesIconResolver
 import pl.mankevich.coreui.utils.characterStatusIconResolver
@@ -48,6 +48,8 @@ import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.LoadingView
 import pl.mankevich.designsystem.component.SurfaceIconButton
 import pl.mankevich.designsystem.icons.RnmIcons
+import pl.mankevich.designsystem.theme.PADDING
+import pl.mankevich.designsystem.theme.PADDING_SMALL
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
@@ -161,11 +163,22 @@ fun CharacterDetailView(
                         .height(500.dp)
                 )
             } else {
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    val fraction = if (isLandscape()) 0.3f else 0.5f
-                    WithSharedTransitionScope {
+                WithSharedTransitionScope {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .sharedBounds(
+                                sharedContentState = rememberSharedContentState(
+                                    key = CharacterSharedElementKey(
+                                        id = character.id,
+                                        sharedType = CharacterSharedElementType.Background,
+                                    )
+                                ),
+                                animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                            )
+                    ) {
+                        val fraction = if (isLandscape()) 0.3f else 0.5f
+
                         val shape = CircleShape
                         AsyncImage(
                             model = character.image,
@@ -176,99 +189,128 @@ fun CharacterDetailView(
                                 .align(CenterHorizontally)
                                 .aspectRatio(1f)
                                 .clip(shape)
-//                    .background(Red) //For preview purposes
+//                                .background(Red) //For preview purposes
                                 .sharedElement(
                                     state = rememberSharedContentState(
-                                        key = "image-${character.image}"
+                                        key = CharacterSharedElementKey(
+                                            id = character.id,
+                                            sharedType = CharacterSharedElementType.Image,
+                                        )
                                     ),
                                     animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
                                     clipInOverlayDuringTransition = OverlayClip(shape),
                                 )
                         )
-                    }
 
-                    Spacer(modifier = Modifier.height(PADDING))
+                        Spacer(modifier = Modifier.height(PADDING))
 
-                    WithSharedTransitionScope {
                         Text(
                             text = character.name,
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.align(CenterHorizontally)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(PADDING))
-
-                    Detail(
-                        name = "Status",
-                        value = character.status,
-                        icon = characterStatusIconResolver(character.status),
-                        internalPadding = PADDING,
-                        onDetailClick = { onStatusFilterClick(character.status) }
-                    )
-
-                    Spacer(modifier = Modifier.height(PADDING_SMALL))
-
-                    Detail(
-                        name = "Species",
-                        value = character.species,
-                        icon = characterSpeciesIconResolver(character.species),
-                        internalPadding = PADDING,
-                        onDetailClick = { onSpeciesFilterClick(character.species) }
-                    )
-
-                    Spacer(modifier = Modifier.height(PADDING_SMALL))
-
-                    Detail(
-                        name = "Gender",
-                        value = character.gender,
-                        icon = characterGenderIconResolver(character.gender),
-                        internalPadding = PADDING,
-                        onDetailClick = { onGenderFilterClick(character.gender) }
-                    )
-
-                    Spacer(modifier = Modifier.height(PADDING_SMALL))
-
-                    Detail(
-                        name = "Type",
-                        value = character.type,
-                        icon = characterTypeIconResolver(character.type),
-                        internalPadding = PADDING,
-                        onDetailClick = { onTypeFilterClick(character.type) }
-                    )
-
-                    Spacer(modifier = Modifier.height(PADDING))
-
-                    Row {
-                        LocationCard(
-                            name = "Origin",
-                            value = character.origin.name,
-                            icon = RnmIcons.Home,
-                            isLikeable = false,
-                            isClickable = character.origin.id != null,
-                            onLocationClick = {
-                                character.origin.id?.let { onOriginClick(it) }
-                            },
                             modifier = Modifier
-                                .width(140.dp)
+                                .align(CenterHorizontally)
+                                .sharedBounds(
+                                    sharedContentState = rememberSharedContentState(
+                                        key = CharacterSharedElementKey(
+                                            id = character.id,
+                                            sharedType = CharacterSharedElementType.Name,
+                                        )
+                                    ),
+                                    animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                                )
+
                         )
 
-                        Spacer(modifier = Modifier.width(PADDING))
+                        Spacer(modifier = Modifier.height(PADDING))
 
-                        LocationCard(
-                            name = "Location",
-                            value = character.location.name,
-                            icon = RnmIcons.MapPin,
-                            isLikeable = false,
-                            isClickable = character.location.id != null,
-                            onLocationClick = {
-                                character.location.id?.let { onLocationClick(it) }
-                            },
-                            modifier = Modifier
-                                .width(140.dp)
+                        Detail(
+                            name = "Status",
+                            value = character.status,
+                            icon = characterStatusIconResolver(character.status),
+                            internalPadding = PADDING,
+                            characterSharedElementKey = CharacterSharedElementKey(
+                                id = character.id,
+                                sharedType = CharacterSharedElementType.Status,
+                            ),
+                            onDetailClick = { onStatusFilterClick(character.status) }
                         )
+
+                        Spacer(modifier = Modifier.height(PADDING_SMALL))
+
+                        Detail(
+                            name = "Species",
+                            value = character.species,
+                            icon = characterSpeciesIconResolver(character.species),
+                            internalPadding = PADDING,
+                            characterSharedElementKey = CharacterSharedElementKey(
+                                id = character.id,
+                                sharedType = CharacterSharedElementType.Species,
+                            ),
+                            onDetailClick = { onSpeciesFilterClick(character.species) }
+                        )
+
+                        Spacer(modifier = Modifier.height(PADDING_SMALL))
+
+                        Detail(
+                            name = "Gender",
+                            value = character.gender,
+                            icon = characterGenderIconResolver(character.gender),
+                            internalPadding = PADDING,
+                            onDetailClick = { onGenderFilterClick(character.gender) }
+                        )
+
+                        Spacer(modifier = Modifier.height(PADDING_SMALL))
+
+                        Detail(
+                            name = "Type",
+                            value = character.type,
+                            icon = characterTypeIconResolver(character.type),
+                            internalPadding = PADDING,
+                            onDetailClick = { onTypeFilterClick(character.type) }
+                        )
+
+                        Spacer(modifier = Modifier.height(PADDING))
+
+                        Row {
+                            LocationCard(
+                                name = "Origin",
+                                value = character.origin.name,
+                                icon = RnmIcons.Home,
+                                isLikeable = false,
+                                isClickable = character.origin.id != null,
+                                onLocationClick = {
+                                    character.origin.id?.let { onOriginClick(it) }
+                                },
+                                modifier = Modifier
+                                    .width(140.dp)
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(
+                                            key = CharacterSharedElementKey(
+                                                id = character.id,
+                                                sharedType = CharacterSharedElementType.Origin,
+                                            )
+                                        ),
+                                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                                    )
+                            )
+
+                            Spacer(modifier = Modifier.width(PADDING))
+
+                            LocationCard(
+                                name = "Location",
+                                value = character.location.name,
+                                icon = RnmIcons.MapPin,
+                                isLikeable = false,
+                                isClickable = character.location.id != null,
+                                onLocationClick = {
+                                    character.location.id?.let { onLocationClick(it) }
+                                },
+                                modifier = Modifier
+                                    .width(140.dp)
+                            )
+                        }
                     }
                 }
             }

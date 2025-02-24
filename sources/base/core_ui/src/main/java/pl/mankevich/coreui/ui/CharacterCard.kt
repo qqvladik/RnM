@@ -29,6 +29,7 @@ import pl.mankevich.designsystem.component.Card
 import pl.mankevich.designsystem.component.IconText
 import pl.mankevich.designsystem.component.LikeButton
 import pl.mankevich.designsystem.icons.RnmIcons
+import pl.mankevich.designsystem.theme.CARD_CORNERS_SIZE
 import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.Pear
 import pl.mankevich.designsystem.theme.Red
@@ -40,6 +41,7 @@ import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 
 @Composable
 fun CharacterCard(
+    id: Int,
     name: String,
     status: String,
     species: String,
@@ -50,13 +52,25 @@ fun CharacterCard(
     onCardClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(
-        onCardClick = onCardClick,
-        modifier = modifier
-    ) {
-        Column {
-            WithSharedTransitionScope {
-                val shape = RoundedCornerShape(8.dp)
+    WithSharedTransitionScope {
+        val cardShape = RoundedCornerShape(CARD_CORNERS_SIZE)
+        Card(
+            onCardClick = onCardClick,
+            shape = cardShape,
+            modifier = modifier
+                .sharedBounds(
+                    sharedContentState = rememberSharedContentState(
+                        key = CharacterSharedElementKey(
+                            id = id,
+                            sharedType = CharacterSharedElementType.Background,
+                        )
+                    ),
+                    animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                    clipInOverlayDuringTransition = OverlayClip(cardShape),
+                )
+        ) {
+            Column {
+                val imageShape = RoundedCornerShape(8.dp)
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = null,
@@ -64,74 +78,118 @@ fun CharacterCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .clip(shape)
+                        .clip(imageShape)
                         .sharedElement(
                             state = rememberSharedContentState(
-                                key = "image-${imageUrl}"
+                                key = CharacterSharedElementKey(
+                                    id = id,
+                                    sharedType = CharacterSharedElementType.Image,
+                                )
                             ),
                             animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
-                            clipInOverlayDuringTransition = OverlayClip(shape),
+                            clipInOverlayDuringTransition = OverlayClip(imageShape),
                         )
                 )
-            }
 
-            Spacer(modifier = Modifier.height(PADDING))
-
-            Column {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.titleSmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
 
                 Spacer(modifier = Modifier.height(PADDING))
 
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                Column {
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .sharedBounds(
+                                sharedContentState = rememberSharedContentState(
+                                    key = CharacterSharedElementKey(
+                                        id = id,
+                                        sharedType = CharacterSharedElementType.Name,
+                                    )
+                                ),
+                                animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                            )
+                    )
 
-                    Column(modifier = Modifier.weight(1f)) {
-                        IconText(
-                            text = status,
-                            icon = characterStatusIconResolver(status),
-                            iconTint = if (status == "Dead") Red else Pear,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                    Spacer(modifier = Modifier.height(PADDING))
 
-                        Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
 
-                        IconText(
-                            text = species,
-                            icon = characterSpeciesIconResolver(species),
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            IconText(
+                                text = status,
+                                icon = characterStatusIconResolver(status),
+                                iconTint = if (status == "Dead") Red else Pear,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(
+                                            key = CharacterSharedElementKey(
+                                                id = id,
+                                                sharedType = CharacterSharedElementType.Status,
+                                            )
+                                        ),
+                                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                                    )
+                            )
 
-                        Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
 
-                        IconText(
-                            text = origin,
-                            icon = RnmIcons.Planet,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                            IconText(
+                                text = species,
+                                icon = characterSpeciesIconResolver(species),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(
+                                            key = CharacterSharedElementKey(
+                                                id = id,
+                                                sharedType = CharacterSharedElementType.Species,
+                                            )
+                                        ),
+                                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                                    )
+                            )
 
-                    var isLiked by remember { mutableStateOf(false) }
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            IconText(
+                                text = origin,
+                                icon = RnmIcons.Home,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(
+                                            key = CharacterSharedElementKey(
+                                                id = id,
+                                                sharedType = CharacterSharedElementType.Origin,
+                                            )
+                                        ),
+                                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                                    )
+                            )
+                        }
+
+                        var isLiked by remember { mutableStateOf(false) }
 
 //                    LikeButton(
 //                        isLiked = isFavorite,
 //                        onLikeChanged = { onFavoriteClick() }
 //                    )
-                    LikeButton(
-                        isLiked = isLiked,
-                        onLikeChanged = {
-                            isLiked = it
-                        },
-                        modifier = Modifier.size(LIKE_SIZE)
-                    )
+                        LikeButton(
+                            isLiked = isLiked,
+                            onLikeChanged = {
+                                isLiked = it
+                            },
+                            modifier = Modifier.size(LIKE_SIZE)
+                        )
+                    }
                 }
             }
         }
@@ -147,6 +205,7 @@ fun CharacterCardPreview() {
                 modifier = Modifier
                     .height(300.dp)
                     .width(200.dp),
+                id = 1,
                 name = "Rick Sanchez",
                 status = "Alive",
                 species = "Human",

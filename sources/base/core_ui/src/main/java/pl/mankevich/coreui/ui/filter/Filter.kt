@@ -20,12 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import pl.mankevich.designsystem.utils.rememberSaveableMutableStateListOf
 import pl.mankevich.designsystem.component.Chip
 import pl.mankevich.designsystem.component.SurfaceIconButton
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.rememberSaveableMutableStateListOf
 import kotlin.collections.first
 
 data class FilterLabel(
@@ -129,15 +129,15 @@ fun FilterView(
                     label = label,
                     filterGroup = filterGroup,
                     modifier = Modifier
-                        .then(
+                        .let { baseModifier ->
                             if (index == 0) Modifier.padding(start = scrollablePadding)
-                            else Modifier
-                        )
-                        .then(
+                            else baseModifier
+                        }
+                        .let { baseModifier ->
                             if (!withDialogue && index == sortedLabelList.lastIndex) {
                                 Modifier.padding(end = scrollablePadding)
-                            } else Modifier
-                        )
+                            } else baseModifier
+                        }
                         .height(chipHeight)
                 )
             }

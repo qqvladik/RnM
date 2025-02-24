@@ -335,6 +335,7 @@ fun LazyStaggeredGridScope.charactersListViewData(
     ) { index ->
         pagingCharacterItems[index]?.let { character ->
             CharacterCard(
+                id = character.id,
                 name = character.name,
                 status = character.status,
                 species = character.species,

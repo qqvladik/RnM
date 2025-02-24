@@ -24,10 +24,10 @@ fun Card(
     onCardClick: () -> Unit = {},
     internalPadding: Dp = PADDING,
     isClickable: Boolean = true,
+    shape: RoundedCornerShape = RoundedCornerShape(CARD_CORNERS_SIZE),
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val shape = RoundedCornerShape(CARD_CORNERS_SIZE)
     Card(
         shape = shape,
         modifier = modifier
