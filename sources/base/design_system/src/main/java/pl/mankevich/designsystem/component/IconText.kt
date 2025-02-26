@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
+import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 
 @Composable
 fun IconText(
@@ -29,28 +31,53 @@ fun IconText(
     iconTint: Color = MaterialTheme.colorScheme.onSurface,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     textStyle: TextStyle = MaterialTheme.typography.bodySmall,
+    iconSharedElementKey: Any? = null,
+    textSharedElementKey: Any? = null,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = iconTint,
-            modifier = Modifier.size(iconSize)
-        )
+    WithSharedTransitionScope {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier
+                    .size(iconSize)
+                    .let { baseModifier ->
+                        if (iconSharedElementKey != null) {
+                            baseModifier.sharedElement(
+                                state = rememberSharedContentState(key = iconSharedElementKey),
+                                animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+                            )
+                        } else {
+                            baseModifier
+                        }
+                    }
+            )
 
-        Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(4.dp))
 
-        Text(
-            text = text,
-            color = textColor,
-            style = textStyle,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+            Text(
+                text = text,
+                color = textColor,
+                style = textStyle,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.let { baseModifier ->
+                    if (textSharedElementKey != null) {
+                        baseModifier.sharedBounds(
+                            sharedContentState = rememberSharedContentState(key = textSharedElementKey),
+                            animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+                        )
+                    } else {
+                        baseModifier
+                    }
+                }
+            )
+        }
     }
 }
 

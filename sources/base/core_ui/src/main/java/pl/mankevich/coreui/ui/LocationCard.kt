@@ -27,12 +27,15 @@ import pl.mankevich.designsystem.component.LikeButton
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
+import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 
 @Composable
 fun LocationCard(
+    id: Int?,
+    type: String,
     name: String,
-    value: String,
     icon: ImageVector,
     isLikeable: Boolean = true,
     isClickable: Boolean = true,
@@ -41,69 +44,108 @@ fun LocationCard(
     onLocationClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier) {
-        Column {
-            Spacer(modifier = Modifier.height(25.dp))
-            Card(
-                onCardClick = onLocationClick,
-                isClickable = isClickable,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+    WithSharedTransitionScope {
+        Box(
+            modifier = modifier.sharedBounds(
+                sharedContentState = rememberSharedContentState(
+                    key = LocationSharedElementKey(
+                        id = id,
+                        sharedType = LocationSharedElementType.Background
+                    ),
+                ),
+                animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+            )
+        ) {
+            Column {
+                Spacer(modifier = Modifier.height(25.dp))
+                Card(
+                    onCardClick = onLocationClick,
+                    isClickable = isClickable,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                    Text(
-                        text = name,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = value,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    if (isLikeable) {
-                        var isLiked by remember { mutableStateOf(false) }
-//                      LikeButton(
-//                          isLiked = isFavorite,
-//                          onLikeChanged = { onFavoriteClick() }
-//                      )
-                        LikeButton(
-                            isLiked = isLiked,
-                            onLikeChanged = {
-                                isLiked = it
-                            },
-                            modifier = Modifier.size(LIKE_SIZE)
+                        Text(
+                            text = type,
+                            textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.sharedBounds(
+                                sharedContentState = rememberSharedContentState(
+                                    key = LocationSharedElementKey(
+                                        id = id,
+                                        sharedType = LocationSharedElementType.Type,
+                                    ),
+                                ),
+                                animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                            )
                         )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Text(
+                            text = name,
+                            textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.sharedBounds(
+                                sharedContentState = rememberSharedContentState(
+                                    key = LocationSharedElementKey(
+                                        id = id,
+                                        sharedType = LocationSharedElementType.Name,
+                                    ),
+                                ),
+                                animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        if (isLikeable) {
+                            var isLiked by remember { mutableStateOf(false) }
+//                            LikeButton(
+//                                isLiked = isFavorite,
+//                                onLikeChanged = { onFavoriteClick() }
+//                            )
+                            LikeButton(
+                                isLiked = isLiked,
+                                onLikeChanged = {
+                                    isLiked = it
+                                },
+                                modifier = Modifier.size(LIKE_SIZE)
+                            )
+                        }
                     }
                 }
             }
+
+
+            Icon(
+                painter = rememberVectorPainter(icon),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .size(40.dp)
+                    .sharedElement(
+                        state = rememberSharedContentState(
+                            key = LocationSharedElementKey(
+                                id = id,
+                                sharedType = LocationSharedElementType.Icon,
+                            ),
+                        ),
+                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                    )
+            )
         }
-
-
-        Icon(
-            painter = rememberVectorPainter(icon),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .size(40.dp)
-        )
     }
 }
 
@@ -113,8 +155,9 @@ fun LocationCardPreview() {
     RnmTheme {
         WithAnimatedVisibilityScope {
             LocationCard(
-                name = "Origin",
-                value = "Earth (C-137)",
+                id = 1,
+                type = "Origin",
+                name = "Earth (C-137)",
                 icon = RnmIcons.Planet,
                 onLocationClick = {},
                 isLikeable = true,
@@ -131,8 +174,9 @@ fun LocationCardLikeablePreview() {
     RnmTheme {
         WithAnimatedVisibilityScope {
             LocationCard(
-                name = "Origin",
-                value = "Earth (C-137)",
+                id = 1,
+                type = "Origin",
+                name = "Earth (C-137)",
                 icon = RnmIcons.MapPin,
                 onLocationClick = {},
                 isLikeable = false,
@@ -148,8 +192,9 @@ fun LocationCardNotClickablePreview() {
     RnmTheme {
         WithAnimatedVisibilityScope {
             LocationCard(
-                name = "Origin",
-                value = "Earth (C-137)dklfc;ladnsfjak;las",
+                id = 1,
+                type = "Origin",
+                name = "Earth (C-137)dklfc;ladnsfjak;las",
                 icon = RnmIcons.MapPin,
                 onLocationClick = {},
                 isClickable = false,

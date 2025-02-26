@@ -230,7 +230,7 @@ fun CharacterDetailView(
                             value = character.status,
                             icon = characterStatusIconResolver(character.status),
                             internalPadding = PADDING,
-                            characterSharedElementKey = CharacterSharedElementKey(
+                            chipSharedElementKey = CharacterSharedElementKey(
                                 id = character.id,
                                 sharedType = CharacterSharedElementType.Status,
                             ),
@@ -244,7 +244,7 @@ fun CharacterDetailView(
                             value = character.species,
                             icon = characterSpeciesIconResolver(character.species),
                             internalPadding = PADDING,
-                            characterSharedElementKey = CharacterSharedElementKey(
+                            chipSharedElementKey = CharacterSharedElementKey(
                                 id = character.id,
                                 sharedType = CharacterSharedElementType.Species,
                             ),
@@ -274,9 +274,11 @@ fun CharacterDetailView(
                         Spacer(modifier = Modifier.height(PADDING))
 
                         Row {
+                            val isOriginAndLocationSame = character.origin.id == character.location.id
                             LocationCard(
-                                name = "Origin",
-                                value = character.origin.name,
+                                id = character.origin.id,
+                                type = if (!isOriginAndLocationSame) "Origin" else "Origin/Location",
+                                name = character.origin.name,
                                 icon = RnmIcons.Home,
                                 isLikeable = false,
                                 isClickable = character.origin.id != null,
@@ -296,20 +298,23 @@ fun CharacterDetailView(
                                     )
                             )
 
-                            Spacer(modifier = Modifier.width(PADDING))
+                            if (!isOriginAndLocationSame) {
+                                Spacer(modifier = Modifier.width(PADDING))
 
-                            LocationCard(
-                                name = "Location",
-                                value = character.location.name,
-                                icon = RnmIcons.MapPin,
-                                isLikeable = false,
-                                isClickable = character.location.id != null,
-                                onLocationClick = {
-                                    character.location.id?.let { onLocationClick(it) }
-                                },
-                                modifier = Modifier
-                                    .width(140.dp)
-                            )
+                                LocationCard(
+                                    id = character.location.id,
+                                    type = "Location",
+                                    name = character.location.name,
+                                    icon = RnmIcons.MapPin,
+                                    isLikeable = false,
+                                    isClickable = character.location.id != null,
+                                    onLocationClick = {
+                                        character.location.id?.let { onLocationClick(it) }
+                                    },
+                                    modifier = Modifier
+                                        .width(140.dp)
+                                )
+                            }
                         }
                     }
                 }

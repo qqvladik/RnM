@@ -23,6 +23,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.mankevich.coreui.ui.Detail
+import pl.mankevich.coreui.ui.LocationSharedElementKey
+import pl.mankevich.coreui.ui.LocationSharedElementType
 import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.PADDING_SMALL
 import pl.mankevich.coreui.utils.locationDimensionIconResolver
@@ -32,6 +34,7 @@ import pl.mankevich.designsystem.component.SurfaceIconButton
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 import pl.mankevich.locationdetail.presentation.viewmodel.LocationDetailViewModel
@@ -77,86 +80,88 @@ fun LocationDetailView(
     onBackPress: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .padding(horizontal = PADDING)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(modifier = Modifier.height(PADDING))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(),
+    WithSharedTransitionScope {
+        Column(
+            modifier = modifier
+                .padding(horizontal = PADDING)
+                .verticalScroll(rememberScrollState())
+                .sharedBounds(
+                    sharedContentState = rememberSharedContentState(
+                        key = LocationSharedElementKey(
+                            id = location.id,
+                            sharedType = LocationSharedElementType.Background,
+                        ),
+                    ),
+                    animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                )
         ) {
-            SurfaceIconButton(
-                onClick = onBackPress,
-                imageVector = RnmIcons.CaretLeft,
-                contentDescription = "Show filters",
-                iconSize = 20.dp,
-                modifier = Modifier.size(40.dp)
-            )
-        }
+            Spacer(modifier = Modifier.height(PADDING))
 
-//        Spacer(modifier = Modifier.height(PADDING))
-//
-//        val fraction = if (isLandscape()) 0.3f else 0.5f
-//        WithSharedTransitionScope {
-//            val shape = CircleShape
-//            AsyncImage(
-//                model = location.image,
-//                contentDescription = null,
-//                contentScale = ContentScale.Crop,
-//                modifier = Modifier
-//                    .fillMaxWidth(fraction)
-//                    .align(CenterHorizontally)
-//                    .aspectRatio(1f)
-//                    .clip(shape)
-////                    .background(Red) //For preview purposes
-//                    .sharedElement(
-//                        state = rememberSharedContentState(
-//                            key = "image-${location.image}"
-//                        ),
-//                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
-//                        clipInOverlayDuringTransition = OverlayClip(shape),
-//                    )
-//            )
-//        }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                SurfaceIconButton(
+                    onClick = onBackPress,
+                    imageVector = RnmIcons.CaretLeft,
+                    contentDescription = "Show filters",
+                    iconSize = 20.dp,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
 
-        Spacer(modifier = Modifier.height(PADDING))
+            Spacer(modifier = Modifier.height(PADDING))
 
-        WithSharedTransitionScope {
             Text(
                 text = location.name,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.align(CenterHorizontally)
+                modifier = Modifier
+                    .align(CenterHorizontally)
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(
+                            key = LocationSharedElementKey(
+                                id = location.id,
+                                sharedType = LocationSharedElementType.Name,
+                            ),
+                        ),
+                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                    )
             )
+
+            Spacer(modifier = Modifier.height(PADDING))
+
+            Detail(
+                name = "Type",
+                value = location.type,
+                icon = locationTypeIconResolver(location.type),
+                internalPadding = PADDING,
+                onDetailClick = { onTypeFilterClick(location.type) },
+                chipIconSharedElementKey = LocationSharedElementKey(
+                    id = location.id,
+                    sharedType = LocationSharedElementType.Icon,
+                ),
+                chipTextSharedElementKey = LocationSharedElementKey(
+                    id = location.id,
+                    sharedType = LocationSharedElementType.Type,
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(PADDING_SMALL))
+
+            Detail(
+                name = "Dimension",
+                value = location.dimension,
+                icon = locationDimensionIconResolver(location.dimension),
+                internalPadding = PADDING,
+                onDetailClick = { onDimensionFilterClick(location.dimension) }
+            )
+
+            Spacer(modifier = Modifier.height(PADDING))
+
+            Text("characters = ${characters}")
         }
-
-        Spacer(modifier = Modifier.height(PADDING))
-
-        Detail(
-            name = "Type",
-            value = location.type,
-            icon = locationTypeIconResolver(location.type),
-            internalPadding = PADDING,
-            onDetailClick = { onTypeFilterClick(location.type) }
-        )
-
-        Spacer(modifier = Modifier.height(PADDING_SMALL))
-
-        Detail(
-            name = "Dimension",
-            value = location.dimension,
-            icon = locationDimensionIconResolver(location.dimension),
-            internalPadding = PADDING,
-            onDetailClick = { onDimensionFilterClick(location.dimension) }
-        )
-
-        Spacer(modifier = Modifier.height(PADDING))
-
-        Text("characters = ${characters}")
     }
 }
 

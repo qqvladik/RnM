@@ -17,7 +17,6 @@ import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
-import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 
 @Composable
@@ -26,7 +25,9 @@ fun Detail(
     value: String,
     icon: ImageVector,
     internalPadding: Dp = 12.dp,
-    characterSharedElementKey: CharacterSharedElementKey? = null,
+    chipSharedElementKey: Any? = null,
+    chipIconSharedElementKey: Any? = null,
+    chipTextSharedElementKey: Any? = null,
     onDetailClick: () -> Unit = {}
 ) {
     Row(
@@ -44,15 +45,17 @@ fun Detail(
             Chip(
                 label = value,
                 icon = icon,
+                iconSharedElementKey = chipIconSharedElementKey,
+                textSharedElementKey = chipTextSharedElementKey,
                 isSelected = false,
                 onClick = { onDetailClick() },
                 modifier = Modifier
                     .height(32.dp)
                     .let { baseModifier ->
-                        if (characterSharedElementKey != null) {
+                        if (chipSharedElementKey != null) {
                             baseModifier.sharedBounds(
                                 sharedContentState = rememberSharedContentState(
-                                    key = characterSharedElementKey
+                                    key = chipSharedElementKey
                                 ),
                                 animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
                             )
@@ -69,13 +72,11 @@ fun Detail(
 @Composable
 fun CharacterDetailPreview() {
     RnmTheme {
-        WithAnimatedVisibilityScope {
-            Detail(
-                name = "Status",
-                value = "Alive",
-                icon = RnmIcons.Pulse,
-                onDetailClick = {}
-            )
-        }
+        Detail(
+            name = "Status",
+            value = "Alive",
+            icon = RnmIcons.Pulse,
+            onDetailClick = {}
+        )
     }
 }

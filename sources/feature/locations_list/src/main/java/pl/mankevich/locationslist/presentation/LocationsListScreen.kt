@@ -38,7 +38,6 @@ import pl.mankevich.core.util.cast
 import pl.mankevich.coreui.ui.LocationCard
 import pl.mankevich.coreui.ui.filter.FilterGroup
 import pl.mankevich.coreui.ui.filter.FilterView
-import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.coreui.utils.locationDimensionIconResolver
 import pl.mankevich.coreui.utils.locationTypeIconResolver
 import pl.mankevich.designsystem.component.EmptyView
@@ -47,6 +46,7 @@ import pl.mankevich.designsystem.component.IconButton
 import pl.mankevich.designsystem.component.LoadingView
 import pl.mankevich.designsystem.component.SearchField
 import pl.mankevich.designsystem.icons.RnmIcons
+import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.utils.isLandscape
@@ -219,8 +219,9 @@ fun LocationsListView(
                     ) { index ->
                         pagingLocationItems[index]?.let { location ->
                             LocationCard(
-                                name = location.type,
-                                value = location.name,
+                                id = location.id,
+                                type = location.type,
+                                name = location.name,
                                 icon = locationTypeIconResolver(location.type),
                                 isFavorite = false,
                                 onFavoriteClick = {},

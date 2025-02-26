@@ -44,6 +44,8 @@ fun Chip(
     textStyle: TextStyle = MaterialTheme.typography.bodySmall,
     icon: ImageVector,
     iconSize: Dp = 16.dp,
+    iconSharedElementKey: Any? = null,
+    textSharedElementKey: Any? = null,
     isSelected: Boolean,
     isRippleEnabled: Boolean = true,
     onClick: (Boolean) -> Unit,
@@ -63,6 +65,8 @@ fun Chip(
                     iconTint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                     textColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                     textStyle = textStyle,
+                    iconSharedElementKey = iconSharedElementKey,
+                    textSharedElementKey = textSharedElementKey,
                     modifier = Modifier.wrapContentSize()
                 )
             },
