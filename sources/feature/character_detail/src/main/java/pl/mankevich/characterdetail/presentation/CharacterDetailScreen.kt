@@ -121,9 +121,7 @@ fun CharacterDetailView(
         columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
         verticalItemSpacing = PADDING,
         horizontalArrangement = Arrangement.spacedBy(PADDING),
-        modifier = modifier
-            .padding(horizontal = PADDING)
-            .fillMaxSize()
+        modifier = modifier.padding(horizontal = PADDING)
     ) {
         item(span = FullLine) {
             Column(

@@ -1,5 +1,6 @@
 package pl.mankevich.rnm.presentation
 
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -22,6 +23,7 @@ import pl.mankevich.coreui.navigation.navigateToTopLevelDestination
 import pl.mankevich.coreui.navigation.toComposableFeatureEntries
 import pl.mankevich.dependencies.LocalDependenciesProvider
 import pl.mankevich.designsystem.component.RnmNavigationSuiteScaffold
+import pl.mankevich.designsystem.utils.ProvideSharedTransitionScope
 
 @Composable
 fun Navigation(
@@ -97,16 +99,20 @@ fun NavGraphBuilder.mainNavHost(
                     composable(
                         route = topLevelDestination.destination::class,
                     ) {
-                        val nestedNavController = rememberNavController()
-                        NavHost(
-                            navController = nestedNavController,
-                            startDestination = topLevelDestination.startDestination,
-                            modifier = Modifier.fillMaxSize(),
-                        ) {
-                            tabGraph(
-                                featureEntries = featureEntries,
-                                navController = nestedNavController
-                            )
+                        SharedTransitionLayout {
+                            ProvideSharedTransitionScope {
+                                val nestedNavController = rememberNavController()
+                                NavHost(
+                                    navController = nestedNavController,
+                                    startDestination = topLevelDestination.startDestination,
+                                    modifier = Modifier.fillMaxSize(),
+                                ) {
+                                    tabGraph(
+                                        featureEntries = featureEntries,
+                                        navController = nestedNavController
+                                    )
+                                }
+                            }
                         }
                     }
                 }
