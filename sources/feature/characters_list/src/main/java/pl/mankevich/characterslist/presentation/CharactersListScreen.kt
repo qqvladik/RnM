@@ -2,6 +2,8 @@ package pl.mankevich.characterslist.presentation
 
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -72,6 +74,8 @@ import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
+import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.designsystem.utils.placeholderConnecting
 import pl.mankevich.model.Character
@@ -144,170 +148,179 @@ fun CharactersListView(
         }
     }
 
-    Box(modifier = modifier.nestedScroll(nestedScrollConnection)) {
-        val focusManager = LocalFocusManager.current
+    WithSharedTransitionScope {
+        WithAnimatedVisibilityScope {
+            Box(modifier = modifier.nestedScroll(nestedScrollConnection)) {
+                val focusManager = LocalFocusManager.current
 
-        LaunchedEffect(Unit) {//TODO: create custom LazyVerticalGrid with state to clear focus when scroll
-            gridState.interactionSource.interactions
-                .distinctUntilChanged()
-                .filterIsInstance<DragInteraction.Start>()
-                .collectLatest {
-                    focusManager.clearFocus()
+                LaunchedEffect(Unit) {//TODO: create custom LazyVerticalGrid with state to clear focus when scroll
+                    gridState.interactionSource.interactions
+                        .distinctUntilChanged()
+                        .filterIsInstance<DragInteraction.Start>()
+                        .collectLatest {
+                            focusManager.clearFocus()
+                        }
                 }
-        }
 
-        val infiniteTransition =
-            rememberInfiniteTransition(label = "CharactersListScreen transition")
+                val infiniteTransition =
+                    rememberInfiniteTransition(label = "CharactersListScreen transition")
 
-        LazyVerticalStaggeredGrid(
-            state = gridState,
-            columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
-            verticalItemSpacing = PADDING,
-            horizontalArrangement = Arrangement.spacedBy(PADDING),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = PADDING)
-        ) {
-            item(span = FullLine) {
-                Spacer(modifier = Modifier.height(appBarHeight - PADDING))
-            }
-
-            val itemModifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(0.75f)
-
-            /*When use pager with remoteMediator there are strange loadStates when launch app(1->2->3):
-            1. loadState.refresh = Loading
-             loadState.mediator = null
-             loadState.source.refresh = Loading
-
-            2. loadState.refresh = NotLoading
-             loadState.mediator.refresh = NotLoading
-             loadState.source.refresh = Loading
-
-            3. loadState.refresh = Loading
-             loadState.mediator = Loading
-             loadState.source.refresh = Loading
-
-            That 2 loadState brings flicking of progressbar. I found the issue: https://issuetracker.google.com/issues/288023763
-            There is no such behavior when use pager without remoteMediator.
-
-            That's why pagingCharacterItems.loadState.append.endOfPaginationReached check was added.
-            */
-            if (pagingCharacterItems.loadState.refresh is LoadState.Loading
-                || (pagingCharacterItems.loadState.refresh is LoadState.NotLoading
-                        && pagingCharacterItems.itemCount == 0
-                        && !pagingCharacterItems.loadState.append.endOfPaginationReached)
-            ) {
-                charactersListViewPlaceholder(
-                    infiniteTransition = infiniteTransition,
-                    itemModifier = itemModifier
-                )
-            } else if (pagingCharacterItems.itemCount == 0 && pagingCharacterItems.loadState.append.endOfPaginationReached) {
-                item(span = FullLine) {
-                    EmptyView(modifier = Modifier.fillMaxSize())
-                }
-            } else {
-                charactersListViewData(
-                    pagingCharacterItems = pagingCharacterItems,
-                    onCharacterItemClick = onCharacterItemClick,
-                    itemModifier = itemModifier
-                )
-            }
-        }
-
-        //AppBar
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(appBarHeight)
-                .offset { IntOffset(x = 0, y = appBarOffsetPx.toInt()) }
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .pointerInput(Unit) {} //Helps to prevent clicking on the underlying card elements through spacers
-            ) {
-                Spacer(modifier = Modifier.height(PADDING))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                LazyVerticalStaggeredGrid(
+                    state = gridState,
+                    columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
+                    verticalItemSpacing = PADDING,
+                    horizontalArrangement = Arrangement.spacedBy(PADDING),
                     modifier = Modifier
-                        .weight(1f)
-//                    .height(40.dp)
-                        .fillMaxWidth(),
+                        .fillMaxSize()
+                        .padding(horizontal = PADDING)
                 ) {
-                    if (onBackPress != null) {
-                        IconButton(
-                            onClick = onBackPress,
-                            imageVector = RnmIcons.CaretLeft,
-                            contentDescription = "Show filters",
-                            iconSize = 20.dp,
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .aspectRatio(1.2f)
-                        )
-                    } else {
-                        Spacer(modifier = Modifier.width(PADDING))
+                    item(span = FullLine) {
+                        Spacer(modifier = Modifier.height(appBarHeight - PADDING))
                     }
 
-                    SearchField(
-                        value = state.characterFilter.name,
-                        onValueChange = onSearchChange,
-                        onClearClick = onSearchClear,
-                        placeholder = "Search...",
-                        modifier = Modifier.weight(1f),
-                    )
+                    val itemModifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(0.75f)
 
-                    Spacer(modifier = Modifier.width(PADDING))
+                    /*When use pager with remoteMediator there are strange loadStates when launch app(1->2->3):
+                1. loadState.refresh = Loading
+                 loadState.mediator = null
+                 loadState.source.refresh = Loading
+
+                2. loadState.refresh = NotLoading
+                 loadState.mediator.refresh = NotLoading
+                 loadState.source.refresh = Loading
+
+                3. loadState.refresh = Loading
+                 loadState.mediator = Loading
+                 loadState.source.refresh = Loading
+
+                That 2 loadState brings flicking of progressbar. I found the issue: https://issuetracker.google.com/issues/288023763
+                There is no such behavior when use pager without remoteMediator.
+
+                That's why pagingCharacterItems.loadState.append.endOfPaginationReached check was added.
+                */
+                    if (pagingCharacterItems.loadState.refresh is LoadState.Loading
+                        || (pagingCharacterItems.loadState.refresh is LoadState.NotLoading
+                                && pagingCharacterItems.itemCount == 0
+                                && !pagingCharacterItems.loadState.append.endOfPaginationReached)
+                    ) {
+                        charactersListViewPlaceholder(
+                            infiniteTransition = infiniteTransition,
+                            itemModifier = itemModifier
+                        )
+                    } else if (pagingCharacterItems.itemCount == 0 && pagingCharacterItems.loadState.append.endOfPaginationReached) {
+                        item(span = FullLine) {
+                            EmptyView(modifier = Modifier.fillMaxSize())
+                        }
+                    } else {
+                        charactersListViewData(
+                            pagingCharacterItems = pagingCharacterItems,
+                            onCharacterItemClick = onCharacterItemClick,
+                            itemModifier = itemModifier
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(PADDING))
-
-                FilterView(
-                    name = "Characters filter",
-                    filterGroupList = listOf(
-                        FilterGroup(
-                            name = "Status",
-                            selected = state.characterFilter.status,
-                            labelList = state.statusLabelList,
-                            isListFinished = true,
-                            resolveIcon = characterStatusIconResolver,
-                            onSelectedChanged = onStatusSelected,
-                        ),
-                        FilterGroup(
-                            name = "Species",
-                            selected = state.characterFilter.species,
-                            labelList = state.speciesLabelList,
-                            isListFinished = false,
-                            resolveIcon = characterSpeciesIconResolver,
-                            onSelectedChanged = onSpeciesSelected,
-                        ),
-                        FilterGroup(
-                            name = "Gender",
-                            selected = state.characterFilter.gender,
-                            labelList = state.genderLabelList,
-                            isListFinished = true,
-                            resolveIcon = characterGenderIconResolver,
-                            onSelectedChanged = onGenderSelected,
-                        ),
-                        FilterGroup(
-                            name = "Type",
-                            selected = state.characterFilter.type,
-                            labelList = state.typeLabelList,
-                            isListFinished = false,
-                            resolveIcon = characterTypeIconResolver,
-                            onSelectedChanged = onTypeSelected,
-                        )
-                    ),
-                    scrollablePadding = PADDING,
+                //AppBar
+                Box(
                     modifier = Modifier
-                        .height(32.dp)
-                        .padding(end = PADDING)
-                )
+                        .fillMaxWidth()
+                        .height(appBarHeight)
+                        .offset { IntOffset(x = 0, y = appBarOffsetPx.toInt()) }
+                        .renderInSharedTransitionScopeOverlay()
+                        .animateEnterExit(
+                            enter = slideInVertically { -it },
+                            exit = slideOutVertically { -it }
+                        )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background)
+                            .pointerInput(Unit) {} //Helps to prevent clicking on the underlying card elements through spacers
+                    ) {
+                        Spacer(modifier = Modifier.height(PADDING))
 
-                Spacer(modifier = Modifier.height(PADDING))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .weight(1f)
+//                    .height(40.dp)
+                                .fillMaxWidth(),
+                        ) {
+                            if (onBackPress != null) {
+                                IconButton(
+                                    onClick = onBackPress,
+                                    imageVector = RnmIcons.CaretLeft,
+                                    contentDescription = "Show filters",
+                                    iconSize = 20.dp,
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .aspectRatio(1.2f)
+                                )
+                            } else {
+                                Spacer(modifier = Modifier.width(PADDING))
+                            }
+
+                            SearchField(
+                                value = state.characterFilter.name,
+                                onValueChange = onSearchChange,
+                                onClearClick = onSearchClear,
+                                placeholder = "Search...",
+                                modifier = Modifier.weight(1f),
+                            )
+
+                            Spacer(modifier = Modifier.width(PADDING))
+                        }
+
+                        Spacer(modifier = Modifier.height(PADDING))
+
+                        FilterView(
+                            name = "Characters filter",
+                            filterGroupList = listOf(
+                                FilterGroup(
+                                    name = "Status",
+                                    selected = state.characterFilter.status,
+                                    labelList = state.statusLabelList,
+                                    isListFinished = true,
+                                    resolveIcon = characterStatusIconResolver,
+                                    onSelectedChanged = onStatusSelected,
+                                ),
+                                FilterGroup(
+                                    name = "Species",
+                                    selected = state.characterFilter.species,
+                                    labelList = state.speciesLabelList,
+                                    isListFinished = false,
+                                    resolveIcon = characterSpeciesIconResolver,
+                                    onSelectedChanged = onSpeciesSelected,
+                                ),
+                                FilterGroup(
+                                    name = "Gender",
+                                    selected = state.characterFilter.gender,
+                                    labelList = state.genderLabelList,
+                                    isListFinished = true,
+                                    resolveIcon = characterGenderIconResolver,
+                                    onSelectedChanged = onGenderSelected,
+                                ),
+                                FilterGroup(
+                                    name = "Type",
+                                    selected = state.characterFilter.type,
+                                    labelList = state.typeLabelList,
+                                    isListFinished = false,
+                                    resolveIcon = characterTypeIconResolver,
+                                    onSelectedChanged = onTypeSelected,
+                                )
+                            ),
+                            scrollablePadding = PADDING,
+                            modifier = Modifier
+                                .height(32.dp)
+                                .padding(end = PADDING)
+                        )
+
+                        Spacer(modifier = Modifier.height(PADDING))
+                    }
+                }
             }
         }
     }
