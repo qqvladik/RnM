@@ -1,5 +1,6 @@
 package pl.mankevich.characterdetail.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -93,7 +94,9 @@ fun CharacterDetailScreen(
         onBackPress = onBackPress,
         onCharacterErrorClick = { viewModel.sendIntent(CharacterDetailIntent.LoadCharacter) },
         onEpisodesErrorClick = { viewModel.sendIntent(CharacterDetailIntent.LoadEpisodes) },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background)
     )
 }
 
@@ -272,7 +275,8 @@ fun CharacterDetailView(
                         Spacer(modifier = Modifier.height(PADDING))
 
                         Row {
-                            val isOriginAndLocationSame = character.origin.id == character.location.id
+                            val isOriginAndLocationSame =
+                                character.origin.id == character.location.id
                             LocationCard(
                                 id = character.origin.id,
                                 type = if (!isOriginAndLocationSame) "Origin" else "Origin/Location",

@@ -1,5 +1,6 @@
 package pl.mankevich.episodeslist.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -80,7 +82,9 @@ fun EpisodesListScreen(
         onEpisodeSelected = { viewModel.sendIntent(EpisodesListIntent.EpisodeChanged(it.toIntOrNull())) },
         onEpisodeItemClick = { viewModel.sendIntent(EpisodesListIntent.EpisodeItemClick(it)) },
         onBackPress = onBackPress,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background)
     )
 }
 

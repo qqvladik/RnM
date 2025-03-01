@@ -1,5 +1,6 @@
 package pl.mankevich.locationdetail.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -66,7 +67,9 @@ fun LocationDetailScreen(
             onDimensionFilterClick = onDimensionFilterClick,
             onTypeFilterClick = onTypeFilterClick,
             onBackPress = onBackPress,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background)
         )
     }
 }

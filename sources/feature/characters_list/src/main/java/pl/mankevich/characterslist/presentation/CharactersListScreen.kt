@@ -107,7 +107,9 @@ fun CharactersListScreen(
         onTypeSelected = { viewModel.sendIntent(CharactersListIntent.TypeChanged(it)) },
         onCharacterItemClick = onCharacterItemClick,
         onBackPress = onBackPress,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background)
     )
 }
 
