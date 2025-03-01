@@ -1,6 +1,8 @@
 package pl.mankevich.coreui.ui
 
+import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,6 +40,7 @@ import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithSharedTransitionScope
+import pl.mankevich.designsystem.utils.placeholderConnecting
 
 @Composable
 fun CharacterCard(
@@ -196,6 +199,16 @@ fun CharacterCard(
     }
 }
 
+@Composable
+fun CharacterCardPlaceholder(
+    infiniteTransition: InfiniteTransition? = null,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.placeholderConnecting(infiniteTransition = infiniteTransition)
+    )
+}
+
 @ThemePreviews
 @Composable
 fun CharacterCardPreview() {
@@ -216,5 +229,17 @@ fun CharacterCardPreview() {
                 onCardClick = { /* Handle Card Click */ }
             )
         }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun CharacterCardPlaceholderPreview() {
+    RnmTheme {
+        CharacterCardPlaceholder(
+            modifier = Modifier
+                .height(300.dp)
+                .width(200.dp)
+        )
     }
 }
