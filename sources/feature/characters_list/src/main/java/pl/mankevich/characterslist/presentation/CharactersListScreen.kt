@@ -110,6 +110,7 @@ fun CharactersListView(
             val appBarHeight = 108.dp
 
             AppBarWithOffset(
+                modifier = modifier,
                 appBarHeight = appBarHeight,
                 appBarWithOffset = { appBarOffsetPx ->
                     SearchFilterAppBar(
@@ -227,8 +228,7 @@ fun CharactersListView(
                             )
                         }
                     }
-                },
-                modifier = modifier
+                }
             )
         }
     }

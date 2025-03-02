@@ -3,14 +3,13 @@ package pl.mankevich.designsystem.utils
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
-import pl.mankevich.designsystem.theme.CARD_CORNERS_SIZE
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.utils.placeholder.PlaceholderHighlight
@@ -18,7 +17,7 @@ import pl.mankevich.designsystem.utils.placeholder.placeholder
 import pl.mankevich.designsystem.utils.placeholder.shimmer
 
 fun Modifier.placeholderConnecting(
-    shape: Shape = RoundedCornerShape(CARD_CORNERS_SIZE),
+    shape: Shape = RectangleShape,
     visible: Boolean = true,
     infiniteTransition: InfiniteTransition? = null,
 ) = composed {

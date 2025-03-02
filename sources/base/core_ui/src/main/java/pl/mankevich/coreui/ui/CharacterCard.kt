@@ -205,7 +205,10 @@ fun CharacterCardPlaceholder(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.placeholderConnecting(infiniteTransition = infiniteTransition)
+        modifier = modifier.placeholderConnecting(
+            shape = RoundedCornerShape(CARD_CORNERS_SIZE),
+            infiniteTransition = infiniteTransition
+        )
     )
 }
 

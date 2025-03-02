@@ -1,5 +1,6 @@
 package pl.mankevich.coreui.ui
 
+import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,11 +27,13 @@ import androidx.compose.ui.unit.dp
 import pl.mankevich.designsystem.component.Card
 import pl.mankevich.designsystem.component.LikeButton
 import pl.mankevich.designsystem.icons.RnmIcons
+import pl.mankevich.designsystem.theme.CARD_CORNERS_SIZE
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithSharedTransitionScope
+import pl.mankevich.designsystem.utils.placeholderConnecting
 
 @Composable
 fun LocationCard(
@@ -46,22 +50,24 @@ fun LocationCard(
 ) {
     WithSharedTransitionScope {
         Box(
-            modifier = modifier.sharedBounds(
-                sharedContentState = rememberSharedContentState(
-                    key = LocationSharedElementKey(
-                        id = id,
-                        sharedType = LocationSharedElementType.Background
-                    ),
-                ),
-                animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
-            )
+            modifier = modifier
         ) {
             Column {
                 Spacer(modifier = Modifier.height(25.dp))
                 Card(
                     onCardClick = onLocationClick,
                     isClickable = isClickable,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .sharedBounds(
+                            sharedContentState = rememberSharedContentState(
+                                key = LocationSharedElementKey(
+                                    id = id,
+                                    sharedType = LocationSharedElementType.Background
+                                ),
+                            ),
+                            animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                        )
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -149,6 +155,26 @@ fun LocationCard(
     }
 }
 
+@Composable
+fun LocationCardPlaceholder(
+    infiniteTransition: InfiniteTransition? = null,
+    modifier: Modifier = Modifier //wrapContentHeight with data = ~135.dp
+) {
+    Box(
+        modifier = modifier
+    ) {
+        Column {
+            Spacer(modifier = Modifier.height(25.dp))
+            Box(
+                modifier = modifier.placeholderConnecting(
+                    shape = RoundedCornerShape(CARD_CORNERS_SIZE),
+                    infiniteTransition = infiniteTransition
+                )
+            )
+        }
+    }
+}
+
 @ThemePreviews
 @Composable
 fun LocationCardPreview() {
@@ -170,7 +196,7 @@ fun LocationCardPreview() {
 
 @ThemePreviews
 @Composable
-fun LocationCardLikeablePreview() {
+fun LocationCardNotLikeablePreview() {
     RnmTheme {
         WithAnimatedVisibilityScope {
             LocationCard(
@@ -198,8 +224,22 @@ fun LocationCardNotClickablePreview() {
                 icon = RnmIcons.MapPin,
                 onLocationClick = {},
                 isClickable = false,
-                modifier = Modifier.width(140.dp)
+                modifier = Modifier
+                    .height(135.dp)
+                    .width(140.dp)
             )
         }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun LocationCardPlaceholderPreview() {
+    RnmTheme {
+        LocationCardPlaceholder(
+            modifier = Modifier
+                .height(135.dp)
+                .width(140.dp)
+        )
     }
 }

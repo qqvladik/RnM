@@ -1,57 +1,54 @@
 package pl.mankevich.locationslist.presentation
 
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
-import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
 import pl.mankevich.core.util.cast
+import pl.mankevich.coreui.ui.AppBarWithOffset
 import pl.mankevich.coreui.ui.LocationCard
+import pl.mankevich.coreui.ui.LocationCardPlaceholder
+import pl.mankevich.coreui.ui.SearchFilterAppBar
 import pl.mankevich.coreui.ui.filter.FilterGroup
-import pl.mankevich.coreui.ui.filter.FilterView
 import pl.mankevich.coreui.utils.locationDimensionIconResolver
 import pl.mankevich.coreui.utils.locationTypeIconResolver
 import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
-import pl.mankevich.designsystem.component.IconButton
 import pl.mankevich.designsystem.component.LoadingView
-import pl.mankevich.designsystem.component.SearchField
-import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
+import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 import pl.mankevich.designsystem.utils.isLandscape
+import pl.mankevich.designsystem.utils.rememberGridStateWithClearFocus
 import pl.mankevich.locationslist.presentation.viewmodel.LocationsListIntent
 import pl.mankevich.locationslist.presentation.viewmodel.LocationsListState
 import pl.mankevich.locationslist.presentation.viewmodel.LocationsListViewModel
@@ -79,7 +76,7 @@ fun LocationsListScreen(
         onSearchClear = { viewModel.sendIntent(LocationsListIntent.NameChanged("")) },
         onTypeSelected = { viewModel.sendIntent(LocationsListIntent.TypeChanged(it)) },
         onDimensionSelected = { viewModel.sendIntent(LocationsListIntent.DimensionChanged(it)) },
-        onLocationItemClick = { viewModel.sendIntent(LocationsListIntent.CharacterItemClick(it)) },
+        onLocationItemClick = { viewModel.sendIntent(LocationsListIntent.LocationItemClick(it)) },
         onBackPress = onBackPress,
         modifier = Modifier
             .fillMaxSize()
@@ -100,173 +97,155 @@ fun LocationsListView(
 ) {
     val pagingLocationItems = state.locations.collectAsLazyPagingItems()
 
-    Column(modifier = modifier) {
-        Spacer(modifier = Modifier.height(PADDING))
+    WithSharedTransitionScope {
+        WithAnimatedVisibilityScope {
+            val appBarHeight = 108.dp
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .height(40.dp)
-                .fillMaxWidth(),
-        ) {
-            if (onBackPress != null) {
-                IconButton(
-                    onClick = onBackPress,
-                    imageVector = RnmIcons.CaretLeft,
-                    contentDescription = "Show filters",
-                    iconSize = 20.dp,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .aspectRatio(1.2f)
-                )
-            } else {
-                Spacer(modifier = Modifier.width(PADDING))
-            }
+            AppBarWithOffset(
+                modifier = modifier,
+                appBarHeight = appBarHeight,
+                appBarWithOffset = { appBarOffsetPx ->
+                    SearchFilterAppBar(
+                        searchValue = state.locationFilter.name,
+                        onSearchChange = onSearchChange,
+                        onSearchClear = onSearchClear,
+                        filterName = "Locations filter",
+                        filterGroupList = listOf(
+                            FilterGroup(
+                                name = "Type",
+                                selected = state.locationFilter.type,
+                                labelList = state.typeLabelList,
+                                isListFinished = false,
+                                resolveIcon = locationTypeIconResolver,
+                                onSelectedChanged = onTypeSelected,
+                            ),
+                            FilterGroup(
+                                name = "Dimension",
+                                selected = state.locationFilter.dimension,
+                                labelList = state.dimensionLabelList,
+                                isListFinished = false,
+                                resolveIcon = locationDimensionIconResolver,
+                                onSelectedChanged = onDimensionSelected,
+                            ),
+                        ),
+                        onBackPress = onBackPress,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(appBarHeight)
+                            .offset { IntOffset(x = 0, y = appBarOffsetPx.toInt()) }
+                            .pointerInput(Unit) {} //Helps to prevent clicking on the underlying card elements through spacers
+                            .renderInSharedTransitionScopeOverlay()
+                            .animateEnterExit(
+                                enter = slideInVertically { -it },
+                                exit = slideOutVertically { -it }
+                            )
+                            .background(color = MaterialTheme.colorScheme.background) //must be after renderInSharedTransitionScopeOverlay()
+                    )
+                },
+                content = {
+                    val infiniteTransition =
+                        rememberInfiniteTransition(label = "LocationsListScreen transition")
 
-            SearchField(
-                value = state.locationFilter.name,
-                onValueChange = onSearchChange,
-                onClearClick = onSearchClear,
-                placeholder = "Search...",
-                modifier = Modifier.weight(1f),
+                    LazyVerticalStaggeredGrid(
+                        state = rememberGridStateWithClearFocus(),
+                        columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
+                        verticalItemSpacing = PADDING,
+                        horizontalArrangement = Arrangement.spacedBy(PADDING),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = PADDING)
+                    ) {
+                        item(span = FullLine) {
+                            Spacer(modifier = Modifier.height(appBarHeight - PADDING))
+                        }
+
+                        val itemModifier = Modifier
+                            .height(135.dp)
+                            .fillMaxWidth()
+
+                        if (pagingLocationItems.loadState.refresh is LoadState.Loading
+                            || (pagingLocationItems.loadState.refresh is LoadState.NotLoading
+                                    && pagingLocationItems.itemCount == 0
+                                    && !pagingLocationItems.loadState.append.endOfPaginationReached)
+                        ) {
+                            items(20) {
+                                LocationCardPlaceholder(
+                                    infiniteTransition = infiniteTransition,
+                                    modifier = itemModifier
+                                )
+                            }
+                        } else if (pagingLocationItems.itemCount == 0 && pagingLocationItems.loadState.append.endOfPaginationReached) {
+                            item(span = FullLine) {
+                                EmptyView(modifier = Modifier.fillMaxSize())
+                            }
+                        } else {
+                            locationsListViewData(
+                                pagingLocationItems = pagingLocationItems,
+                                onLocationItemClick = onLocationItemClick,
+                                itemModifier = itemModifier
+                            )
+                        }
+                    }
+                }
             )
-
-            Spacer(modifier = Modifier.width(PADDING))
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(PADDING))
+fun LazyStaggeredGridScope.locationsListViewData(
+    pagingLocationItems: LazyPagingItems<Location>,
+    onLocationItemClick: (Int) -> Unit,
+    itemModifier: Modifier
+) {
+    items(
+        count = pagingLocationItems.itemCount,
+        key = pagingLocationItems.itemKey { location -> location.id },
+    ) { index ->
+        pagingLocationItems[index]?.let { location ->
+            LocationCard(
+                id = location.id,
+                type = location.type,
+                name = location.name,
+                icon = locationTypeIconResolver(location.type),
+                isFavorite = false,
+                onFavoriteClick = {},
+                onLocationClick = { onLocationItemClick(location.id) },
+                modifier = itemModifier
+            )
+        }
+    }
 
-        FilterView(
-            name = "Locations filter",
-            filterGroupList = listOf(
-                FilterGroup(
-                    name = "Type",
-                    selected = state.locationFilter.type,
-                    labelList = state.typeLabelList,
-                    isListFinished = false,
-                    resolveIcon = locationTypeIconResolver,
-                    onSelectedChanged = onTypeSelected,
-                ),
-                FilterGroup(
-                    name = "Dimension",
-                    selected = state.locationFilter.dimension,
-                    labelList = state.dimensionLabelList,
-                    isListFinished = false,
-                    resolveIcon = locationDimensionIconResolver,
-                    onSelectedChanged = onDimensionSelected,
-                ),
+    val stateItemModifier = Modifier.fillMaxWidth()
 
-                ),
-            scrollablePadding = PADDING,
-            modifier = Modifier
-                .height(32.dp)
-                .padding(end = PADDING)
-        )
-
-        Spacer(modifier = Modifier.height(PADDING))
-
-        /*When use pager with remoteMediator there are strange loadStates when launch app(1->2->3):
-            1. loadState.refresh = Loading
-             loadState.mediator = null
-             loadState.source.refresh = Loading
-
-            2. loadState.refresh = NotLoading
-             loadState.mediator.refresh = NotLoading
-             loadState.source.refresh = Loading
-
-            3. loadState.refresh = Loading
-             loadState.mediator = Loading
-             loadState.source.refresh = Loading
-
-            That 2 loadState brings flicking of progressbar. I found the issue: https://issuetracker.google.com/issues/288023763
-            There is no such behavior when use pager without remoteMediator.
-
-            That's why pagingLocationItems.loadState.append.endOfPaginationReached check was added.
-        */
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = PADDING)
-        ) {
-            if (pagingLocationItems.loadState.refresh is LoadState.Loading
-                || (pagingLocationItems.loadState.refresh is LoadState.NotLoading
-                        && pagingLocationItems.itemCount == 0
-                        && !pagingLocationItems.loadState.append.endOfPaginationReached)
+    if (pagingLocationItems.loadState.append is LoadState.Loading) {
+        item(span = FullLine) {
+            LoadingView(
+                modifier = stateItemModifier
+            )
+        }
+    }
+    if (pagingLocationItems.loadState.refresh is LoadState.Error) {
+        item(span = FullLine) {
+            ErrorView(
+                error = pagingLocationItems.loadState.refresh.cast<LoadState.Error>().error,
+                modifier = stateItemModifier
             ) {
-                LoadingView(modifier = Modifier.fillMaxSize())
-            } else if (pagingLocationItems.itemCount == 0 && pagingLocationItems.loadState.append.endOfPaginationReached) {
-                EmptyView(modifier = Modifier.fillMaxSize())
-            } else {
-                val focusManager = LocalFocusManager.current
-                val gridState = rememberLazyStaggeredGridState()
-                LaunchedEffect(Unit) {//TODO: create custom LazyVerticalGrid with state to clear focus when scroll
-                    gridState.interactionSource.interactions
-                        .distinctUntilChanged()
-                        .filterIsInstance<DragInteraction.Start>()
-                        .collectLatest {
-                            focusManager.clearFocus()
-                        }
-                }
-
-                LazyVerticalStaggeredGrid(
-                    state = gridState,
-                    columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
-                    verticalItemSpacing = PADDING,
-                    horizontalArrangement = Arrangement.spacedBy(PADDING),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    val stateItemModifier = Modifier.fillMaxWidth()
-
-                    items(
-                        count = pagingLocationItems.itemCount,
-                        key = pagingLocationItems.itemKey { location -> location.id },
-                    ) { index ->
-                        pagingLocationItems[index]?.let { location ->
-                            LocationCard(
-                                id = location.id,
-                                type = location.type,
-                                name = location.name,
-                                icon = locationTypeIconResolver(location.type),
-                                isFavorite = false,
-                                onFavoriteClick = {},
-                                onLocationClick = { onLocationItemClick(location.id) },
-                            )
-                        }
-                    }
-
-                    if (pagingLocationItems.loadState.append is LoadState.Loading) {
-                        item(span = FullLine) {
-                            LoadingView(
-                                modifier = stateItemModifier
-                            )
-                        }
-                    }
-                    if (pagingLocationItems.loadState.refresh is LoadState.Error) {
-                        item(span = FullLine) {
-                            ErrorView(
-                                error = pagingLocationItems.loadState.refresh.cast<LoadState.Error>().error,
-                                modifier = stateItemModifier
-                            ) {
-                                pagingLocationItems.retry()
-                            }
-                        }
-                    }
-                    if (pagingLocationItems.loadState.append is LoadState.Error) {
-                        item(span = FullLine) {
-                            ErrorView(
-                                error = pagingLocationItems.loadState.append.cast<LoadState.Error>().error,
-                                modifier = stateItemModifier
-                            ) {
-                                pagingLocationItems.retry()
-                            }
-                        }
-                    }
-
-                    item(span = FullLine) {}
-                }
+                pagingLocationItems.retry()
             }
         }
     }
+    if (pagingLocationItems.loadState.append is LoadState.Error) {
+        item(span = FullLine) {
+            ErrorView(
+                error = pagingLocationItems.loadState.append.cast<LoadState.Error>().error,
+                modifier = stateItemModifier
+            ) {
+                pagingLocationItems.retry()
+            }
+        }
+    }
+
+    item(span = FullLine) {}
 }
 
 @ThemePreviews

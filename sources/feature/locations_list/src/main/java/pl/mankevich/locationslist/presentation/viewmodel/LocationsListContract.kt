@@ -21,7 +21,7 @@ sealed class LocationsListIntent {
 
     data class Refresh(val locationFilter: LocationFilter) : LocationsListIntent(), UniqueIntent
 
-    data class CharacterItemClick(val locationId: Int) : LocationsListIntent()
+    data class LocationItemClick(val locationId: Int) : LocationsListIntent()
 
     data class NameChanged(val name: String) : LocationsListIntent()
 

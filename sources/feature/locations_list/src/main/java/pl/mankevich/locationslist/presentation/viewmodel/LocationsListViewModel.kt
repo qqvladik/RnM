@@ -64,7 +64,7 @@ class LocationsListViewModel
                 LocationsListTransforms.ChangeDimension(dimension = intent.dimension)
             )
 
-            is LocationsListIntent.CharacterItemClick -> flowOf(
+            is LocationsListIntent.LocationItemClick -> flowOf(
                 LocationsListTransforms.LocationItemClick(intent.locationId)
             )
         }

@@ -1,6 +1,8 @@
 package pl.mankevich.coreui.ui
 
+import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,7 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -22,15 +24,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.coreui.utils.episodeEpisodeIconResolver
 import pl.mankevich.coreui.utils.episodeSeasonIconResolver
 import pl.mankevich.designsystem.component.Card
 import pl.mankevich.designsystem.component.IconText
 import pl.mankevich.designsystem.component.LikeButton
+import pl.mankevich.designsystem.theme.CARD_CORNERS_SIZE
+import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
+import pl.mankevich.designsystem.utils.placeholderConnecting
 
 @Composable
 fun EpisodeCard(
@@ -65,7 +69,6 @@ fun EpisodeCard(
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.wrapContentSize()
                     ) {
                         IconText(
                             text = season,
@@ -83,8 +86,6 @@ fun EpisodeCard(
                             icon = episodeEpisodeIconResolver(episode),
                         )
                     }
-
-                    Spacer(modifier = Modifier.weight(1f))
 
                     var isLiked by remember { mutableStateOf(false) }
 
@@ -105,6 +106,19 @@ fun EpisodeCard(
     }
 }
 
+@Composable
+fun EpisodeCardPlaceholder(
+    infiniteTransition: InfiniteTransition? = null,
+    modifier: Modifier = Modifier //wrapContentHeight with data = ~80.dp
+) {
+    Box(
+        modifier = modifier.placeholderConnecting(
+            shape = RoundedCornerShape(CARD_CORNERS_SIZE),
+            infiniteTransition = infiniteTransition
+        )
+    )
+}
+
 @ThemePreviews
 @Composable
 fun EpisodeCardPreview() {
@@ -120,5 +134,17 @@ fun EpisodeCardPreview() {
                 onCardClick = { /* Handle Card Click */ }
             )
         }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun EpisodeCardPlaceholderPreview() {
+    RnmTheme {
+        EpisodeCardPlaceholder(
+            modifier = Modifier
+                .height(80.dp)
+                .width(200.dp)
+        )
     }
 }
