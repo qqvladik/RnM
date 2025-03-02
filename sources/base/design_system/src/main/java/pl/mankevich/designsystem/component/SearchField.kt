@@ -88,7 +88,7 @@ fun SearchField(
                 modifier = Modifier,
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedContainerColor = Color.Transparent,
+                    focusedContainerColor = MaterialTheme.colorScheme.background, //should not be transparent to remove intermediate gray color during animation
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
                 shape = CircleShape,
