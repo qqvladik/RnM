@@ -158,7 +158,7 @@ fun LocationCard(
 @Composable
 fun LocationCardPlaceholder(
     infiniteTransition: InfiniteTransition? = null,
-    modifier: Modifier = Modifier //wrapContentHeight with data = ~135.dp
+    modifier: Modifier = Modifier //likeable wrapContentHeight with data = ~135.dp, notLikeable = ~105.dp
 ) {
     Box(
         modifier = modifier
@@ -225,7 +225,7 @@ fun LocationCardNotClickablePreview() {
                 onLocationClick = {},
                 isClickable = false,
                 modifier = Modifier
-                    .height(135.dp)
+                    .height(130.dp)
                     .width(140.dp)
             )
         }

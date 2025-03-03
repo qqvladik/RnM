@@ -1,9 +1,12 @@
 package pl.mankevich.coreui.ui
 
+import androidx.compose.animation.core.InfiniteTransition
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +21,7 @@ import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithSharedTransitionScope
+import pl.mankevich.designsystem.utils.placeholderConnecting
 
 @Composable
 fun Detail(
@@ -30,18 +34,18 @@ fun Detail(
     chipTextSharedElementKey: Any? = null,
     onDetailClick: () -> Unit = {}
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = "$name:",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
+    WithSharedTransitionScope {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "$name:",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
 
-        Spacer(modifier = Modifier.width(internalPadding))
+            Spacer(modifier = Modifier.width(internalPadding))
 
-        WithSharedTransitionScope {
             Chip(
                 label = value,
                 icon = icon,
@@ -66,6 +70,21 @@ fun Detail(
             )
         }
     }
+}
+
+@Composable
+fun DetailPlaceholder(
+    infiniteTransition: InfiniteTransition,
+) {
+    Box(
+        modifier = Modifier
+            .height(32.dp)
+            .width(200.dp)
+            .placeholderConnecting(
+                shape = CircleShape,
+                infiniteTransition = infiniteTransition
+            )
+    )
 }
 
 @ThemePreviews

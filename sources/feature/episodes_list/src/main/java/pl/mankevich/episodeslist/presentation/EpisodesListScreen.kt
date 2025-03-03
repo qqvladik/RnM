@@ -186,6 +186,8 @@ fun EpisodesListView(
                                 itemModifier = itemModifier
                             )
                         }
+
+                        item(span = FullLine) {}
                     }
                 }
             )
@@ -246,8 +248,6 @@ fun LazyStaggeredGridScope.episodeListViewData(
             }
         }
     }
-
-    item(span = FullLine) {}
 }
 
 @ThemePreviews

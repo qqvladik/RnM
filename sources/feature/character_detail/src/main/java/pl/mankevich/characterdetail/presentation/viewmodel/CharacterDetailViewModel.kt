@@ -33,7 +33,7 @@ class CharacterDetailViewModel
     @AssistedFactory
     interface Factory : ViewModelAssistedFactory<CharacterDetailViewModel>
 
-    private val characterId = savedStateHandle.getCharacterId()
+    val characterId = savedStateHandle.getCharacterId()
 
     override fun executeIntent(intent: CharacterDetailIntent): Flow<Transform<CharacterDetailStateWithEffects>> =
         when (intent) {

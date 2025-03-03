@@ -227,6 +227,8 @@ fun CharactersListView(
                                 itemModifier = itemModifier
                             )
                         }
+
+                        item(span = FullLine) {}
                     }
                 }
             )
@@ -288,8 +290,6 @@ fun LazyStaggeredGridScope.charactersListViewData(
             }
         }
     }
-
-    item(span = FullLine) {}
 }
 
 @ThemePreviews
