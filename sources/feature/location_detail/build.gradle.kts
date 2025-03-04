@@ -12,5 +12,6 @@ dependencies {
 
     api(project(":location_detail_api"))
     implementation(project(":locations_list_api"))
+    implementation(project(":character_detail_api"))
     implementation(project(":dependencies"))
 }

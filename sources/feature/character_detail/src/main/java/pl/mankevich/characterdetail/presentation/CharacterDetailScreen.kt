@@ -132,11 +132,6 @@ fun CharacterDetailView(
     onEpisodesErrorClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val character = state.character
-    val episodes = state.episodes
-    val characterError = state.characterError
-    val episodesError = state.episodesError
-
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val isCollapsed by remember { derivedStateOf { scrollBehavior.state.overlappedFraction > 0f } }
 
@@ -159,7 +154,7 @@ fun CharacterDetailView(
                     title = {
                         if (isCollapsed) {
                             Text(
-                                text = character?.name ?: "",
+                                text = state.character?.name ?: "",
                                 textAlign = TextAlign.Center,
                                 maxLines = 1,
                                 overflow = Ellipsis,
@@ -172,7 +167,7 @@ fun CharacterDetailView(
                         SurfaceIconButton(
                             onClick = onBackPress,
                             imageVector = RnmIcons.CaretLeft,
-                            contentDescription = "Show filters",
+                            contentDescription = "Back button",
                             iconSize = 20.dp,
                             modifier = Modifier.size(40.dp)
                         )
@@ -186,7 +181,7 @@ fun CharacterDetailView(
             }
         ) { values ->
             val infiniteTransition =
-                rememberInfiniteTransition(label = "CharactersDetailScreen transition")
+                rememberInfiniteTransition(label = "CharacterDetailScreen transition")
 
             LazyVerticalStaggeredGrid(
                 columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
@@ -197,15 +192,15 @@ fun CharacterDetailView(
                     .padding(horizontal = PADDING)
             ) {
 
-                if (characterError != null) {
+                if (state.characterError != null) {
                     item(span = FullLine) {
                         ErrorView(
-                            error = characterError,
+                            error = state.characterError,
                             modifier = Modifier.fillMaxSize(),
                             action = onCharacterErrorClick
                         )
                     }
-                } else if (character == null) {
+                } else if (state.character == null) {
                     item(span = FullLine) {
                         CharacterDetailPlaceholder(
                             infiniteTransition = infiniteTransition,
@@ -215,7 +210,7 @@ fun CharacterDetailView(
                 } else {
                     item(span = FullLine) {
                         CharacterDetail(
-                            character = character,
+                            character = state.character,
                             onStatusFilterClick = onStatusFilterClick,
                             onSpeciesFilterClick = onSpeciesFilterClick,
                             onGenderFilterClick = onGenderFilterClick,
@@ -226,8 +221,8 @@ fun CharacterDetailView(
                     }
 
                     characterEpisodesItems(
-                        episodes = episodes,
-                        episodesError = episodesError,
+                        episodes = state.episodes,
+                        episodesError = state.episodesError,
                         onEpisodesErrorClick = onEpisodesErrorClick,
                         onEpisodeItemClick = onEpisodeItemClick,
                         infiniteTransition = infiniteTransition
@@ -242,8 +237,8 @@ fun CharacterDetailView(
 
 @Composable
 fun CharacterDetailPlaceholder(
-    modifier: Modifier = Modifier,
     infiniteTransition: InfiniteTransition,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -265,9 +260,7 @@ fun CharacterDetailPlaceholder(
 
         Text(
             text = "Placeholder text",
-            textAlign = TextAlign.Center,
             style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .align(CenterHorizontally)
                 .placeholderConnecting(

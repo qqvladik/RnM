@@ -102,31 +102,6 @@ fun EpisodeDetailView(
             )
         }
 
-//        Spacer(modifier = Modifier.height(PADDING))
-//
-//        val fraction = if (isLandscape()) 0.3f else 0.5f
-//        WithSharedTransitionScope {
-//            val shape = CircleShape
-//            AsyncImage(
-//                model = episode.image,
-//                contentDescription = null,
-//                contentScale = ContentScale.Crop,
-//                modifier = Modifier
-//                    .fillMaxWidth(fraction)
-//                    .align(CenterHorizontally)
-//                    .aspectRatio(1f)
-//                    .clip(shape)
-////                    .background(Red) //For preview purposes
-//                    .sharedElement(
-//                        state = rememberSharedContentState(
-//                            key = "image-${episode.image}"
-//                        ),
-//                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
-//                        clipInOverlayDuringTransition = OverlayClip(shape),
-//                    )
-//            )
-//        }
-
         Spacer(modifier = Modifier.height(PADDING))
 
         WithSharedTransitionScope {

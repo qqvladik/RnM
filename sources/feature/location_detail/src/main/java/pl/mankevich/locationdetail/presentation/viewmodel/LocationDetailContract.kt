@@ -22,13 +22,14 @@ sealed interface LocationDetailSideEffect {
 
     data object OnLoadLocationRequested : LocationDetailSideEffect
 
-    data object OnLoadLocationsRequested : LocationDetailSideEffect
+    data object OnLoadCharactersRequested : LocationDetailSideEffect
 
     data class OnCharacterItemClicked(val characterId: Int) : LocationDetailSideEffect
 }
 
 data class LocationDetailState(
-    val error: Throwable? = null,
+    val locationError: Throwable? = null,
+    val charactersError: Throwable? = null,
     val location: Location? = null,
     val characters: List<Character>? = null,
 )

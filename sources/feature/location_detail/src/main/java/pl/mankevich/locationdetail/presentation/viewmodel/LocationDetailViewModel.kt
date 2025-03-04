@@ -26,7 +26,7 @@ class LocationDetailViewModel
         state = LocationDetailState(),
         sideEffects = SideEffects<LocationDetailSideEffect>().add(
             LocationDetailSideEffect.OnLoadLocationRequested,
-            LocationDetailSideEffect.OnLoadLocationsRequested
+            LocationDetailSideEffect.OnLoadCharactersRequested
         )
     )
 ) {
@@ -34,23 +34,30 @@ class LocationDetailViewModel
     @AssistedFactory
     interface Factory : ViewModelAssistedFactory<LocationDetailViewModel>
 
-    private val locationId = savedStateHandle.getLocationId()
+    val locationId = savedStateHandle.getLocationId()
 
     override fun executeIntent(intent: LocationDetailIntent): Flow<Transform<LocationDetailStateWithEffects>> =
         when (intent) {
             is LocationDetailIntent.LoadLocation -> flowOf(
                 LocationDetailTransforms.LoadLocation(locationId)
-            )
-                .flatMapMerge {
+            ).flatMapMerge {
+                try {
                     loadLocationDetailUseCase(locationId = locationId)
                         .map { LocationDetailTransforms.LoadLocationSuccess(it) }
+                } catch (e: Throwable) {
+                    flowOf(LocationDetailTransforms.LoadLocationError(e))
                 }
+            }
 
             is LocationDetailIntent.LoadCharacters -> flowOf(
                 LocationDetailTransforms.LoadCharacters(locationId)
             ).flatMapMerge {
-                loadCharactersByLocationIdUseCase(locationId = locationId)
-                    .map { LocationDetailTransforms.LoadCharactersSuccess(it) }
+                try {
+                    loadCharactersByLocationIdUseCase(locationId = locationId)
+                        .map { LocationDetailTransforms.LoadCharactersSuccess(it) }
+                } catch (e: Throwable) {
+                    flowOf(LocationDetailTransforms.LoadCharactersError(e))
+                }
             }
 
             is LocationDetailIntent.CharacterItemClick -> emptyFlow()
@@ -66,7 +73,7 @@ class LocationDetailViewModel
             is LocationDetailSideEffect.OnLoadLocationRequested ->
                 sendIntent(LocationDetailIntent.LoadLocation)
 
-            is LocationDetailSideEffect.OnLoadLocationsRequested ->
+            is LocationDetailSideEffect.OnLoadCharactersRequested ->
                 sendIntent(LocationDetailIntent.LoadCharacters)
         }
     }

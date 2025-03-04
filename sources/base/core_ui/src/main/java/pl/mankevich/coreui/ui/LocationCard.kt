@@ -134,23 +134,27 @@ fun LocationCard(
             }
 
 
-            Icon(
-                painter = rememberVectorPainter(icon),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .size(40.dp)
-                    .sharedElement(
-                        state = rememberSharedContentState(
-                            key = LocationSharedElementKey(
-                                id = id,
-                                sharedType = LocationSharedElementType.Icon,
+            WithAnimatedVisibilityScope {
+                Icon(
+                    painter = rememberVectorPainter(icon),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .size(40.dp)
+                        .renderInSharedTransitionScopeOverlay()
+                        .animateEnterExit()
+                        .sharedElement(
+                            state = rememberSharedContentState(
+                                key = LocationSharedElementKey(
+                                    id = id,
+                                    sharedType = LocationSharedElementType.Icon,
+                                ),
                             ),
-                        ),
-                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
-                    )
-            )
+                            animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                        )
+                )
+            }
         }
     }
 }

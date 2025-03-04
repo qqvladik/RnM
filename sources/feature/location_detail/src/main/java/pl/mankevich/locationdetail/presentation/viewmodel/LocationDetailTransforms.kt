@@ -12,7 +12,7 @@ object LocationDetailTransforms {
 
         override fun reduce(current: LocationDetailStateWithEffects): LocationDetailStateWithEffects {
             return current.copy(
-                state = current.state.copy(),
+                state = current.state.copy(location = null),
                 sideEffects = current.sideEffects.add(
                     LocationDetailSideEffect.OnLoadLocationRequested
                 )
@@ -25,7 +25,20 @@ object LocationDetailTransforms {
         override fun reduce(current: LocationDetailStateWithEffects): LocationDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
-                    location = location
+                    location = location,
+                    locationError = null
+                )
+            )
+        }
+    }
+
+    data class LoadLocationError(val error: Throwable) : LocationDetailTransform {
+
+        override fun reduce(current: LocationDetailStateWithEffects): LocationDetailStateWithEffects {
+            return current.copy(
+                state = current.state.copy(
+                    location = null,
+                    locationError = error
                 )
             )
         }
@@ -35,9 +48,9 @@ object LocationDetailTransforms {
 
         override fun reduce(current: LocationDetailStateWithEffects): LocationDetailStateWithEffects {
             return current.copy(
-                state = current.state.copy(),
+                state = current.state.copy(characters = null),
                 sideEffects = current.sideEffects.add(
-                    LocationDetailSideEffect.OnLoadLocationsRequested
+                    LocationDetailSideEffect.OnLoadCharactersRequested
                 )
             )
         }
@@ -48,7 +61,20 @@ object LocationDetailTransforms {
         override fun reduce(current: LocationDetailStateWithEffects): LocationDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
-                    characters = characters
+                    characters = characters,
+                    charactersError = null
+                )
+            )
+        }
+    }
+
+    data class LoadCharactersError(val error: Throwable) : LocationDetailTransform {
+
+        override fun reduce(current: LocationDetailStateWithEffects): LocationDetailStateWithEffects {
+            return current.copy(
+                state = current.state.copy(
+                    characters = null,
+                    charactersError = error
                 )
             )
         }

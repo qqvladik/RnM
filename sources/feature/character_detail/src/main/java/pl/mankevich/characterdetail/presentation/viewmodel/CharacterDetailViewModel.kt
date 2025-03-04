@@ -46,7 +46,6 @@ class CharacterDetailViewModel
                 } catch (e: Throwable) {
                     flowOf(CharacterDetailTransforms.LoadCharacterError(e))
                 }
-
             }
 
             is CharacterDetailIntent.LoadEpisodes -> flowOf(
