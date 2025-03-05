@@ -1,9 +1,5 @@
 package pl.mankevich.coreui.navigation.typesafe
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -24,14 +20,14 @@ abstract class TypesafeComposableFeatureEntry<T : Any> : AnimatedFeatureEntry<KC
         composable(
             route = featureRoute,
             deepLinks = if (useDeepLink) deepLinks else emptyList(),
-            enterTransition = {
-                slideInHorizontally { fullWidth -> fullWidth } + fadeIn()
-            },
-            exitTransition = null,
-            popEnterTransition = null,
-            popExitTransition = {
-                slideOutHorizontally { fullWidth -> fullWidth } + fadeOut()
-            }
+//            enterTransition = {
+//                slideInHorizontally { fullWidth -> fullWidth } + fadeIn()
+//            },
+//            exitTransition = null,
+//            popEnterTransition = null,
+//            popExitTransition = { //TODO think how to set transitions for specific screens, not for all
+//                slideOutHorizontally { fullWidth -> fullWidth } + fadeOut()
+//            }
         ) { backStackEntry ->
             Composable(navController, featureEntries, backStackEntry)
         }

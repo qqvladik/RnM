@@ -3,6 +3,8 @@ package pl.mankevich.characterdetail.presentation
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -143,45 +145,44 @@ fun CharacterDetailView(
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .nestedScroll(scrollBehavior.nestedScrollConnection)
-                .sharedBounds(
-                    sharedContentState = rememberSharedContentState(
-                        key = CharacterSharedElementKey(
-                            id = id,
-                            sharedType = CharacterSharedElementType.Background,
-                        )
-                    ),
-                    animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
-                ),
+                .nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
-                TopAppBar(
-                    title = {
-                        if (isCollapsed) {
-                            Text(
-                                text = state.character?.name ?: "",
-                                textAlign = TextAlign.Center,
-                                maxLines = 1,
-                                overflow = Ellipsis,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
-                                color = MaterialTheme.colorScheme.onBackground,
+                WithAnimatedVisibilityScope {
+                    TopAppBar(
+                        title = {
+                            if (isCollapsed) {
+                                Text(
+                                    text = state.character?.name ?: "",
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 1,
+                                    overflow = Ellipsis,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                )
+                            }
+                        },
+                        navigationIcon = {
+                            SurfaceIconButton(
+                                onClick = onBackPress,
+                                imageVector = RnmIcons.CaretLeft,
+                                contentDescription = "Back button",
+                                iconSize = 20.dp,
+                                modifier = Modifier.size(40.dp)
                             )
-                        }
-                    },
-                    navigationIcon = {
-                        SurfaceIconButton(
-                            onClick = onBackPress,
-                            imageVector = RnmIcons.CaretLeft,
-                            contentDescription = "Back button",
-                            iconSize = 20.dp,
-                            modifier = Modifier.size(40.dp)
-                        )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        scrolledContainerColor = MaterialTheme.colorScheme.surface,
-                    ),
-                    scrollBehavior = scrollBehavior,
-                )
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background,
+                            scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                        ),
+                        scrollBehavior = scrollBehavior,
+                        modifier = Modifier
+                            .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
+                            .animateEnterExit(
+                                enter = slideInVertically { -it },
+                                exit = slideOutVertically { -it }
+                            )
+                    )
+                }
             }
         ) { values ->
             val infiniteTransition =
@@ -194,6 +195,15 @@ fun CharacterDetailView(
                 modifier = modifier
                     .padding(values)
                     .padding(horizontal = PADDING)
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(
+                            key = CharacterSharedElementKey(
+                                id = id,
+                                sharedType = CharacterSharedElementType.Background,
+                            )
+                        ),
+                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                    )
             ) {
 
                 if (state.characterError != null) {

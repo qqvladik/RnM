@@ -162,7 +162,7 @@ fun CharactersListView(
                             .height(appBarHeight)
                             .offset { IntOffset(x = 0, y = appBarOffsetPx.toInt()) }
                             .pointerInput(Unit) {} //Helps to prevent clicking on the underlying card elements through spacers
-                            .renderInSharedTransitionScopeOverlay()
+                            .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
                             .animateEnterExit(
                                 enter = slideInVertically { -it },
                                 exit = slideOutVertically { -it }
