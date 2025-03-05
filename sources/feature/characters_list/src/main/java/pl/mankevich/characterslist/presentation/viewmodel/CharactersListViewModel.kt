@@ -81,18 +81,26 @@ class CharactersListViewModel
             is CharactersListIntent.CharacterItemClick -> flowOf(
                 CharactersListTransforms.CharacterItemClick(intent.characterId)
             )
+
+            is CharactersListIntent.BackClick -> flowOf(
+                CharactersListTransforms.BackClick
+            )
         }
 
     fun handleSideEffect(
         sideEffect: CharactersListSideEffect,
-        onCharacterItemClick: (Int) -> Unit
+        navigateToCharacterDetail: (Int) -> Unit,
+        navigateBack: (() -> Unit)?,
     ) {
         when (sideEffect) {
             is CharactersListSideEffect.OnInitRequested ->
                 sendIntent(CharactersListIntent.Init(sideEffect.characterFilter))
 
             is CharactersListSideEffect.OnCharacterItemClicked ->
-                onCharacterItemClick(sideEffect.characterId)
+                navigateToCharacterDetail(sideEffect.characterId)
+
+            is CharactersListSideEffect.OnBackClicked ->
+                navigateBack?.invoke()
 
             is CharactersListSideEffect.OnLoadCharactersRequested ->
                 sendIntent(CharactersListIntent.LoadCharacters(sideEffect.characterFilter))

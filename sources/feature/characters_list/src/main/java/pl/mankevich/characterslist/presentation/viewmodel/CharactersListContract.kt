@@ -23,6 +23,8 @@ sealed class CharactersListIntent {
 
     data class CharacterItemClick(val characterId: Int) : CharactersListIntent()
 
+    data object BackClick : CharactersListIntent()
+
     data class NameChanged(val name: String) : CharactersListIntent()
 
     data class StatusChanged(val status: String) : CharactersListIntent()
@@ -39,6 +41,8 @@ sealed interface CharactersListSideEffect {
     data class OnInitRequested(val characterFilter: CharacterFilter) : CharactersListSideEffect
 
     data class OnCharacterItemClicked(val characterId: Int) : CharactersListSideEffect
+
+    data object OnBackClicked : CharactersListSideEffect
 
     data class OnLoadCharactersRequested(val characterFilter: CharacterFilter) :
         CharactersListSideEffect

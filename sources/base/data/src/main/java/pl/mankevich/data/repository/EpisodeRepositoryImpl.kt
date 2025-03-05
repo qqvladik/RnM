@@ -7,7 +7,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingSourceFactory
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import pl.mankevich.core.di.Dispatcher
+import pl.mankevich.core.di.RnmDispatchers.IO
 import pl.mankevich.data.mapper.mapToEpisode
 import pl.mankevich.data.mapper.mapToEpisodeDto
 import pl.mankevich.data.paging.episode.EpisodePagingSourceCreator
@@ -38,7 +40,8 @@ class EpisodeRepositoryImpl
     private val transaction: Transaction,
     private val episodePagingSourceCreator: EpisodePagingSourceCreator,
     private val episodeRemoteMediatorCreator: EpisodeRemoteMediatorCreator,
-    private val networkManager: NetworkManager
+    private val networkManager: NetworkManager,
+    @Dispatcher(IO) private val dispatcher: CoroutineDispatcher
 ) : EpisodeRepository {
 
     private lateinit var onTableUpdateListener: () -> Unit
@@ -59,7 +62,7 @@ class EpisodeRepositoryImpl
             pagingSourceFactory = episodePagingSourceFactory,
         )
 
-        return pager.flow.flowOn(Dispatchers.IO)
+        return pager.flow.flowOn(dispatcher)
     }
 
     override fun getEpisodeDetail(episodeId: Int): Flow<Episode> =
@@ -69,6 +72,7 @@ class EpisodeRepositoryImpl
             try {
                 val episodeResponse = episodeApi.fetchEpisodeById(episodeId)
                 episodeDao.insertEpisode(episodeResponse.mapToEpisodeDto())
+                relationsDao.insertEpisodeCharacters(episodeId, episodeResponse.characterIds)
             } catch (e: UnknownHostException) {
                 Log.w("EpisodeRepositoryImpl", "getEpisodeDetail: $e")
             }
@@ -79,7 +83,7 @@ class EpisodeRepositoryImpl
                 .map {
                     it.mapToEpisode()
                 }
-        }
+        }.flowOn(dispatcher)
 
     private fun createPagingSourceFactory(
         pagingSourceFactory: () -> PagingSource<Int, Episode>
@@ -121,6 +125,6 @@ class EpisodeRepositoryImpl
                         .distinctUntilChanged()
                         .map { list -> list.map { it.mapToEpisode() } }
                 }
-            }
+            }.flowOn(dispatcher)
     }
 }

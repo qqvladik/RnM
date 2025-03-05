@@ -82,17 +82,21 @@ fun CharacterDetailScreen(
     onSpeciesFilterClick: (String) -> Unit,
     onGenderFilterClick: (String) -> Unit,
     onTypeFilterClick: (String) -> Unit,
-    onOriginClick: (Int) -> Unit,
-    onLocationClick: (Int) -> Unit,
-    onEpisodeItemClick: (Int) -> Unit,
-    onBackPress: () -> Unit,
+    navigateToLocationDetail: (Int) -> Unit,
+    navigateToEpisodeDetail: (Int) -> Unit,
+    navigateBack: () -> Unit,
 ) {
     val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
     val state = stateWithEffects.state
 
     SideEffect {
-        stateWithEffects.sideEffects.forEach {
-            viewModel.handleSideEffect(it)
+        stateWithEffects.sideEffects.forEach { sideEffect ->
+            viewModel.handleSideEffect(
+                sideEffect = sideEffect,
+                navigateToLocationDetail = navigateToLocationDetail,
+                navigateToEpisodeDetail = navigateToEpisodeDetail,
+                navigateBack = navigateBack,
+            )
         }
     }
 
@@ -103,10 +107,10 @@ fun CharacterDetailScreen(
         onSpeciesFilterClick = onSpeciesFilterClick,
         onGenderFilterClick = onGenderFilterClick,
         onTypeFilterClick = onTypeFilterClick,
-        onOriginClick = onOriginClick,
-        onLocationClick = onLocationClick,
-        onEpisodeItemClick = onEpisodeItemClick,
-        onBackPress = onBackPress,
+        onOriginClick = { viewModel.sendIntent(CharacterDetailIntent.LocationItemClick(it)) },
+        onLocationClick = { viewModel.sendIntent(CharacterDetailIntent.LocationItemClick(it)) },
+        onEpisodeItemClick = { viewModel.sendIntent(CharacterDetailIntent.EpisodeItemClick(it)) },
+        onBackPress = { viewModel.sendIntent(CharacterDetailIntent.BackClick) },
         onCharacterErrorClick = { viewModel.sendIntent(CharacterDetailIntent.LoadCharacter) },
         onEpisodesErrorClick = { viewModel.sendIntent(CharacterDetailIntent.LoadEpisodes) },
         modifier = Modifier

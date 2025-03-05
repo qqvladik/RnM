@@ -79,4 +79,37 @@ object CharacterDetailTransforms {
             )
         }
     }
+
+    data class LocationItemClick(val locationId: Int) : CharacterDetailTransform {
+
+        override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    CharacterDetailSideEffect.OnLocationItemClicked(locationId)
+                )
+            )
+        }
+    }
+
+    data class EpisodeItemClick(val episodeId: Int) : CharacterDetailTransform {
+
+        override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    CharacterDetailSideEffect.OnEpisodeItemClicked(episodeId)
+                )
+            )
+        }
+    }
+
+    data object BackClick : CharacterDetailTransform {
+
+        override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    CharacterDetailSideEffect.OnBackClicked
+                )
+            )
+        }
+    }
 }

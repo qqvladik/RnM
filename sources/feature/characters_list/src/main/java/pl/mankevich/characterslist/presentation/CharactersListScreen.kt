@@ -62,15 +62,19 @@ import pl.mankevich.model.LocationShort
 @Composable
 fun CharactersListScreen(
     viewModel: CharactersListViewModel,
-    onCharacterItemClick: (Int) -> Unit,
-    onBackPress: (() -> Unit)? = null,
+    navigateToCharacterDetail: (Int) -> Unit,
+    navigateUp: (() -> Unit)? = null,
 ) {
     val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
     val state = stateWithEffects.state
 
     SideEffect {
         stateWithEffects.sideEffects.forEach { sideEffect ->
-            viewModel.handleSideEffect(sideEffect, onCharacterItemClick)
+            viewModel.handleSideEffect(
+                sideEffect = sideEffect,
+                navigateToCharacterDetail = navigateToCharacterDetail,
+                navigateBack = navigateUp,
+            )
         }
     }
 
@@ -82,8 +86,8 @@ fun CharactersListScreen(
         onSpeciesSelected = { viewModel.sendIntent(CharactersListIntent.SpeciesChanged(it)) },
         onGenderSelected = { viewModel.sendIntent(CharactersListIntent.GenderChanged(it)) },
         onTypeSelected = { viewModel.sendIntent(CharactersListIntent.TypeChanged(it)) },
-        onCharacterItemClick = onCharacterItemClick,
-        onBackPress = onBackPress,
+        onCharacterItemClick = { viewModel.sendIntent(CharactersListIntent.CharacterItemClick(it)) },
+        onBackPress = navigateUp,
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)

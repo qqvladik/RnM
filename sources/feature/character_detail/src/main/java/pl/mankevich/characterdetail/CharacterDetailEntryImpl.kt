@@ -55,22 +55,17 @@ class CharacterDetailEntryImpl @Inject constructor() : CharacterDetailEntry() {
                     featureEntries.find<CharactersListEntry>().destination(type = type)
                 navController.navigate(destination)
             },
-            onOriginClick = { originId ->
+            navigateToLocationDetail = { originId ->
                 val destination =
                     featureEntries.find<LocationDetailEntry>().destination(originId)
                 navController.navigate(destination)
             },
-            onLocationClick = { locationId ->
-                val destination =
-                    featureEntries.find<LocationDetailEntry>().destination(locationId)
-                navController.navigate(destination)
-            },
-            onEpisodeItemClick = { episodeId ->
+            navigateToEpisodeDetail = { episodeId ->
                 val destination =
                     featureEntries.find<EpisodeDetailEntry>().destination(episodeId)
                 navController.navigate(destination)
             },
-            onBackPress = { navController.navigateUp() }
+            navigateBack = { navController.navigateUp() }
         )
     }
 }

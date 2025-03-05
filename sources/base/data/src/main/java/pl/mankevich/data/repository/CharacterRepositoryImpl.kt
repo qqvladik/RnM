@@ -7,7 +7,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingSourceFactory
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import pl.mankevich.core.di.Dispatcher
+import pl.mankevich.core.di.RnmDispatchers.IO
 import pl.mankevich.data.mapper.mapToCharacter
 import pl.mankevich.data.mapper.mapToCharacterDto
 import pl.mankevich.data.paging.character.CharacterPagingSourceCreator
@@ -40,6 +42,7 @@ class CharacterRepositoryImpl
     private val characterPagingSourceCreator: CharacterPagingSourceCreator,
     private val characterRemoteMediatorCreator: CharacterRemoteMediatorCreator,
     private val networkManager: NetworkManager,
+    @Dispatcher(IO) private val dispatcher: CoroutineDispatcher
 ) : CharacterRepository {
 
     private lateinit var onTableUpdateListener: () -> Unit
@@ -60,7 +63,7 @@ class CharacterRepositoryImpl
             pagingSourceFactory = characterPagingSourceFactory,
         )
 
-        return pager.flow.flowOn(Dispatchers.IO)
+        return pager.flow.flowOn(dispatcher)
     }
 
     //TODO get coroutineScope/context as parameter, start Coroutine in this scope, then return flow, which observes database
@@ -70,6 +73,7 @@ class CharacterRepositoryImpl
             try {
                 val characterResponse = characterApi.fetchCharacterById(characterId)
                 characterDao.insertCharacter(characterResponse.mapToCharacterDto())
+                relationsDao.insertCharacterEpisodes(characterId, characterResponse.episodeIds)
             } catch (e: UnknownHostException) { //TODO custom errors or Result
                 Log.w("CharacterRepositoryImpl", "getCharacterDetail: $e") //TODO tag
             }
@@ -80,7 +84,7 @@ class CharacterRepositoryImpl
                 .map {
                     it.mapToCharacter()
                 }
-        }
+        }.flowOn(dispatcher)
 
     private fun createPagingSourceFactory(
         pagingSourceFactory: () -> PagingSource<Int, Character>
@@ -121,7 +125,7 @@ class CharacterRepositoryImpl
                         .distinctUntilChanged()
                         .map { list -> list.map { it.mapToCharacter() } }
                 }
-            }
+            }.flowOn(dispatcher)
     }
 
     override fun getCharactersByLocationId(locationId: Int): Flow<List<Character>> {
@@ -152,6 +156,6 @@ class CharacterRepositoryImpl
                         .distinctUntilChanged()
                         .map { list -> list.map { it.mapToCharacter() } }
                 }
-            }
+            }.flowOn(dispatcher)
     }
 }

@@ -32,12 +32,12 @@ class CharactersListEntryImpl @Inject constructor() : CharactersListEntry() {
         )
         CharactersListScreen(
             viewModel = viewModel,
-            onCharacterItemClick = { characterId ->
+            navigateToCharacterDetail = { characterId ->
                 val destination =
                     featureEntries.find<CharacterDetailEntry>().destination(characterId)
                 navController.navigate(destination)
             },
-            onBackPress = if (navController.previousBackStackEntry != null) {
+            navigateUp = if (navController.previousBackStackEntry != null) {
                 { navController.popBackStack() }
             } else {
                 null

@@ -15,7 +15,11 @@ sealed class CharacterDetailIntent {
 
     data object LoadEpisodes : CharacterDetailIntent(), UniqueIntent
 
+    data class LocationItemClick(val locationId: Int) : CharacterDetailIntent()
+
     data class EpisodeItemClick(val episodeId: Int) : CharacterDetailIntent()
+
+    data object BackClick : CharacterDetailIntent()
 }
 
 sealed interface CharacterDetailSideEffect {
@@ -24,7 +28,11 @@ sealed interface CharacterDetailSideEffect {
 
     data object OnLoadEpisodesRequested : CharacterDetailSideEffect
 
+    data class OnLocationItemClicked(val locationId: Int) : CharacterDetailSideEffect
+
     data class OnEpisodeItemClicked(val episodeId: Int) : CharacterDetailSideEffect
+
+    data object OnBackClicked : CharacterDetailSideEffect
 }
 
 data class CharacterDetailState(

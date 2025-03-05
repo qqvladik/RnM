@@ -132,6 +132,17 @@ object CharactersListTransforms {
         }
     }
 
+    data object BackClick : CharactersListTransform {
+
+        override fun reduce(current: CharactersListStateWithEffects): CharactersListStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    CharactersListSideEffect.OnBackClicked
+                )
+            )
+        }
+    }
+
     data class LoadCharactersListSuccess(
         val characters: Flow<PagingData<Character>>
     ) : CharactersListTransform {
