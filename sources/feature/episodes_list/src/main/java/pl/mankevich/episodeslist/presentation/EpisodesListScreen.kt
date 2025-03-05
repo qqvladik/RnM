@@ -206,6 +206,7 @@ fun LazyStaggeredGridScope.episodeListViewData(
     ) { index ->
         pagingEpisodeItems[index]?.let { episode ->
             EpisodeCard(
+                id = episode.id,
                 name = episode.name,
                 season = episode.season.toString(),
                 episode = episode.episode.toString(),

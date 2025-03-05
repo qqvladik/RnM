@@ -79,7 +79,7 @@ fun DetailPlaceholder(
     Box(
         modifier = Modifier
             .height(32.dp)
-            .width(200.dp)
+            .width(150.dp)
             .placeholderConnecting(
                 shape = CircleShape,
                 infiniteTransition = infiniteTransition

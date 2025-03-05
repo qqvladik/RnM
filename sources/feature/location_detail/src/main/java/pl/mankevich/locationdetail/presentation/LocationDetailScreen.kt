@@ -307,7 +307,7 @@ fun LazyStaggeredGridScope.locationCharactersItems(
                 text = "Characters",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(horizontal = PADDING_SMALL)
+                modifier = Modifier.padding(start = PADDING_SMALL)
             )
 
             Spacer(modifier = Modifier.height(2.dp))

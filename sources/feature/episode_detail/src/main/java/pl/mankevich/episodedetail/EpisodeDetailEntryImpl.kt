@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.toRoute
+import pl.mankevich.characterdetailapi.CharacterDetailEntry
 import pl.mankevich.coreui.navigation.FeatureEntries
 import pl.mankevich.coreui.navigation.find
 import pl.mankevich.coreui.viewmodel.daggerViewModel
@@ -42,7 +43,12 @@ class EpisodeDetailEntryImpl @Inject constructor() : EpisodeDetailEntry() {
                     featureEntries.find<EpisodesListEntry>().destination(season = season)
                 navController.navigate(destination)
             },
-            onBackPress = { navController.navigateUp() }
+            navigateToCharacterDetail = { characterId ->
+                val destination =
+                    featureEntries.find<CharacterDetailEntry>().destination(characterId)
+                navController.navigate(destination)
+            },
+            navigateUp = { navController.navigateUp() }
         )
     }
 }

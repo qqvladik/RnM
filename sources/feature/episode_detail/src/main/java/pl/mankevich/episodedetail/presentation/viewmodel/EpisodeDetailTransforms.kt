@@ -25,7 +25,20 @@ object EpisodeDetailTransforms {
         override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
-                    episode = episode
+                    episode = episode,
+                    episodeError = null
+                )
+            )
+        }
+    }
+
+    data class LoadEpisodeError(val error: Throwable) : EpisodeDetailTransform {
+
+        override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
+            return current.copy(
+                state = current.state.copy(
+                    episode = null,
+                    episodeError = error
                 )
             )
         }
@@ -49,6 +62,29 @@ object EpisodeDetailTransforms {
             return current.copy(
                 state = current.state.copy(
                     characters = characters
+                )
+            )
+        }
+    }
+
+    data class LoadCharacterError(val error: Throwable) : EpisodeDetailTransform {
+
+        override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
+            return current.copy(
+                state = current.state.copy(
+                    characters = null
+                )
+            )
+        }
+    }
+
+
+    data class CharacterItemClick(val characterId: Int) : EpisodeDetailTransform {
+
+        override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    EpisodeDetailSideEffect.OnCharacterItemClicked(characterId)
                 )
             )
         }

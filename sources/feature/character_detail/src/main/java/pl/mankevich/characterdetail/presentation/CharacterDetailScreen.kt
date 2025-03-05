@@ -486,7 +486,7 @@ fun LazyStaggeredGridScope.characterEpisodesItems(
                 text = "Episodes",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(horizontal = PADDING_SMALL)
+                modifier = Modifier.padding(start = PADDING_SMALL)
             )
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -520,6 +520,7 @@ fun LazyStaggeredGridScope.characterEpisodesItems(
             key = { it.id },
         ) { episode ->
             EpisodeCard(
+                id = episode.id,
                 name = episode.name,
                 season = episode.season.toString(),
                 episode = episode.episode.toString(),

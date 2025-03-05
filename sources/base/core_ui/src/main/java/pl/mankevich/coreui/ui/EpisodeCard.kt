@@ -33,11 +33,14 @@ import pl.mankevich.designsystem.theme.CARD_CORNERS_SIZE
 import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
+import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 import pl.mankevich.designsystem.utils.placeholderConnecting
 
 @Composable
 fun EpisodeCard(
+    id: Int,
     name: String,
     season: String,
     episode: String,
@@ -46,18 +49,35 @@ fun EpisodeCard(
     onCardClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(
-        onCardClick = onCardClick,
-        modifier = modifier
-    ) {
-        Column {
+    WithSharedTransitionScope {
+        Card(
+            onCardClick = onCardClick,
+            modifier = modifier
+                .sharedBounds(
+                    sharedContentState = rememberSharedContentState(
+                        key = EpisodeSharedElementKey(
+                            id = id,
+                            sharedType = EpisodeSharedElementType.Background
+                        ),
+                    ),
+                    animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                )
+        ) {
             Column {
                 Text(
                     text = name,
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.sharedBounds(
+                            sharedContentState = rememberSharedContentState(
+                                key = EpisodeSharedElementKey(
+                                    id = id,
+                                    sharedType = EpisodeSharedElementType.Name,
+                                ),
+                            ),
+                            animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                        )
                 )
 
                 Spacer(modifier = Modifier.height(PADDING))
@@ -73,6 +93,15 @@ fun EpisodeCard(
                         IconText(
                             text = season,
                             icon = episodeSeasonIconResolver(season),
+                            modifier = Modifier.sharedBounds(
+                                sharedContentState = rememberSharedContentState(
+                                    key = EpisodeSharedElementKey(
+                                        id = id,
+                                        sharedType = EpisodeSharedElementType.Season,
+                                    )
+                                ),
+                                animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                            )
                         )
 
                         VerticalDivider(
@@ -84,6 +113,15 @@ fun EpisodeCard(
                         IconText(
                             text = episode,
                             icon = episodeEpisodeIconResolver(episode),
+                            modifier = Modifier.sharedBounds(
+                                sharedContentState = rememberSharedContentState(
+                                    key = EpisodeSharedElementKey(
+                                        id = id,
+                                        sharedType = EpisodeSharedElementType.Episode,
+                                    )
+                                ),
+                                animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                            )
                         )
                     }
 
@@ -125,6 +163,7 @@ fun EpisodeCardPreview() {
     RnmTheme {
         WithAnimatedVisibilityScope {
             EpisodeCard(
+                id = 1,
                 modifier = Modifier.width(200.dp),
                 name = "Pilot asdfklsnakljdsnfkljsdbnfkls",
                 season = "1",

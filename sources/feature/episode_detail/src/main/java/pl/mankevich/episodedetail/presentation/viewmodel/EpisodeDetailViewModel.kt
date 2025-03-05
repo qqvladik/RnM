@@ -34,23 +34,30 @@ class EpisodeDetailViewModel
     @AssistedFactory
     interface Factory : ViewModelAssistedFactory<EpisodeDetailViewModel>
 
-    private val episodeId = savedStateHandle.getEpisodeId()
+    val episodeId = savedStateHandle.getEpisodeId()
 
     override fun executeIntent(intent: EpisodeDetailIntent): Flow<Transform<EpisodeDetailStateWithEffects>> =
         when (intent) {
             is EpisodeDetailIntent.LoadEpisode -> flowOf(
                 EpisodeDetailTransforms.LoadEpisode(episodeId)
-            )
-                .flatMapMerge {
+            ).flatMapMerge {
+                try {
                     loadEpisodeDetailUseCase(episodeId = episodeId)
                         .map { EpisodeDetailTransforms.LoadEpisodeSuccess(it) }
+                } catch (e: Throwable) {
+                    flowOf(EpisodeDetailTransforms.LoadEpisodeError(e))
                 }
+            }
 
             is EpisodeDetailIntent.LoadCharacters -> flowOf(
                 EpisodeDetailTransforms.LoadCharacters(episodeId)
             ).flatMapMerge {
-                loadCharactersByEpisodeIdUseCase(episodeId = episodeId)
-                    .map { EpisodeDetailTransforms.LoadCharactersSuccess(it) }
+                try {
+                    loadCharactersByEpisodeIdUseCase(episodeId = episodeId)
+                        .map { EpisodeDetailTransforms.LoadCharactersSuccess(it) }
+                } catch (e: Throwable) {
+                    flowOf(EpisodeDetailTransforms.LoadCharacterError(e))
+                }
             }
 
             is EpisodeDetailIntent.CharacterItemClick -> emptyFlow()

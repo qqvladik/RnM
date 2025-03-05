@@ -28,7 +28,8 @@ sealed interface EpisodeDetailSideEffect {
 }
 
 data class EpisodeDetailState(
-    val error: Throwable? = null,
+    val episodeError: Throwable? = null,
+    val charactersError: Throwable? = null,
     val episode: Episode? = null,
     val characters: List<Character>? = null,
 )

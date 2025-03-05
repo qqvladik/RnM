@@ -12,5 +12,6 @@ dependencies {
 
     api(project(":episode_detail_api"))
     implementation(project(":episodes_list_api"))
+    implementation(project(":character_detail_api"))
     implementation(project(":dependencies"))
 }

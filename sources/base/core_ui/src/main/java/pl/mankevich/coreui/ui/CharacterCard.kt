@@ -130,7 +130,6 @@ fun CharacterCard(
                                 icon = characterStatusIconResolver(status),
                                 iconTint = if (status == "Dead") Red else Pear,
                                 modifier = Modifier
-                                    .fillMaxWidth()
                                     .sharedBounds(
                                         sharedContentState = rememberSharedContentState(
                                             key = CharacterSharedElementKey(
@@ -148,7 +147,6 @@ fun CharacterCard(
                                 text = species,
                                 icon = characterSpeciesIconResolver(species),
                                 modifier = Modifier
-                                    .fillMaxWidth()
                                     .sharedBounds(
                                         sharedContentState = rememberSharedContentState(
                                             key = CharacterSharedElementKey(
@@ -166,7 +164,6 @@ fun CharacterCard(
                                 text = origin,
                                 icon = RnmIcons.Home,
                                 modifier = Modifier
-                                    .fillMaxWidth()
                                     .sharedBounds(
                                         sharedContentState = rememberSharedContentState(
                                             key = CharacterSharedElementKey(
