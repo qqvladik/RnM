@@ -28,8 +28,8 @@ fun AppBarWithOffset(
     // happening inside child LazyColumn
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                val delta = available.y
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                val delta = consumed.y
                 val newOffset = appBarOffsetPx + delta
                 appBarOffsetPx = newOffset.coerceIn(-appBarHeightPx, 0f)
 

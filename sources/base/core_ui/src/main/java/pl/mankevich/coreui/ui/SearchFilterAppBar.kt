@@ -53,7 +53,8 @@ fun SearchFilterAppBar(
                     contentDescription = "Show filters",
                     iconSize = 20.dp,
                     modifier = Modifier
-                        .fillMaxHeight()
+                        //.fillMaxHeight()
+                        .align(Alignment.CenterVertically)
                         .aspectRatio(1.2f)
                 )
             } else {

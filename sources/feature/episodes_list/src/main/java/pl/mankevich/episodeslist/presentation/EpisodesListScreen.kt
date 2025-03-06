@@ -33,6 +33,7 @@ import androidx.paging.compose.itemKey
 import kotlinx.coroutines.flow.flowOf
 import pl.mankevich.core.util.cast
 import pl.mankevich.coreui.ui.AppBarWithOffset
+import pl.mankevich.coreui.ui.CollapseAppBarScaffold
 import pl.mankevich.coreui.ui.EpisodeCard
 import pl.mankevich.coreui.ui.EpisodeCardPlaceholder
 import pl.mankevich.coreui.ui.SearchFilterAppBar
@@ -100,12 +101,14 @@ fun EpisodesListView(
 
     WithSharedTransitionScope {
         WithAnimatedVisibilityScope {
-            val appBarHeight = 108.dp
+//            val appBarHeight = 108.dp
 
-            AppBarWithOffset(
+//            AppBarWithOffset(
+            CollapseAppBarScaffold(
                 modifier = modifier,
-                appBarHeight = appBarHeight,
-                appBarWithOffset = { appBarOffsetPx ->
+//                appBarHeight = appBarHeight,
+//                appBarWithOffset = { appBarOffsetPx ->
+                topBar = {
                     SearchFilterAppBar(
                         searchValue = state.episodeFilter.name,
                         onSearchChange = onSearchChange,
@@ -132,9 +135,10 @@ fun EpisodesListView(
                         onBackPress = onBackPress,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(appBarHeight)
-                            .offset { IntOffset(x = 0, y = appBarOffsetPx.toInt()) }
-                            .pointerInput(Unit) {} //Helps to prevent clicking on the underlying card elements through spacers
+                            .height(108.dp) //TODO remove
+//                            .height(appBarHeight)
+//                            .offset { IntOffset(x = 0, y = appBarOffsetPx.toInt()) }
+//                            .pointerInput(Unit) {} //Helps to prevent clicking on the underlying card elements through spacers
                             .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
                             .animateEnterExit(
                                 enter = slideInVertically { -it },
@@ -157,7 +161,8 @@ fun EpisodesListView(
                             .padding(horizontal = PADDING)
                     ) {
                         item(span = FullLine) {
-                            Spacer(modifier = Modifier.height(appBarHeight - PADDING))
+//                            Spacer(modifier = Modifier.height(appBarHeight - PADDING))
+                            Spacer(modifier = Modifier.height(it.calculateTopPadding() - PADDING)) //TODO use calculateTopPadding() in every scaffold
                         }
 
                         val itemModifier = Modifier
@@ -295,6 +300,7 @@ fun EpisodesListViewPreview() {
             onSeasonSelected = {},
             onEpisodeItemClick = {},
             onBackPress = {},
+            modifier = Modifier.fillMaxSize()
         )
     }
 }
