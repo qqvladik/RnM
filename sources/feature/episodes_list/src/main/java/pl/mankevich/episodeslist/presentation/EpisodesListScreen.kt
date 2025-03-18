@@ -15,10 +15,14 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
@@ -36,9 +40,10 @@ import pl.mankevich.coreui.ui.filter.FilterGroup
 import pl.mankevich.coreui.ui.filter.FilterGroup.Companion.invoke
 import pl.mankevich.coreui.utils.episodeEpisodeIconResolver
 import pl.mankevich.coreui.utils.episodeSeasonIconResolver
-import pl.mankevich.designsystem.component.CollapseAppBarScaffold
 import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
+import pl.mankevich.designsystem.component.FlexibleTopBar
+import pl.mankevich.designsystem.component.FlexibleTopBarDefaults
 import pl.mankevich.designsystem.component.LoadingView
 import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.RnmTheme
@@ -97,42 +102,51 @@ fun EpisodesListView(
 
     WithSharedTransitionScope {
         WithAnimatedVisibilityScope {
-            CollapseAppBarScaffold(
-                modifier = modifier,
+            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+            Scaffold(
+                modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
-                    SearchFilterAppBar(
-                        searchValue = state.episodeFilter.name,
-                        onSearchChange = onSearchChange,
-                        onSearchClear = onSearchClear,
-                        filterName = "Locations filter",
-                        filterGroupList = listOf(
-                            FilterGroup(
-                                name = "Season",
-                                selected = state.episodeFilter.season.toString(),
-                                labelList = state.seasonLabelList,
-                                isListFinished = true,
-                                resolveIcon = episodeSeasonIconResolver,
-                                onSelectedChanged = onSeasonSelected,
-                            ),
-                            FilterGroup(
-                                name = "Episode",
-                                selected = state.episodeFilter.episode.toString(),
-                                labelList = state.episodeLabelList,
-                                isListFinished = false,
-                                resolveIcon = episodeEpisodeIconResolver,
-                                onSelectedChanged = onEpisodeSelected,
-                            ),
+                    FlexibleTopBar(
+                        scrollBehavior = scrollBehavior,
+                        colors = FlexibleTopBarDefaults.topAppBarColors(
+                            containerColor = Color.Transparent
                         ),
-                        onBackPress = onBackPress,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
-                            .animateEnterExit(
-                                enter = slideInVertically { -it },
-                                exit = slideOutVertically { -it }
-                            )
-                            .background(color = MaterialTheme.colorScheme.background) //must be after renderInSharedTransitionScopeOverlay()
-                    )
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        SearchFilterAppBar(
+                            searchValue = state.episodeFilter.name,
+                            onSearchChange = onSearchChange,
+                            onSearchClear = onSearchClear,
+                            filterName = "Locations filter",
+                            filterGroupList = listOf(
+                                FilterGroup(
+                                    name = "Season",
+                                    selected = state.episodeFilter.season.toString(),
+                                    labelList = state.seasonLabelList,
+                                    isListFinished = true,
+                                    resolveIcon = episodeSeasonIconResolver,
+                                    onSelectedChanged = onSeasonSelected,
+                                ),
+                                FilterGroup(
+                                    name = "Episode",
+                                    selected = state.episodeFilter.episode.toString(),
+                                    labelList = state.episodeLabelList,
+                                    isListFinished = false,
+                                    resolveIcon = episodeEpisodeIconResolver,
+                                    onSelectedChanged = onEpisodeSelected,
+                                ),
+                            ),
+                            onBackPress = onBackPress,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
+                                .animateEnterExit(
+                                    enter = slideInVertically { -it },
+                                    exit = slideOutVertically { -it }
+                                )
+                                .background(color = MaterialTheme.colorScheme.background) //must be after renderInSharedTransitionScopeOverlay()
+                        )
+                    }
                 },
                 content = { paddingValues ->
                     val infiniteTransition =

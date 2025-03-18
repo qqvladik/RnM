@@ -15,10 +15,14 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -39,9 +43,10 @@ import pl.mankevich.coreui.utils.characterGenderIconResolver
 import pl.mankevich.coreui.utils.characterSpeciesIconResolver
 import pl.mankevich.coreui.utils.characterStatusIconResolver
 import pl.mankevich.coreui.utils.characterTypeIconResolver
-import pl.mankevich.designsystem.component.CollapseAppBarScaffold
 import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
+import pl.mankevich.designsystem.component.FlexibleTopBar
+import pl.mankevich.designsystem.component.FlexibleTopBarDefaults
 import pl.mankevich.designsystem.component.LoadingView
 import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.RnmTheme
@@ -106,59 +111,67 @@ fun CharactersListView(
 
     WithSharedTransitionScope {
         WithAnimatedVisibilityScope {
-
-            CollapseAppBarScaffold(
-                modifier = modifier,
+            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+            Scaffold(
+                modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
-                    SearchFilterAppBar(
-                        searchValue = state.characterFilter.name,
-                        onSearchChange = onSearchChange,
-                        onSearchClear = onSearchClear,
-                        filterName = "Characters filter",
-                        filterGroupList = listOf(
-                            FilterGroup(
-                                name = "Status",
-                                selected = state.characterFilter.status,
-                                labelList = state.statusLabelList,
-                                isListFinished = true,
-                                resolveIcon = characterStatusIconResolver,
-                                onSelectedChanged = onStatusSelected,
-                            ),
-                            FilterGroup(
-                                name = "Species",
-                                selected = state.characterFilter.species,
-                                labelList = state.speciesLabelList,
-                                isListFinished = false,
-                                resolveIcon = characterSpeciesIconResolver,
-                                onSelectedChanged = onSpeciesSelected,
-                            ),
-                            FilterGroup(
-                                name = "Gender",
-                                selected = state.characterFilter.gender,
-                                labelList = state.genderLabelList,
-                                isListFinished = true,
-                                resolveIcon = characterGenderIconResolver,
-                                onSelectedChanged = onGenderSelected,
-                            ),
-                            FilterGroup(
-                                name = "Type",
-                                selected = state.characterFilter.type,
-                                labelList = state.typeLabelList,
-                                isListFinished = false,
-                                resolveIcon = characterTypeIconResolver,
-                                onSelectedChanged = onTypeSelected,
-                            )
+                    FlexibleTopBar(
+                        scrollBehavior = scrollBehavior,
+                        colors = FlexibleTopBarDefaults.topAppBarColors(
+                            containerColor = Color.Transparent
                         ),
-                        onBackPress = onBackPress,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
-                            .animateEnterExit(
-                                enter = slideInVertically { -it },
-                                exit = slideOutVertically { -it }
-                            )
-                            .background(color = MaterialTheme.colorScheme.background) //must be after renderInSharedTransitionScopeOverlay()
-                    )
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        SearchFilterAppBar(
+                            searchValue = state.characterFilter.name,
+                            onSearchChange = onSearchChange,
+                            onSearchClear = onSearchClear,
+                            filterName = "Characters filter",
+                            filterGroupList = listOf(
+                                FilterGroup(
+                                    name = "Status",
+                                    selected = state.characterFilter.status,
+                                    labelList = state.statusLabelList,
+                                    isListFinished = true,
+                                    resolveIcon = characterStatusIconResolver,
+                                    onSelectedChanged = onStatusSelected,
+                                ),
+                                FilterGroup(
+                                    name = "Species",
+                                    selected = state.characterFilter.species,
+                                    labelList = state.speciesLabelList,
+                                    isListFinished = false,
+                                    resolveIcon = characterSpeciesIconResolver,
+                                    onSelectedChanged = onSpeciesSelected,
+                                ),
+                                FilterGroup(
+                                    name = "Gender",
+                                    selected = state.characterFilter.gender,
+                                    labelList = state.genderLabelList,
+                                    isListFinished = true,
+                                    resolveIcon = characterGenderIconResolver,
+                                    onSelectedChanged = onGenderSelected,
+                                ),
+                                FilterGroup(
+                                    name = "Type",
+                                    selected = state.characterFilter.type,
+                                    labelList = state.typeLabelList,
+                                    isListFinished = false,
+                                    resolveIcon = characterTypeIconResolver,
+                                    onSelectedChanged = onTypeSelected,
+                                )
+                            ),
+                            onBackPress = onBackPress,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
+                                .animateEnterExit(
+                                    enter = slideInVertically { -it },
+                                    exit = slideOutVertically { -it }
+                                )
+                                .background(color = MaterialTheme.colorScheme.background) //must be after renderInSharedTransitionScopeOverlay()
+                        )
+                    }
                 },
                 content = { paddingValues ->
                     val infiniteTransition =

@@ -66,7 +66,6 @@ class CharacterRepositoryImpl
         return pager.flow.flowOn(dispatcher)
     }
 
-    //TODO get coroutineScope/context as parameter, start Coroutine in this scope, then return flow, which observes database
     override fun getCharacterDetail(characterId: Int): Flow<Character> =
         flow {
             emit(Unit)
