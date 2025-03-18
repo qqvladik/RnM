@@ -184,7 +184,7 @@ fun CharacterDetailView(
                     )
                 }
             }
-        ) { values ->
+        ) { paddingValues ->
             val infiniteTransition =
                 rememberInfiniteTransition(label = "CharacterDetailScreen transition")
 
@@ -193,8 +193,11 @@ fun CharacterDetailView(
                 verticalItemSpacing = PADDING,
                 horizontalArrangement = Arrangement.spacedBy(PADDING),
                 modifier = modifier
-                    .padding(values)
-                    .padding(horizontal = PADDING)
+                    .padding(
+                        top = paddingValues.calculateTopPadding(),
+                        start = PADDING,
+                        end = PADDING
+                    )
                     .sharedBounds(
                         sharedContentState = rememberSharedContentState(
                             key = CharacterSharedElementKey(

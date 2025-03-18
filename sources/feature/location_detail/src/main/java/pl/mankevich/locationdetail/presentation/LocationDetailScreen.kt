@@ -155,7 +155,7 @@ fun LocationDetailView(
                     )
                 }
             }
-        ) { values ->
+        ) { paddingValues ->
             val infiniteTransition =
                 rememberInfiniteTransition(label = "LocationDetailScreen transition")
 
@@ -164,8 +164,11 @@ fun LocationDetailView(
                 verticalItemSpacing = PADDING,
                 horizontalArrangement = Arrangement.spacedBy(PADDING),
                 modifier = modifier
-                    .padding(values)
-                    .padding(horizontal = PADDING)
+                    .padding(
+                        top = paddingValues.calculateTopPadding(),
+                        start = PADDING,
+                        end = PADDING
+                    )
                     .sharedBounds(
                         sharedContentState = rememberSharedContentState(
                             key = LocationSharedElementKey(

@@ -43,7 +43,7 @@ fun SearchFilterAppBar(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .weight(1f)
+                .height(40.dp)
                 .fillMaxWidth(),
         ) {
             if (onBackPress != null) {

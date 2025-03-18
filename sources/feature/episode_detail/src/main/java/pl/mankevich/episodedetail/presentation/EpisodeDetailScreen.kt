@@ -46,13 +46,13 @@ import pl.mankevich.coreui.ui.Detail
 import pl.mankevich.coreui.ui.DetailPlaceholder
 import pl.mankevich.coreui.ui.EpisodeSharedElementKey
 import pl.mankevich.coreui.ui.EpisodeSharedElementType
-import pl.mankevich.designsystem.theme.PADDING
-import pl.mankevich.designsystem.theme.PADDING_SMALL
 import pl.mankevich.coreui.utils.episodeEpisodeIconResolver
 import pl.mankevich.coreui.utils.episodeSeasonIconResolver
 import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.SurfaceIconButton
 import pl.mankevich.designsystem.icons.RnmIcons
+import pl.mankevich.designsystem.theme.PADDING
+import pl.mankevich.designsystem.theme.PADDING_SMALL
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
@@ -156,7 +156,7 @@ fun EpisodeDetailView(
                     )
                 }
             }
-        ) { values ->
+        ) { paddingValues ->
             val infiniteTransition =
                 rememberInfiniteTransition(label = "EpisodeDetailScreen transition")
 
@@ -165,8 +165,11 @@ fun EpisodeDetailView(
                 verticalItemSpacing = PADDING,
                 horizontalArrangement = Arrangement.spacedBy(PADDING),
                 modifier = modifier
-                    .padding(values)
-                    .padding(horizontal = PADDING)
+                    .padding(
+                        top = paddingValues.calculateTopPadding(),
+                        start = PADDING,
+                        end = PADDING
+                    )
                     .sharedBounds(
                         sharedContentState = rememberSharedContentState(
                             key = EpisodeSharedElementKey(

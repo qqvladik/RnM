@@ -5,12 +5,10 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -21,9 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -36,7 +31,6 @@ import pl.mankevich.characterslist.presentation.viewmodel.CharactersListIntent
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListState
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
 import pl.mankevich.core.util.cast
-import pl.mankevich.coreui.ui.AppBarWithOffset
 import pl.mankevich.coreui.ui.CharacterCard
 import pl.mankevich.coreui.ui.CharacterCardPlaceholder
 import pl.mankevich.coreui.ui.SearchFilterAppBar
@@ -45,6 +39,7 @@ import pl.mankevich.coreui.utils.characterGenderIconResolver
 import pl.mankevich.coreui.utils.characterSpeciesIconResolver
 import pl.mankevich.coreui.utils.characterStatusIconResolver
 import pl.mankevich.coreui.utils.characterTypeIconResolver
+import pl.mankevich.designsystem.component.CollapseAppBarScaffold
 import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.LoadingView
@@ -111,12 +106,10 @@ fun CharactersListView(
 
     WithSharedTransitionScope {
         WithAnimatedVisibilityScope {
-            val appBarHeight = 108.dp
 
-            AppBarWithOffset(
+            CollapseAppBarScaffold(
                 modifier = modifier,
-                appBarHeight = appBarHeight,
-                appBarWithOffset = { appBarOffsetPx ->
+                topBar = {
                     SearchFilterAppBar(
                         searchValue = state.characterFilter.name,
                         onSearchChange = onSearchChange,
@@ -159,9 +152,6 @@ fun CharactersListView(
                         onBackPress = onBackPress,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(appBarHeight)
-                            .offset { IntOffset(x = 0, y = appBarOffsetPx.toInt()) }
-                            .pointerInput(Unit) {} //Helps to prevent clicking on the underlying card elements through spacers
                             .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
                             .animateEnterExit(
                                 enter = slideInVertically { -it },
@@ -170,7 +160,7 @@ fun CharactersListView(
                             .background(color = MaterialTheme.colorScheme.background) //must be after renderInSharedTransitionScopeOverlay()
                     )
                 },
-                content = {
+                content = { paddingValues ->
                     val infiniteTransition =
                         rememberInfiniteTransition(label = "CharactersListScreen transition")
 
@@ -179,13 +169,14 @@ fun CharactersListView(
                         columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
                         verticalItemSpacing = PADDING,
                         horizontalArrangement = Arrangement.spacedBy(PADDING),
+                        contentPadding = PaddingValues(
+                            top = paddingValues.calculateTopPadding(),
+                            bottom = PADDING
+                        ),
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = PADDING)
                     ) {
-                        item(span = FullLine) {
-                            Spacer(modifier = Modifier.height(appBarHeight - PADDING))
-                        }
 
                         val itemModifier = Modifier
                             .fillMaxWidth()
@@ -231,8 +222,6 @@ fun CharactersListView(
                                 itemModifier = itemModifier
                             )
                         }
-
-                        item(span = FullLine) {}
                     }
                 }
             )
