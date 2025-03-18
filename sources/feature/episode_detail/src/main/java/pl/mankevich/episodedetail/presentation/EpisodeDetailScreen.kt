@@ -48,6 +48,7 @@ import pl.mankevich.coreui.ui.EpisodeSharedElementKey
 import pl.mankevich.coreui.ui.EpisodeSharedElementType
 import pl.mankevich.coreui.utils.episodeEpisodeIconResolver
 import pl.mankevich.coreui.utils.episodeSeasonIconResolver
+import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.SurfaceIconButton
 import pl.mankevich.designsystem.icons.RnmIcons
@@ -363,11 +364,17 @@ fun LazyStaggeredGridScope.episodeCharactersItems(
                 action = { onCharacterErrorClick() }
             )
         }
-    } else if (characters == null || characters.isEmpty()) {
+    } else if (characters == null) {
         items(10) {
             CharacterCardPlaceholder(
                 infiniteTransition = infiniteTransition,
                 modifier = itemModifier
+            )
+        }
+    } else if (characters.isEmpty()) {
+        item(span = FullLine) {
+            EmptyView(
+                modifier = Modifier.fillMaxWidth()
             )
         }
     } else {

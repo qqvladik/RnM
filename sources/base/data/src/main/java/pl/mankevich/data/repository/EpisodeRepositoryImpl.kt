@@ -103,9 +103,7 @@ class EpisodeRepositoryImpl
             .distinctUntilChanged()
             .debounce(QUERY_DELAY_MILLIS)
             .flatMapLatest { episodeIds ->
-                flow {
-                    emit(Unit)
-
+                if (episodeIds.isNotEmpty()) {
                     try {
                         val episodesListResponse = episodeApi.fetchEpisodesByIds(episodeIds)
                         transaction {
@@ -118,13 +116,15 @@ class EpisodeRepositoryImpl
                             }
                         }
                     } catch (e: UnknownHostException) {
+                        // TODO use ConnectionManager in future and remove this error handling.
+                        // Avoids throw of error if there is no internet access
                         Log.w("EpisodeRepositoryImpl", "getEpisodesByCharacterId: $e")
                     }
-                }.flatMapLatest {
-                    episodeDao.getEpisodesFlowByIds(episodeIds)
-                        .distinctUntilChanged()
-                        .map { list -> list.map { it.mapToEpisode() } }
                 }
+
+                episodeDao.getEpisodesFlowByIds(episodeIds)
+                    .distinctUntilChanged()
+                    .map { list -> list.map { it.mapToEpisode() } }
             }.flowOn(dispatcher)
     }
 }

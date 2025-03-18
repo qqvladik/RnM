@@ -103,9 +103,7 @@ class CharacterRepositoryImpl
             .distinctUntilChanged()
             .debounce(QUERY_DELAY_MILLIS)
             .flatMapLatest { characterIds ->
-                flow {
-                    emit(Unit)
-
+                if (characterIds.isNotEmpty()) {
                     try {
                         val charactersListResponse = characterApi.fetchCharactersByIds(characterIds)
                         transaction {
@@ -118,13 +116,15 @@ class CharacterRepositoryImpl
                             }
                         }
                     } catch (e: UnknownHostException) {
+                        // TODO use ConnectionManager in future and remove this error handling.
+                        // Avoids throw of error if there is no internet access
                         Log.w("CharacterRepositoryImpl", "getCharactersByEpisodeId: $e")
                     }
-                }.flatMapLatest {
-                    characterDao.getCharactersFlowByIds(characterIds)
-                        .distinctUntilChanged()
-                        .map { list -> list.map { it.mapToCharacter() } }
                 }
+
+                characterDao.getCharactersFlowByIds(characterIds)
+                    .distinctUntilChanged()
+                    .map { list -> list.map { it.mapToCharacter() } }
             }.flowOn(dispatcher)
     }
 
@@ -134,9 +134,7 @@ class CharacterRepositoryImpl
             .distinctUntilChanged()
             .debounce(QUERY_DELAY_MILLIS)
             .flatMapLatest { characterIds ->
-                flow {
-                    emit(Unit)
-
+                if (characterIds.isNotEmpty()) {
                     try {
                         val charactersListResponse = characterApi.fetchCharactersByIds(characterIds)
                         transaction {
@@ -149,13 +147,15 @@ class CharacterRepositoryImpl
                             }
                         }
                     } catch (e: UnknownHostException) {
+                        // TODO use ConnectionManager in future and remove this error handling
+                        // Avoids throw of error if there is no internet access
                         Log.w("CharacterRepositoryImpl", "getCharactersByLocationId: $e")
                     }
-                }.flatMapLatest {
-                    characterDao.getCharactersFlowByIds(characterIds)
-                        .distinctUntilChanged()
-                        .map { list -> list.map { it.mapToCharacter() } }
                 }
+
+                characterDao.getCharactersFlowByIds(characterIds)
+                    .distinctUntilChanged()
+                    .map { list -> list.map { it.mapToCharacter() } }
             }.flowOn(dispatcher)
     }
 }

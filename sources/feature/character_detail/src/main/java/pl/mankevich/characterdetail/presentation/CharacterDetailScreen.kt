@@ -61,6 +61,7 @@ import pl.mankevich.coreui.utils.characterGenderIconResolver
 import pl.mankevich.coreui.utils.characterSpeciesIconResolver
 import pl.mankevich.coreui.utils.characterStatusIconResolver
 import pl.mankevich.coreui.utils.characterTypeIconResolver
+import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.SurfaceIconButton
 import pl.mankevich.designsystem.icons.RnmIcons
@@ -520,11 +521,17 @@ fun LazyStaggeredGridScope.characterEpisodesItems(
                 action = { onEpisodesErrorClick() }
             )
         }
-    } else if (episodes == null || episodes.isEmpty()) {
+    } else if (episodes == null) {
         items(10) {
             EpisodeCardPlaceholder(
                 infiniteTransition = infiniteTransition,
                 modifier = itemModifier
+            )
+        }
+    } else if (episodes.isEmpty()) {
+        item(span = FullLine) {
+            EmptyView(
+                modifier = Modifier.fillMaxWidth()
             )
         }
     } else {
