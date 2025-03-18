@@ -2,9 +2,9 @@ package pl.mankevich.designsystem.component
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -70,12 +70,13 @@ fun SearchField(
                 if (value.isNotEmpty()) {
                     IconButton(
                         onClick = onClearClick,
-                        modifier = Modifier.aspectRatio(0.5f)
+                        modifier = Modifier.size(30.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Clear Search",
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
