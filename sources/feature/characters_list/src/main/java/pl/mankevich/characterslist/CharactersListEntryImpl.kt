@@ -37,11 +37,9 @@ class CharactersListEntryImpl @Inject constructor() : CharactersListEntry() {
                     featureEntries.find<CharacterDetailEntry>().destination(characterId)
                 navController.navigate(destination)
             },
-            navigateUp = if (navController.previousBackStackEntry != null) {
+            navigateBack = navController.previousBackStackEntry?.let {
                 { navController.popBackStack() }
-            } else {
-                null
-            }
+            },
         )
     }
 }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
@@ -48,13 +49,15 @@ import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.FlexibleTopBar
 import pl.mankevich.designsystem.component.FlexibleTopBarDefaults
 import pl.mankevich.designsystem.component.LoadingView
+import pl.mankevich.designsystem.component.expandAnimating
 import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.CurrentTabClickHandler
+import pl.mankevich.designsystem.utils.ObserveGridStateToClearFocus
 import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 import pl.mankevich.designsystem.utils.isLandscape
-import pl.mankevich.designsystem.utils.rememberGridStateWithClearFocus
 import pl.mankevich.model.Character
 import pl.mankevich.model.CharacterFilter
 import pl.mankevich.model.LocationShort
@@ -63,7 +66,7 @@ import pl.mankevich.model.LocationShort
 fun CharactersListScreen(
     viewModel: CharactersListViewModel,
     navigateToCharacterDetail: (Int) -> Unit,
-    navigateUp: (() -> Unit)? = null,
+    navigateBack: (() -> Unit)? = null,
 ) {
     val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
     val state = stateWithEffects.state
@@ -73,7 +76,7 @@ fun CharactersListScreen(
             viewModel.handleSideEffect(
                 sideEffect = sideEffect,
                 navigateToCharacterDetail = navigateToCharacterDetail,
-                navigateBack = navigateUp,
+                navigateBack = navigateBack,
             )
         }
     }
@@ -87,7 +90,7 @@ fun CharactersListScreen(
         onGenderSelected = { viewModel.sendIntent(CharactersListIntent.GenderChanged(it)) },
         onTypeSelected = { viewModel.sendIntent(CharactersListIntent.TypeChanged(it)) },
         onCharacterItemClick = { viewModel.sendIntent(CharactersListIntent.CharacterItemClick(it)) },
-        onBackPress = navigateUp,
+        onBackPress = navigateBack,
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
@@ -177,8 +180,19 @@ fun CharactersListView(
                     val infiniteTransition =
                         rememberInfiniteTransition(label = "CharactersListScreen transition")
 
+                    val lazyStaggeredGridState = rememberLazyStaggeredGridState()
+
+                    CurrentTabClickHandler {
+                        lazyStaggeredGridState.animateScrollToItem(0)
+                        scrollBehavior.expandAnimating()
+                    }
+
+                    ObserveGridStateToClearFocus(
+                        lazyStaggeredGridState = lazyStaggeredGridState,
+                    )
+
                     LazyVerticalStaggeredGrid(
-                        state = rememberGridStateWithClearFocus(),
+                        state = lazyStaggeredGridState,
                         columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
                         verticalItemSpacing = PADDING,
                         horizontalArrangement = Arrangement.spacedBy(PADDING),

@@ -39,11 +39,9 @@ class EpisodesListEntryImpl @Inject constructor() : EpisodesListEntry() {
                     featureEntries.find<EpisodeDetailEntry>().destination(episodeId)
                 navController.navigate(destination)
             },
-            onBackPress = if (navController.previousBackStackEntry != null) {
+            navigateBack = navController.previousBackStackEntry?.let {
                 { navController.popBackStack() }
-            } else {
-                null
-            }
+            },
         )
     }
 }

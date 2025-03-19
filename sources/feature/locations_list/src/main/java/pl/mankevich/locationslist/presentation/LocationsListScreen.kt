@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
@@ -44,13 +45,15 @@ import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.FlexibleTopBar
 import pl.mankevich.designsystem.component.FlexibleTopBarDefaults
 import pl.mankevich.designsystem.component.LoadingView
+import pl.mankevich.designsystem.component.expandAnimating
 import pl.mankevich.designsystem.theme.PADDING
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.CurrentTabClickHandler
+import pl.mankevich.designsystem.utils.ObserveGridStateToClearFocus
 import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 import pl.mankevich.designsystem.utils.isLandscape
-import pl.mankevich.designsystem.utils.rememberGridStateWithClearFocus
 import pl.mankevich.locationslist.presentation.viewmodel.LocationsListIntent
 import pl.mankevich.locationslist.presentation.viewmodel.LocationsListState
 import pl.mankevich.locationslist.presentation.viewmodel.LocationsListViewModel
@@ -61,7 +64,7 @@ import pl.mankevich.model.LocationFilter
 fun LocationsListScreen(
     viewModel: LocationsListViewModel,
     onLocationItemClick: (Int) -> Unit,
-    onBackPress: (() -> Unit)? = null,
+    navigateBack: (() -> Unit)? = null,
 ) {
     val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
     val state = stateWithEffects.state
@@ -79,7 +82,7 @@ fun LocationsListScreen(
         onTypeSelected = { viewModel.sendIntent(LocationsListIntent.TypeChanged(it)) },
         onDimensionSelected = { viewModel.sendIntent(LocationsListIntent.DimensionChanged(it)) },
         onLocationItemClick = { viewModel.sendIntent(LocationsListIntent.LocationItemClick(it)) },
-        onBackPress = onBackPress,
+        onBackPress = navigateBack,
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
@@ -151,8 +154,19 @@ fun LocationsListView(
                     val infiniteTransition =
                         rememberInfiniteTransition(label = "LocationsListScreen transition")
 
+                    val lazyStaggeredGridState = rememberLazyStaggeredGridState()
+
+                    CurrentTabClickHandler {
+                        lazyStaggeredGridState.animateScrollToItem(0)
+                        scrollBehavior.expandAnimating()
+                    }
+
+                    ObserveGridStateToClearFocus(
+                        lazyStaggeredGridState = lazyStaggeredGridState,
+                    )
+
                     LazyVerticalStaggeredGrid(
-                        state = rememberGridStateWithClearFocus(),
+                        state = lazyStaggeredGridState,
                         columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
                         verticalItemSpacing = PADDING,
                         horizontalArrangement = Arrangement.spacedBy(PADDING),

@@ -37,11 +37,9 @@ class LocationsListEntryImpl @Inject constructor() : LocationsListEntry() {
                     featureEntries.find<LocationDetailEntry>().destination(locationId)
                 navController.navigate(destination)
             },
-            onBackPress = if (navController.previousBackStackEntry != null) {
+            navigateBack = navController.previousBackStackEntry?.let {
                 { navController.popBackStack() }
-            } else {
-                null
-            }
+            },
         )
     }
 }

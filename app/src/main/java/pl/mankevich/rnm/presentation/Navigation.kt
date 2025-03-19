@@ -7,6 +7,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -23,6 +24,9 @@ import pl.mankevich.coreui.navigation.navigateToTopLevelDestination
 import pl.mankevich.coreui.navigation.toComposableFeatureEntries
 import pl.mankevich.dependencies.LocalDependenciesProvider
 import pl.mankevich.designsystem.component.RnmNavigationSuiteScaffold
+import pl.mankevich.designsystem.utils.CurrentTabClickDispatcher
+import pl.mankevich.designsystem.utils.CurrentTabClickHandler
+import pl.mankevich.designsystem.utils.LocalCurrentTabClickDispatcher
 import pl.mankevich.designsystem.utils.ProvideSharedTransitionScope
 
 @Composable
@@ -57,6 +61,7 @@ fun NavGraphBuilder.mainNavHost(
         val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
+        val currentTabFirstClickDispatcher = remember { CurrentTabClickDispatcher() }
         RnmNavigationSuiteScaffold(
             navigationSuiteItems = {
                 TopLevelDestination.entries.forEach { topLevelDestination ->
@@ -83,12 +88,13 @@ fun NavGraphBuilder.mainNavHost(
                             mainNavController.navigateToTopLevelDestination(topLevelDestination.destination)
                         },
                         onRepeatClick = {
-                            //TODO navigate to startDestination of nested navGraph (clearing backstack or navigating to the root of the graph if it is not in the backstack)
+                            currentTabFirstClickDispatcher.currentHandler()?.action()
                         }
                     )
                 }
             },
         ) {
+            val currentTabSecondClickDispatcher = LocalCurrentTabClickDispatcher.current
             NavHost(
                 navController = mainNavController,
                 startDestination = TopLevelDestination.CHARACTERS.destination,
@@ -102,6 +108,24 @@ fun NavGraphBuilder.mainNavHost(
                         SharedTransitionLayout {
                             ProvideSharedTransitionScope {
                                 val nestedNavController = rememberNavController()
+
+                                // Catch first click on current tab using local variable currentTabFirstClickDispatcher (not from compositionLocal!!!)
+                                // to clear backstack and navigate to the first screen if backstack size > 1.
+                                // If there is only first screen in backstack - it will call action from currentTabSecondClickDispatcher,
+                                // which is LocalCurrentTabClickDispatcher
+                                CurrentTabClickHandler(
+                                    currentTabClickDispatcher = currentTabFirstClickDispatcher,
+                                ) {
+                                    if (nestedNavController.previousBackStackEntry != null) {
+                                        nestedNavController.popBackStack(
+                                            route = topLevelDestination.startDestination,
+                                            inclusive = false
+                                        )
+                                    } else {
+                                        currentTabSecondClickDispatcher.currentHandler()?.action()
+                                    }
+                                }
+
                                 NavHost(
                                     navController = nestedNavController,
                                     startDestination = topLevelDestination.startDestination,

@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import android.view.ViewTreeObserver
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
-import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -59,18 +58,16 @@ fun isLandscape(): Boolean = when (LocalConfiguration.current.orientation) {
 }
 
 @Composable
-fun rememberGridStateWithClearFocus(): LazyStaggeredGridState {
+fun ObserveGridStateToClearFocus(
+    lazyStaggeredGridState: LazyStaggeredGridState,
+) {
     val focusManager = LocalFocusManager.current
-    val gridState = rememberLazyStaggeredGridState()
-
     LaunchedEffect(Unit) {
-        gridState.interactionSource.interactions
+        lazyStaggeredGridState.interactionSource.interactions
             .distinctUntilChanged()
             .filterIsInstance<DragInteraction.Start>()
             .collectLatest {
                 focusManager.clearFocus()
             }
     }
-
-    return gridState
 }
