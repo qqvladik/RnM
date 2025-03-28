@@ -320,7 +320,7 @@ fun EpisodeDetail(
                 icon = episodeSeasonIconResolver(episode.season.toString()),
                 internalPadding = PADDING,
                 onDetailClick = { onSeasonFilterClick(episode.season) },
-                chipSharedElementKey = EpisodeSharedElementKey(
+                chipIconTextSharedElementKey = EpisodeSharedElementKey(
                     id = episode.id,
                     sharedType = EpisodeSharedElementType.Season,
                 ),
@@ -334,7 +334,7 @@ fun EpisodeDetail(
                 icon = episodeEpisodeIconResolver(episode.episode.toString()),
                 internalPadding = PADDING,
                 onDetailClick = { onEpisodeFilterClick(episode.episode) },
-                chipSharedElementKey = EpisodeSharedElementKey(
+                chipIconTextSharedElementKey = EpisodeSharedElementKey(
                     id = episode.id,
                     sharedType = EpisodeSharedElementType.Episode,
                 ),

@@ -19,7 +19,6 @@ import pl.mankevich.designsystem.component.Chip
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
-import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 import pl.mankevich.designsystem.utils.placeholderConnecting
 
@@ -29,7 +28,7 @@ fun Detail(
     value: String,
     icon: ImageVector,
     internalPadding: Dp = 12.dp,
-    chipSharedElementKey: Any? = null,
+    chipIconTextSharedElementKey: Any? = null,
     chipIconSharedElementKey: Any? = null,
     chipTextSharedElementKey: Any? = null,
     onDetailClick: () -> Unit = {}
@@ -49,24 +48,12 @@ fun Detail(
             Chip(
                 label = value,
                 icon = icon,
+                iconTextSharedElementKey = chipIconTextSharedElementKey,
                 iconSharedElementKey = chipIconSharedElementKey,
                 textSharedElementKey = chipTextSharedElementKey,
                 isSelected = false,
                 onClick = { onDetailClick() },
-                modifier = Modifier
-                    .height(32.dp)
-                    .let { baseModifier ->
-                        if (chipSharedElementKey != null) {
-                            baseModifier.sharedBounds(
-                                sharedContentState = rememberSharedContentState(
-                                    key = chipSharedElementKey
-                                ),
-                                animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
-                            )
-                        } else {
-                            baseModifier
-                        }
-                    }
+                modifier = Modifier.height(32.dp)
             )
         }
     }

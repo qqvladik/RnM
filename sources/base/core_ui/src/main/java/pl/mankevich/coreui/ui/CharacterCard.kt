@@ -103,9 +103,7 @@ fun CharacterCard(
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .sharedBounds(
+                        modifier = Modifier.sharedBounds(
                                 sharedContentState = rememberSharedContentState(
                                     key = CharacterSharedElementKey(
                                         id = id,
@@ -198,8 +196,8 @@ fun CharacterCard(
 
 @Composable
 fun CharacterCardPlaceholder(
+    modifier: Modifier = Modifier,
     infiniteTransition: InfiniteTransition? = null,
-    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier.placeholderConnecting(

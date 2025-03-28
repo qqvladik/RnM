@@ -410,7 +410,7 @@ fun CharacterDetail(
                 value = character.status,
                 icon = characterStatusIconResolver(character.status),
                 internalPadding = PADDING,
-                chipSharedElementKey = CharacterSharedElementKey(
+                chipIconTextSharedElementKey = CharacterSharedElementKey(
                     id = character.id,
                     sharedType = CharacterSharedElementType.Status,
                 ),
@@ -424,7 +424,7 @@ fun CharacterDetail(
                 value = character.species,
                 icon = characterSpeciesIconResolver(character.species),
                 internalPadding = PADDING,
-                chipSharedElementKey = CharacterSharedElementKey(
+                chipIconTextSharedElementKey = CharacterSharedElementKey(
                     id = character.id,
                     sharedType = CharacterSharedElementType.Species,
                 ),

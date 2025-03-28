@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
+import pl.mankevich.designsystem.utils.LocalAnimatedVisibilityScope
+import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 
 @Composable
 fun Chip(
@@ -44,6 +46,7 @@ fun Chip(
     textStyle: TextStyle = MaterialTheme.typography.bodySmall,
     icon: ImageVector,
     iconSize: Dp = 16.dp,
+    iconTextSharedElementKey: Any? = null,
     iconSharedElementKey: Any? = null,
     textSharedElementKey: Any? = null,
     isSelected: Boolean,
@@ -51,37 +54,52 @@ fun Chip(
     onClick: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    CompositionLocalProvider(
-        LocalRippleConfiguration provides if (isRippleEnabled) LocalRippleConfiguration.current else null
-    ) {
-        FilterChip(
-            selected = isSelected,
-            onClick = { onClick(!isSelected) },
-            label = {
-                IconText(
-                    text = label,
-                    icon = icon,
-                    iconSize = iconSize,
-                    iconTint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                    textColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                    textStyle = textStyle,
-                    iconSharedElementKey = iconSharedElementKey,
-                    textSharedElementKey = textSharedElementKey,
-                    modifier = Modifier.wrapContentSize()
-                )
-            },
-            border = FilterChipDefaults.filterChipBorder(
-                enabled = true,
+    WithSharedTransitionScope {
+        CompositionLocalProvider(
+            LocalRippleConfiguration provides if (isRippleEnabled) LocalRippleConfiguration.current else null
+        ) {
+            FilterChip(
                 selected = isSelected,
-                borderColor = Color.Transparent,
-            ),
-            modifier = modifier,
-            shape = CircleShape,
-            colors = FilterChipDefaults.filterChipColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                selectedContainerColor = MaterialTheme.colorScheme.primary,
-            ),
-        )
+                onClick = { onClick(!isSelected) },
+                label = {
+                    IconText(
+                        text = label,
+                        icon = icon,
+                        iconSize = iconSize,
+                        iconTint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                        textColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                        textStyle = textStyle,
+                        iconSharedElementKey = iconSharedElementKey,
+                        textSharedElementKey = textSharedElementKey,
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .let { baseModifier ->
+                                if (iconTextSharedElementKey != null) {
+                                    baseModifier.sharedBounds(
+                                        sharedContentState = rememberSharedContentState(
+                                            key = iconTextSharedElementKey
+                                        ),
+                                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                                    )
+                                } else {
+                                    baseModifier
+                                }
+                            }
+                    )
+                },
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled = true,
+                    selected = isSelected,
+                    borderColor = Color.Transparent,
+                ),
+                modifier = modifier,
+                shape = CircleShape,
+                colors = FilterChipDefaults.filterChipColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                ),
+            )
+        }
     }
 }
 
