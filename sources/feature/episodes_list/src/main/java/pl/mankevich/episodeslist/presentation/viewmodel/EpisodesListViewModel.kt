@@ -8,9 +8,9 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import pl.mankevich.coreui.mvi.SideEffects
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadEpisodesListUseCase
@@ -26,52 +26,58 @@ class EpisodesListViewModel
 ) : EpisodesListMviViewModel(
     initialStateWithEffects = EpisodesListStateWithEffects(
         state = EpisodesListState(),
-        sideEffects = SideEffects<EpisodesListSideEffect>().add(
-            EpisodesListSideEffect.OnInitRequested(
-                savedStateHandle.getEpisodeFilter()
-            )
-        )
     )
 ) {
     @AssistedFactory
     interface Factory : ViewModelAssistedFactory<EpisodesListViewModel>
 
+    private val currentState: EpisodesListState
+        get() = stateWithEffects.value.state
+
+    override fun initialize() {
+        sendIntent(EpisodesListIntent.Init(savedStateHandle.getEpisodeFilter()))
+    }
+
     override fun executeIntent(intent: EpisodesListIntent): Flow<Transform<EpisodesListStateWithEffects>> =
         when (intent) {
-            is EpisodesListIntent.Init -> flowOf(
-                EpisodesListTransforms.Init(intent.episodeFilter)
-            )
-
-            is EpisodesListIntent.LoadEpisodes -> loadEpisodes(
-                instantRefresh = false,
-                intent.episodeFilter
-            )
+            is EpisodesListIntent.Init -> flow {
+                emit(EpisodesListTransforms.Init(intent.episodeFilter))
+                emitAll(loadEpisodes(intent.episodeFilter, instantRefresh = true))
+            }
 
             is EpisodesListIntent.Refresh -> loadEpisodes(
+                currentState.episodeFilter,
                 instantRefresh = true,
-                intent.episodeFilter
             )
 
-            is EpisodesListIntent.NameChanged -> flowOf(
-                EpisodesListTransforms.ChangeName(name = intent.name)
-            )
+            is EpisodesListIntent.NameChanged -> flow {
+                emit(EpisodesListTransforms.ChangeName(name = intent.name))
+                val newFilter = currentState.episodeFilter.copy(name = intent.name)
+                emitAll(loadEpisodes(newFilter))
+            }
 
-            is EpisodesListIntent.SeasonChanged -> flowOf(
-                EpisodesListTransforms.ChangeSeason(season = intent.season)
-            )
+            is EpisodesListIntent.SeasonChanged -> flow {
+                emit(EpisodesListTransforms.ChangeSeason(season = intent.season))
+                val newFilter = currentState.episodeFilter.copy(season = intent.season)
+                emitAll(loadEpisodes(newFilter))
+            }
 
-            is EpisodesListIntent.EpisodeChanged -> flowOf(
-                EpisodesListTransforms.ChangeEpisode(episode = intent.episode)
-            )
+            is EpisodesListIntent.EpisodeChanged -> flow {
+                emit(EpisodesListTransforms.ChangeEpisode(episode = intent.episode))
+                val newFilter = currentState.episodeFilter.copy(episode = intent.episode)
+                emitAll(loadEpisodes(newFilter))
+            }
 
             is EpisodesListIntent.EpisodeItemClick -> flowOf(
-                EpisodesListTransforms.EpisodeItemClick(intent.characterId)
+                EpisodesListTransforms.EpisodeItemClick(intent.episodeId)
             )
+
+            EpisodesListIntent.BackClick -> flowOf(EpisodesListTransforms.BackClick)
         }
 
     private fun loadEpisodes(
-        instantRefresh: Boolean,
-        episodeFilter: EpisodeFilter
+        episodeFilter: EpisodeFilter,
+        instantRefresh: Boolean = false,
     ): Flow<Transform<EpisodesListStateWithEffects>> = flow {
         if (!instantRefresh) delay(QUERY_INPUT_DELAY_MILLIS)
         emit(
@@ -79,24 +85,5 @@ class EpisodesListViewModel
                 loadEpisodesListUseCase(episodeFilter).cachedIn(viewModelScope)
             )
         )
-    }
-
-    fun handleSideEffect(
-        sideEffect: EpisodesListSideEffect,
-        onCharacterItemClick: (Int) -> Unit
-    ) {
-        when (sideEffect) {
-            is EpisodesListSideEffect.OnInitRequested ->
-                sendIntent(EpisodesListIntent.Init(sideEffect.episodeFilter))
-
-            is EpisodesListSideEffect.OnEpisodeItemClicked ->
-                onCharacterItemClick(sideEffect.episodeId)
-
-            is EpisodesListSideEffect.OnLoadEpisodesRequested ->
-                sendIntent(EpisodesListIntent.LoadEpisodes(sideEffect.episodeFilter))
-
-            is EpisodesListSideEffect.OnRefreshRequested ->
-                sendIntent(EpisodesListIntent.Refresh(sideEffect.episodeFilter))
-        }
     }
 }

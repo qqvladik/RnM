@@ -8,9 +8,9 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import pl.mankevich.coreui.mvi.SideEffects
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadLocationsListUseCase
@@ -26,77 +26,65 @@ class LocationsListViewModel
 ) : LocationsListMviViewModel(
     initialStateWithEffects = LocationsListStateWithEffects(
         state = LocationsListState(),
-        sideEffects = SideEffects<LocationsListSideEffect>().add(
-            LocationsListSideEffect.OnInitRequested(
-                savedStateHandle.getLocationFilter()
-            )
-        )
     )
 ) {
     @AssistedFactory
     interface Factory : ViewModelAssistedFactory<LocationsListViewModel>
 
+    private val currentState: LocationsListState
+        get() = stateWithEffects.value.state
+
+    override fun initialize() {
+        sendIntent(LocationsListIntent.Init(savedStateHandle.getLocationFilter()))
+    }
+
     override fun executeIntent(intent: LocationsListIntent): Flow<Transform<LocationsListStateWithEffects>> =
         when (intent) {
-            is LocationsListIntent.Init -> flowOf(
-                LocationsListTransforms.Init(intent.locationFilter)
+            is LocationsListIntent.Init -> flow {
+                emit(LocationsListTransforms.Init(intent.locationFilter))
+                emitAll(loadLocations(intent.locationFilter, instantRefresh = true))
+            }
+
+            LocationsListIntent.Refresh -> loadLocations(
+                currentState.locationFilter,
+                instantRefresh = true
             )
 
-            is LocationsListIntent.LoadLocations -> loadLocations(
-                instantRefresh = false,
-                intent.locationFilter
-            )
+            is LocationsListIntent.NameChanged -> flow {
+                emit(LocationsListTransforms.ChangeName(name = intent.name))
+                val newFilter = currentState.locationFilter.copy(name = intent.name)
+                emitAll(loadLocations(newFilter))
+            }
 
-            is LocationsListIntent.Refresh -> loadLocations(
-                instantRefresh = true,
-                intent.locationFilter
-            )
+            is LocationsListIntent.TypeChanged -> flow {
+                emit(LocationsListTransforms.ChangeType(type = intent.type))
+                val newFilter = currentState.locationFilter.copy(type = intent.type)
+                emitAll(loadLocations(newFilter))
+            }
 
-            is LocationsListIntent.NameChanged -> flowOf(
-                LocationsListTransforms.ChangeName(name = intent.name)
-            )
-
-            is LocationsListIntent.TypeChanged -> flowOf(
-                LocationsListTransforms.ChangeType(type = intent.type)
-            )
-
-            is LocationsListIntent.DimensionChanged -> flowOf(
-                LocationsListTransforms.ChangeDimension(dimension = intent.dimension)
-            )
+            is LocationsListIntent.DimensionChanged -> flow {
+                emit(LocationsListTransforms.ChangeDimension(dimension = intent.dimension))
+                val newFilter = currentState.locationFilter.copy(dimension = intent.dimension)
+                emitAll(loadLocations(newFilter))
+            }
 
             is LocationsListIntent.LocationItemClick -> flowOf(
                 LocationsListTransforms.LocationItemClick(intent.locationId)
             )
+
+            LocationsListIntent.BackClick -> flowOf(LocationsListTransforms.BackClick)
         }
 
     private fun loadLocations(
-        instantRefresh: Boolean,
-        locationFilter: LocationFilter
-    ): Flow<Transform<LocationsListStateWithEffects>> = flow {
-        if (!instantRefresh) delay(QUERY_INPUT_DELAY_MILLIS)
-        emit(
-            LocationsListTransforms.LoadLocationsListSuccess(
-                loadLocationsListUseCase(locationFilter).cachedIn(viewModelScope)
+        locationFilter: LocationFilter,
+        instantRefresh: Boolean = false
+    ): Flow<Transform<LocationsListStateWithEffects>> =
+        flow {
+            if (!instantRefresh) delay(QUERY_INPUT_DELAY_MILLIS)
+            emit(
+                LocationsListTransforms.LoadLocationsListSuccess(
+                    loadLocationsListUseCase(locationFilter).cachedIn(viewModelScope)
+                )
             )
-        )
-    }
-
-    fun handleSideEffect(
-        sideEffect: LocationsListSideEffect,
-        onLocationItemClick: (Int) -> Unit
-    ) {
-        when (sideEffect) {
-            is LocationsListSideEffect.OnInitRequested ->
-                sendIntent(LocationsListIntent.Init(sideEffect.locationFilter))
-
-            is LocationsListSideEffect.OnCharacterItemClicked ->
-                onLocationItemClick(sideEffect.characterId)
-
-            is LocationsListSideEffect.OnLoadLocationsRequested ->
-                sendIntent(LocationsListIntent.LoadLocations(sideEffect.locationFilter))
-
-            is LocationsListSideEffect.OnRefreshRequested ->
-                sendIntent(LocationsListIntent.Refresh(sideEffect.locationFilter))
         }
-    }
 }

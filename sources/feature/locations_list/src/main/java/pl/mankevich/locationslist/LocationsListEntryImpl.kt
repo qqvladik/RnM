@@ -32,7 +32,7 @@ class LocationsListEntryImpl @Inject constructor() : LocationsListEntry() {
         )
         LocationsListScreen(
             viewModel = viewModel,
-            onLocationItemClick = { locationId ->
+            navigateToLocationDetail = { locationId ->
                 val destination =
                     featureEntries.find<LocationDetailEntry>().destination(locationId)
                 navController.navigate(destination)

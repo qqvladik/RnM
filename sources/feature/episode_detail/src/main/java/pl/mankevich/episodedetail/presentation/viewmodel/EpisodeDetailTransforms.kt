@@ -12,10 +12,10 @@ object EpisodeDetailTransforms {
 
         override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
             return current.copy(
-                state = current.state.copy(),
-                sideEffects = current.sideEffects.add(
-                    EpisodeDetailSideEffect.OnLoadEpisodeRequested
-                )
+                state = current.state.copy(
+                    episode = null,
+                    episodeError = null
+                ),
             )
         }
     }
@@ -48,10 +48,10 @@ object EpisodeDetailTransforms {
 
         override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
             return current.copy(
-                state = current.state.copy(),
-                sideEffects = current.sideEffects.add(
-                    EpisodeDetailSideEffect.OnLoadEpisodesRequested
-                )
+                state = current.state.copy(
+                    characters = null,
+                    charactersError = null
+                ),
             )
         }
     }
@@ -61,7 +61,8 @@ object EpisodeDetailTransforms {
         override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
-                    characters = characters
+                    characters = characters,
+                    charactersError = null
                 )
             )
         }
@@ -72,19 +73,52 @@ object EpisodeDetailTransforms {
         override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
+                    charactersError = error,
                     characters = null
                 )
             )
         }
     }
 
+    data class SeasonFilterClick(val season: Int) : EpisodeDetailTransform {
+
+        override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    EpisodeDetailSideEffect.NavigateToEpisodesListBySeason(season)
+                )
+            )
+        }
+    }
+
+    data class EpisodeFilterClick(val episode: Int) : EpisodeDetailTransform {
+
+        override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    EpisodeDetailSideEffect.NavigateToEpisodesListByEpisode(episode)
+                )
+            )
+        }
+    }
 
     data class CharacterItemClick(val characterId: Int) : EpisodeDetailTransform {
 
         override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
             return current.copy(
                 sideEffects = current.sideEffects.add(
-                    EpisodeDetailSideEffect.OnCharacterItemClicked(characterId)
+                    EpisodeDetailSideEffect.NavigateToCharacterDetail(characterId)
+                )
+            )
+        }
+    }
+
+    data object BackClick : EpisodeDetailTransform {
+
+        override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    EpisodeDetailSideEffect.NavigateBack
                 )
             )
         }

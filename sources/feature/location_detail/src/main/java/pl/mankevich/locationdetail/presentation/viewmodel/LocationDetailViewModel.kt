@@ -5,11 +5,12 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import pl.mankevich.coreui.mvi.SideEffects
+import kotlinx.coroutines.flow.merge
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadCharactersByLocationIdUseCase
@@ -24,10 +25,6 @@ class LocationDetailViewModel
 ) : LocationDetailMviViewModel(
     initialStateWithEffects = LocationDetailStateWithEffects(
         state = LocationDetailState(),
-        sideEffects = SideEffects<LocationDetailSideEffect>().add(
-            LocationDetailSideEffect.OnLoadLocationRequested,
-            LocationDetailSideEffect.OnLoadCharactersRequested
-        )
     )
 ) {
 
@@ -36,45 +33,50 @@ class LocationDetailViewModel
 
     val locationId = savedStateHandle.getLocationId()
 
+    override fun initialize() {
+        sendIntent(LocationDetailIntent.LoadLocationDetail)
+    }
+
     override fun executeIntent(intent: LocationDetailIntent): Flow<Transform<LocationDetailStateWithEffects>> =
         when (intent) {
-            is LocationDetailIntent.LoadLocation -> flowOf(
-                LocationDetailTransforms.LoadLocation(locationId)
-            ).flatMapMerge {
-                try {
-                    loadLocationDetailUseCase(locationId = locationId)
-                        .map { LocationDetailTransforms.LoadLocationSuccess(it) }
-                } catch (e: Throwable) {
-                    flowOf(LocationDetailTransforms.LoadLocationError(e))
-                }
-            }
+            LocationDetailIntent.LoadLocationDetail -> merge(loadLocation(), loadCharacters())
 
-            is LocationDetailIntent.LoadCharacters -> flowOf(
-                LocationDetailTransforms.LoadCharacters(locationId)
-            ).flatMapMerge {
-                try {
-                    loadCharactersByLocationIdUseCase(locationId = locationId)
-                        .map { LocationDetailTransforms.LoadCharactersSuccess(it) }
-                } catch (e: Throwable) {
-                    flowOf(LocationDetailTransforms.LoadCharactersError(e))
-                }
-            }
+            LocationDetailIntent.LoadCharacters -> loadCharacters()
 
-            is LocationDetailIntent.CharacterItemClick -> emptyFlow()
+            is LocationDetailIntent.DimensionFilterClick -> flowOf(
+                LocationDetailTransforms.DimensionFilterClick(intent.dimension)
+            )
+
+            is LocationDetailIntent.TypeFilterClick -> flowOf(
+                LocationDetailTransforms.TypeFilterClick(intent.type)
+            )
+
+            is LocationDetailIntent.CharacterItemClick -> flowOf(
+                LocationDetailTransforms.CharacterItemClick(intent.characterId)
+            )
+
+            LocationDetailIntent.BackClick -> flowOf(
+                LocationDetailTransforms.BackClick
+            )
         }
 
-    fun handleSideEffect(
-        sideEffect: LocationDetailSideEffect,
-    ) {
-        when (sideEffect) {
-            is LocationDetailSideEffect.OnCharacterItemClicked ->
-                sendIntent(LocationDetailIntent.CharacterItemClick(sideEffect.characterId))
-
-            is LocationDetailSideEffect.OnLoadLocationRequested ->
-                sendIntent(LocationDetailIntent.LoadLocation)
-
-            is LocationDetailSideEffect.OnLoadCharactersRequested ->
-                sendIntent(LocationDetailIntent.LoadCharacters)
+    private fun loadLocation(): Flow<Transform<LocationDetailStateWithEffects>> =
+        flow {
+            emit(LocationDetailTransforms.LoadLocation(locationId))
+            val result = loadLocationDetailUseCase(locationId = locationId)
+                .map { LocationDetailTransforms.LoadLocationSuccess(it) }
+                .catch { emit(LocationDetailTransforms.LoadLocationError(it)) }
+            emitAll(result)
         }
-    }
+
+    private fun loadCharacters(): Flow<Transform<LocationDetailStateWithEffects>> =
+        flow {
+            emit(LocationDetailTransforms.LoadCharacters(locationId))
+            val result = loadCharactersByLocationIdUseCase(locationId = locationId)
+                .map { LocationDetailTransforms.LoadCharactersSuccess(it) }
+                .catch {
+                    emit(LocationDetailTransforms.LoadCharactersError(it))
+                }
+            emitAll(result)
+        }
 }

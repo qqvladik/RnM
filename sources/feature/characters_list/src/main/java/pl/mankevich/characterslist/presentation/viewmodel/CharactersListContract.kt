@@ -13,41 +13,32 @@ import pl.mankevich.model.CharacterFilter
 typealias CharactersListStateWithEffects = StateWithEffects<CharactersListState, CharactersListSideEffect>
 typealias CharactersListMviViewModel = MviViewModel<CharactersListIntent, CharactersListStateWithEffects>
 
-sealed class CharactersListIntent {
+sealed interface CharactersListIntent {
 
-    data class Init(val characterFilter: CharacterFilter) : CharactersListIntent(), UniqueIntent
+    data class Init(val characterFilter: CharacterFilter) : CharactersListIntent, UniqueIntent
 
-    data class LoadCharacters(val characterFilter: CharacterFilter) : CharactersListIntent(), UniqueIntent
+    data object Refresh : CharactersListIntent, UniqueIntent
 
-    data class Refresh(val characterFilter: CharacterFilter) : CharactersListIntent(), UniqueIntent
+    data class NameChanged(val name: String) : CharactersListIntent, UniqueIntent
 
-    data class CharacterItemClick(val characterId: Int) : CharactersListIntent()
+    data class StatusChanged(val status: String) : CharactersListIntent, UniqueIntent
 
-    data object BackClick : CharactersListIntent()
+    data class SpeciesChanged(val species: String) : CharactersListIntent, UniqueIntent
 
-    data class NameChanged(val name: String) : CharactersListIntent()
+    data class GenderChanged(val gender: String) : CharactersListIntent, UniqueIntent
 
-    data class StatusChanged(val status: String) : CharactersListIntent()
+    data class TypeChanged(val type: String) : CharactersListIntent, UniqueIntent
 
-    data class SpeciesChanged(val species: String) : CharactersListIntent()
+    data class CharacterItemClick(val characterId: Int) : CharactersListIntent
 
-    data class GenderChanged(val gender: String) : CharactersListIntent()
-
-    data class TypeChanged(val type: String) : CharactersListIntent()
+    data object BackClick : CharactersListIntent
 }
 
 sealed interface CharactersListSideEffect {
 
-    data class OnInitRequested(val characterFilter: CharacterFilter) : CharactersListSideEffect
+    data class NavigateToCharacterDetail(val characterId: Int) : CharactersListSideEffect
 
-    data class OnCharacterItemClicked(val characterId: Int) : CharactersListSideEffect
-
-    data object OnBackClicked : CharactersListSideEffect
-
-    data class OnLoadCharactersRequested(val characterFilter: CharacterFilter) :
-        CharactersListSideEffect
-
-    data class OnRefreshRequested(val characterFilter: CharacterFilter) : CharactersListSideEffect
+    data object NavigateBack : CharactersListSideEffect
 }
 
 @Immutable

@@ -24,9 +24,6 @@ object CharactersListTransforms {
                     genderLabelList = current.state.genderLabelList.addLabelIfUnique(filter.gender),
                     typeLabelList = current.state.typeLabelList.addLabelIfUnique(filter.type),
                 ),
-                sideEffects = current.sideEffects.add(
-                    CharactersListSideEffect.OnLoadCharactersRequested(filter)
-                )
             )
         }
     }
@@ -42,9 +39,6 @@ object CharactersListTransforms {
                 state = current.state.copy(
                     characterFilter = newFilter,
                 ),
-                sideEffects = current.sideEffects.add(
-                    CharactersListSideEffect.OnLoadCharactersRequested(newFilter)
-                )
             )
         }
     }
@@ -59,9 +53,6 @@ object CharactersListTransforms {
                 state = current.state.copy(
                     characterFilter = newFilter,
                     statusLabelList = current.state.statusLabelList.addLabelIfUnique(status),
-                ),
-                sideEffects = current.sideEffects.add(
-                    CharactersListSideEffect.OnLoadCharactersRequested(newFilter)
                 )
             )
         }
@@ -77,9 +68,6 @@ object CharactersListTransforms {
                 state = current.state.copy(
                     characterFilter = newFilter,
                     speciesLabelList = current.state.speciesLabelList.addLabelIfUnique(species),
-                ),
-                sideEffects = current.sideEffects.add(
-                    CharactersListSideEffect.OnLoadCharactersRequested(newFilter)
                 )
             )
         }
@@ -95,9 +83,6 @@ object CharactersListTransforms {
                 state = current.state.copy(
                     characterFilter = newFilter,
                     genderLabelList = current.state.genderLabelList.addLabelIfUnique(gender),
-                ),
-                sideEffects = current.sideEffects.add(
-                    CharactersListSideEffect.OnLoadCharactersRequested(newFilter)
                 )
             )
         }
@@ -113,9 +98,6 @@ object CharactersListTransforms {
                 state = current.state.copy(
                     characterFilter = newFilter,
                     typeLabelList = current.state.typeLabelList.addLabelIfUnique(type),
-                ),
-                sideEffects = current.sideEffects.add(
-                    CharactersListSideEffect.OnLoadCharactersRequested(newFilter)
                 )
             )
         }
@@ -126,7 +108,7 @@ object CharactersListTransforms {
         override fun reduce(current: CharactersListStateWithEffects): CharactersListStateWithEffects {
             return current.copy(
                 sideEffects = current.sideEffects.add(
-                    CharactersListSideEffect.OnCharacterItemClicked(characterId)
+                    CharactersListSideEffect.NavigateToCharacterDetail(characterId)
                 )
             )
         }
@@ -137,7 +119,7 @@ object CharactersListTransforms {
         override fun reduce(current: CharactersListStateWithEffects): CharactersListStateWithEffects {
             return current.copy(
                 sideEffects = current.sideEffects.add(
-                    CharactersListSideEffect.OnBackClicked
+                    CharactersListSideEffect.NavigateBack
                 )
             )
         }

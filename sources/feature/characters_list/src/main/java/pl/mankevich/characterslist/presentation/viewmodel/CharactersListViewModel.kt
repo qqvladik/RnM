@@ -8,13 +8,14 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import pl.mankevich.characterslist.getCharacterFilterTypesafe
-import pl.mankevich.coreui.mvi.SideEffects
+import pl.mankevich.characterslist.getCharacterFilter
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadCharactersListUseCase
+import pl.mankevich.model.CharacterFilter
 
 private const val QUERY_INPUT_DELAY_MILLIS = 500L
 
@@ -24,89 +25,78 @@ class CharactersListViewModel
     private val loadCharactersListUseCase: LoadCharactersListUseCase,
 ) : CharactersListMviViewModel(
     initialStateWithEffects = CharactersListStateWithEffects(
-        state = CharactersListState(),
-        sideEffects = SideEffects<CharactersListSideEffect>().add(
-            CharactersListSideEffect.OnInitRequested(
-                savedStateHandle.getCharacterFilterTypesafe()
-            )
-        )
+        state = CharactersListState()
     )
 ) {
     @AssistedFactory
     interface Factory : ViewModelAssistedFactory<CharactersListViewModel>
 
+    private val currentState: CharactersListState
+        get() = stateWithEffects.value.state
+
+    override fun initialize() {
+        sendIntent(CharactersListIntent.Init(savedStateHandle.getCharacterFilter()))
+    }
+
     override fun executeIntent(intent: CharactersListIntent): Flow<Transform<CharactersListStateWithEffects>> =
         when (intent) {
-            is CharactersListIntent.Init -> flowOf(
-                CharactersListTransforms.Init(intent.characterFilter)
+            is CharactersListIntent.Init ->
+                flow {
+                    emit(CharactersListTransforms.Init(intent.characterFilter))
+                    emitAll(loadCharacters(intent.characterFilter, instantRefresh = true))
+                }
+
+            CharactersListIntent.Refresh -> loadCharacters(
+                currentState.characterFilter,
+                instantRefresh = true
             )
 
-            is CharactersListIntent.LoadCharacters -> flow {
-                delay(QUERY_INPUT_DELAY_MILLIS)
-                emit(
-                    CharactersListTransforms.LoadCharactersListSuccess(
-                        loadCharactersListUseCase(intent.characterFilter).cachedIn(viewModelScope)
-                    )
-                )
+            is CharactersListIntent.NameChanged -> flow {
+                emit(CharactersListTransforms.ChangeName(name = intent.name))
+                val newFilter = currentState.characterFilter.copy(name = intent.name)
+                emitAll(loadCharacters(newFilter))
             }
 
-            is CharactersListIntent.Refresh -> flow {
-                emit(
-                    CharactersListTransforms.LoadCharactersListSuccess(
-                        loadCharactersListUseCase(intent.characterFilter).cachedIn(viewModelScope)
-                    )
-                )
+            is CharactersListIntent.StatusChanged -> flow {
+                emit(CharactersListTransforms.ChangeStatus(status = intent.status))
+                val newFilter = currentState.characterFilter.copy(status = intent.status)
+                emitAll(loadCharacters(newFilter))
             }
 
-            is CharactersListIntent.NameChanged -> flowOf(
-                CharactersListTransforms.ChangeName(name = intent.name)
-            )
+            is CharactersListIntent.SpeciesChanged -> flow {
+                emit(CharactersListTransforms.ChangeSpecies(species = intent.species))
+                val newFilter = currentState.characterFilter.copy(species = intent.species)
+                emitAll(loadCharacters(newFilter))
+            }
 
-            is CharactersListIntent.StatusChanged -> flowOf(
-                CharactersListTransforms.ChangeStatus(status = intent.status)
-            )
+            is CharactersListIntent.GenderChanged -> flow {
+                emit(CharactersListTransforms.ChangeGender(gender = intent.gender))
+                val newFilter = currentState.characterFilter.copy(gender = intent.gender)
+                emitAll(loadCharacters(newFilter))
+            }
 
-            is CharactersListIntent.SpeciesChanged -> flowOf(
-                CharactersListTransforms.ChangeSpecies(species = intent.species)
-            )
-
-            is CharactersListIntent.GenderChanged -> flowOf(
-                CharactersListTransforms.ChangeGender(gender = intent.gender)
-            )
-
-            is CharactersListIntent.TypeChanged -> flowOf(
-                CharactersListTransforms.ChangeType(type = intent.type)
-            )
+            is CharactersListIntent.TypeChanged -> flow {
+                emit(CharactersListTransforms.ChangeType(type = intent.type))
+                val newFilter = currentState.characterFilter.copy(type = intent.type)
+                emitAll(loadCharacters(newFilter))
+            }
 
             is CharactersListIntent.CharacterItemClick -> flowOf(
                 CharactersListTransforms.CharacterItemClick(intent.characterId)
             )
 
-            is CharactersListIntent.BackClick -> flowOf(
-                CharactersListTransforms.BackClick
+            CharactersListIntent.BackClick -> flowOf(CharactersListTransforms.BackClick)
+        }
+
+    private fun loadCharacters(
+        characterFilter: CharacterFilter,
+        instantRefresh: Boolean = false
+    ): Flow<Transform<CharactersListStateWithEffects>> = flow {
+        if (!instantRefresh) delay(QUERY_INPUT_DELAY_MILLIS)
+        emit(
+            CharactersListTransforms.LoadCharactersListSuccess(
+                loadCharactersListUseCase(characterFilter).cachedIn(viewModelScope)
             )
-        }
-
-    fun handleSideEffect(
-        sideEffect: CharactersListSideEffect,
-        navigateToCharacterDetail: (Int) -> Unit,
-        navigateBack: (() -> Unit)?,
-    ) {
-        when (sideEffect) {
-            is CharactersListSideEffect.OnInitRequested ->
-                sendIntent(CharactersListIntent.Init(sideEffect.characterFilter))
-
-            is CharactersListSideEffect.OnCharacterItemClicked ->
-                navigateToCharacterDetail(sideEffect.characterId)
-
-            is CharactersListSideEffect.OnBackClicked ->
-                navigateBack?.invoke()
-
-            is CharactersListSideEffect.OnLoadCharactersRequested ->
-                sendIntent(CharactersListIntent.LoadCharacters(sideEffect.characterFilter))
-
-            is CharactersListSideEffect.OnRefreshRequested ->
-                sendIntent(CharactersListIntent.Refresh(sideEffect.characterFilter))
-        }
+        )
     }
 }

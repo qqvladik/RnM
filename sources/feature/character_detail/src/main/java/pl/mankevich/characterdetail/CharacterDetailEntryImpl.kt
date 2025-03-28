@@ -34,23 +34,23 @@ class CharacterDetailEntryImpl @Inject constructor() : CharacterDetailEntry() {
 
         CharacterDetailScreen(
             viewModel = viewModel,
-            onStatusFilterClick = { status ->
+            navigateToCharactersListByStatus = { status ->
                 val destination =
                     featureEntries.find<CharactersListEntry>().destination(status = status)
                 navController.navigate(destination)
             },
-            onSpeciesFilterClick = { species ->
+            navigateToCharactersListBySpecies = { species ->
                 val destination =
                     featureEntries.find<CharactersListEntry>()
                         .destination(species = species)
                 navController.navigate(destination)
             },
-            onGenderFilterClick = { gender ->
+            navigateToCharactersListByGender = { gender ->
                 val destination =
                     featureEntries.find<CharactersListEntry>().destination(gender = gender)
                 navController.navigate(destination)
             },
-            onTypeFilterClick = { type ->
+            navigateToCharactersListByType = { type ->
                 val destination =
                     featureEntries.find<CharactersListEntry>().destination(type = type)
                 navController.navigate(destination)

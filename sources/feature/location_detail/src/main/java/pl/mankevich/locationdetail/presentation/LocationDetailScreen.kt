@@ -61,6 +61,7 @@ import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.designsystem.utils.placeholderConnecting
 import pl.mankevich.locationdetail.presentation.viewmodel.LocationDetailIntent
+import pl.mankevich.locationdetail.presentation.viewmodel.LocationDetailSideEffect
 import pl.mankevich.locationdetail.presentation.viewmodel.LocationDetailState
 import pl.mankevich.locationdetail.presentation.viewmodel.LocationDetailViewModel
 import pl.mankevich.model.Character
@@ -69,29 +70,40 @@ import pl.mankevich.model.Location
 @Composable
 fun LocationDetailScreen(
     viewModel: LocationDetailViewModel,
-    onDimensionFilterClick: (String) -> Unit,
-    onTypeFilterClick: (String) -> Unit,
-    onCharacterItemClick: (Int) -> Unit,
-    onBackPress: () -> Unit,
+    navigateToLocationsListByDimension: (String) -> Unit,
+    navigateToLocationsListByType: (String) -> Unit,
+    navigateToCharacterDetail: (Int) -> Unit,
+    navigateUp: () -> Unit,
 ) {
     val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
     val state = stateWithEffects.state
 
     SideEffect {
-        stateWithEffects.sideEffects.forEach {
-            viewModel.handleSideEffect(it)
+        stateWithEffects.sideEffects.forEach { sideEffect ->
+            when (sideEffect) {
+                is LocationDetailSideEffect.NavigateToLocationsListByDimension ->
+                    navigateToLocationsListByDimension(sideEffect.dimension)
+
+                is LocationDetailSideEffect.NavigateToLocationsListByType ->
+                    navigateToLocationsListByType(sideEffect.type)
+
+                is LocationDetailSideEffect.NavigateToCharacterDetail ->
+                    navigateToCharacterDetail(sideEffect.characterId)
+
+                is LocationDetailSideEffect.NavigateBack -> navigateUp()
+            }
         }
     }
 
     LocationDetailView(
         id = viewModel.locationId,
         state = state,
-        onDimensionFilterClick = onDimensionFilterClick,
-        onTypeFilterClick = onTypeFilterClick,
-        onCharacterItemClick = onCharacterItemClick,
-        onLocationErrorClick = { viewModel.sendIntent(LocationDetailIntent.LoadLocation) },
+        onDimensionFilterClick = { viewModel.sendIntent(LocationDetailIntent.DimensionFilterClick(it)) },
+        onTypeFilterClick = { viewModel.sendIntent(LocationDetailIntent.TypeFilterClick(it)) },
+        onCharacterItemClick = { viewModel.sendIntent(LocationDetailIntent.CharacterItemClick(it)) },
+        onLocationErrorClick = { viewModel.sendIntent(LocationDetailIntent.LoadLocationDetail) },
         onCharactersErrorClick = { viewModel.sendIntent(LocationDetailIntent.LoadCharacters) },
-        onBackPress = onBackPress,
+        onBackClick = { viewModel.sendIntent(LocationDetailIntent.BackClick) },
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
@@ -107,7 +119,7 @@ fun LocationDetailView(
     onCharacterItemClick: (Int) -> Unit,
     onLocationErrorClick: () -> Unit,
     onCharactersErrorClick: () -> Unit,
-    onBackPress: () -> Unit,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -135,7 +147,7 @@ fun LocationDetailView(
                         },
                         navigationIcon = {
                             SurfaceIconButton(
-                                onClick = onBackPress,
+                                onClick = onBackClick,
                                 imageVector = RnmIcons.CaretLeft,
                                 contentDescription = "Back button",
                                 iconSize = 20.dp,
@@ -397,7 +409,7 @@ fun LocationDetailScreenPreview() {
                 onCharacterItemClick = {},
                 onLocationErrorClick = {},
                 onCharactersErrorClick = {},
-                onBackPress = {},
+                onBackClick = {},
                 modifier = Modifier.fillMaxSize(),
             )
         }

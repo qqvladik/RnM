@@ -55,6 +55,7 @@ import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.locationslist.presentation.viewmodel.LocationsListIntent
+import pl.mankevich.locationslist.presentation.viewmodel.LocationsListSideEffect
 import pl.mankevich.locationslist.presentation.viewmodel.LocationsListState
 import pl.mankevich.locationslist.presentation.viewmodel.LocationsListViewModel
 import pl.mankevich.model.Location
@@ -63,7 +64,7 @@ import pl.mankevich.model.LocationFilter
 @Composable
 fun LocationsListScreen(
     viewModel: LocationsListViewModel,
-    onLocationItemClick: (Int) -> Unit,
+    navigateToLocationDetail: (Int) -> Unit,
     navigateBack: (() -> Unit)? = null,
 ) {
     val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
@@ -71,7 +72,13 @@ fun LocationsListScreen(
 
     SideEffect {
         stateWithEffects.sideEffects.forEach { sideEffect ->
-            viewModel.handleSideEffect(sideEffect, onLocationItemClick)
+            when (sideEffect) {
+                is LocationsListSideEffect.NavigateToLocationDetail ->
+                    navigateToLocationDetail(sideEffect.locationId)
+
+                is LocationsListSideEffect.NavigateBack ->
+                    navigateBack?.invoke()
+            }
         }
     }
 
@@ -82,7 +89,7 @@ fun LocationsListScreen(
         onTypeSelected = { viewModel.sendIntent(LocationsListIntent.TypeChanged(it)) },
         onDimensionSelected = { viewModel.sendIntent(LocationsListIntent.DimensionChanged(it)) },
         onLocationItemClick = { viewModel.sendIntent(LocationsListIntent.LocationItemClick(it)) },
-        onBackPress = navigateBack,
+        onBackClick = navigateBack?.let { { viewModel.sendIntent(LocationsListIntent.BackClick) } },
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
@@ -91,14 +98,14 @@ fun LocationsListScreen(
 
 @Composable
 fun LocationsListView(
+    modifier: Modifier = Modifier,
     state: LocationsListState,
     onSearchChange: (String) -> Unit,
     onSearchClear: () -> Unit,
     onTypeSelected: (String) -> Unit,
     onDimensionSelected: (String) -> Unit,
     onLocationItemClick: (Int) -> Unit,
-    onBackPress: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    onBackClick: (() -> Unit)? = null,
 ) {
     val pagingLocationItems = state.locations.collectAsLazyPagingItems()
 
@@ -138,7 +145,7 @@ fun LocationsListView(
                                     onSelectedChanged = onDimensionSelected,
                                 ),
                             ),
-                            onBackPress = onBackPress,
+                            onBackPress = onBackClick,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
@@ -308,7 +315,7 @@ fun LocationsListViewPreview() {
             onTypeSelected = {},
             onDimensionSelected = {},
             onLocationItemClick = {},
-            onBackPress = {},
+            onBackClick = {},
         )
     }
 }

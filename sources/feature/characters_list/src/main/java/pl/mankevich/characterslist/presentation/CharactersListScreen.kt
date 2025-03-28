@@ -33,6 +33,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import kotlinx.coroutines.flow.flowOf
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListIntent
+import pl.mankevich.characterslist.presentation.viewmodel.CharactersListSideEffect
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListState
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
 import pl.mankevich.core.util.cast
@@ -73,11 +74,13 @@ fun CharactersListScreen(
 
     SideEffect {
         stateWithEffects.sideEffects.forEach { sideEffect ->
-            viewModel.handleSideEffect(
-                sideEffect = sideEffect,
-                navigateToCharacterDetail = navigateToCharacterDetail,
-                navigateBack = navigateBack,
-            )
+            when (sideEffect) {
+                is CharactersListSideEffect.NavigateToCharacterDetail ->
+                    navigateToCharacterDetail(sideEffect.characterId)
+
+                CharactersListSideEffect.NavigateBack ->
+                    navigateBack?.invoke()
+            }
         }
     }
 
@@ -90,7 +93,7 @@ fun CharactersListScreen(
         onGenderSelected = { viewModel.sendIntent(CharactersListIntent.GenderChanged(it)) },
         onTypeSelected = { viewModel.sendIntent(CharactersListIntent.TypeChanged(it)) },
         onCharacterItemClick = { viewModel.sendIntent(CharactersListIntent.CharacterItemClick(it)) },
-        onBackPress = navigateBack,
+        onBackClick = navigateBack?.let { { viewModel.sendIntent(CharactersListIntent.BackClick) } },
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
@@ -99,6 +102,7 @@ fun CharactersListScreen(
 
 @Composable
 fun CharactersListView(
+    modifier: Modifier = Modifier,
     state: CharactersListState,
     onSearchChange: (String) -> Unit,
     onSearchClear: () -> Unit,
@@ -107,8 +111,7 @@ fun CharactersListView(
     onGenderSelected: (String) -> Unit,
     onTypeSelected: (String) -> Unit,
     onCharacterItemClick: (Int) -> Unit,
-    onBackPress: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    onBackClick: (() -> Unit)? = null,
 ) {
     val pagingCharacterItems = state.characters.collectAsLazyPagingItems()
 
@@ -164,7 +167,7 @@ fun CharactersListView(
                                     onSelectedChanged = onTypeSelected,
                                 )
                             ),
-                            onBackPress = onBackPress,
+                            onBackPress = onBackClick,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
@@ -367,7 +370,7 @@ fun CharactersListViewPreview() {
             onGenderSelected = {},
             onTypeSelected = {},
             onCharacterItemClick = {},
-            onBackPress = {},
+            onBackClick = {},
         )
     }
 }

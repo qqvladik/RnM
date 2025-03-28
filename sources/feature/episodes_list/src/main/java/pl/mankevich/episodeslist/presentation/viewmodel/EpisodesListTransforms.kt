@@ -26,9 +26,6 @@ object EpisodesListTransforms {
                         filter.episode?.toString() ?: ""
                     ),
                 ),
-                sideEffects = current.sideEffects.add(
-                    EpisodesListSideEffect.OnLoadEpisodesRequested(filter)
-                )
             )
         }
     }
@@ -44,9 +41,6 @@ object EpisodesListTransforms {
                 state = current.state.copy(
                     episodeFilter = newFilter,
                 ),
-                sideEffects = current.sideEffects.add(
-                    EpisodesListSideEffect.OnLoadEpisodesRequested(newFilter)
-                )
             )
         }
     }
@@ -66,9 +60,6 @@ object EpisodesListTransforms {
                         season?.toString() ?: ""
                     ),
                 ),
-                sideEffects = current.sideEffects.add(
-                    EpisodesListSideEffect.OnLoadEpisodesRequested(newFilter)
-                )
             )
         }
     }
@@ -88,19 +79,27 @@ object EpisodesListTransforms {
                         episode?.toString() ?: ""
                     ),
                 ),
+            )
+        }
+    }
+
+    data class EpisodeItemClick(val episodeId: Int) : EpisodesListTransform {
+
+        override fun reduce(current: EpisodesListStateWithEffects): EpisodesListStateWithEffects {
+            return current.copy(
                 sideEffects = current.sideEffects.add(
-                    EpisodesListSideEffect.OnLoadEpisodesRequested(newFilter)
+                    EpisodesListSideEffect.NavigateToEpisodeDetail(episodeId)
                 )
             )
         }
     }
 
-    data class EpisodeItemClick(val characterId: Int) : EpisodesListTransform {
+    data object BackClick : EpisodesListTransform {
 
         override fun reduce(current: EpisodesListStateWithEffects): EpisodesListStateWithEffects {
             return current.copy(
                 sideEffects = current.sideEffects.add(
-                    EpisodesListSideEffect.OnEpisodeItemClicked(characterId)
+                    EpisodesListSideEffect.NavigateBack
                 )
             )
         }

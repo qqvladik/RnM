@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailIntent
+import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailSideEffect
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailState
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailViewModel
 import pl.mankevich.coreui.ui.CharacterSharedElementKey
@@ -81,10 +82,10 @@ import pl.mankevich.model.LocationShort
 @Composable
 fun CharacterDetailScreen(
     viewModel: CharacterDetailViewModel,
-    onStatusFilterClick: (String) -> Unit,
-    onSpeciesFilterClick: (String) -> Unit,
-    onGenderFilterClick: (String) -> Unit,
-    onTypeFilterClick: (String) -> Unit,
+    navigateToCharactersListByStatus: (String) -> Unit,
+    navigateToCharactersListBySpecies: (String) -> Unit,
+    navigateToCharactersListByGender: (String) -> Unit,
+    navigateToCharactersListByType: (String) -> Unit,
     navigateToLocationDetail: (Int) -> Unit,
     navigateToEpisodeDetail: (Int) -> Unit,
     navigateBack: () -> Unit,
@@ -94,27 +95,42 @@ fun CharacterDetailScreen(
 
     SideEffect {
         stateWithEffects.sideEffects.forEach { sideEffect ->
-            viewModel.handleSideEffect(
-                sideEffect = sideEffect,
-                navigateToLocationDetail = navigateToLocationDetail,
-                navigateToEpisodeDetail = navigateToEpisodeDetail,
-                navigateBack = navigateBack,
-            )
+            when (sideEffect) {
+                is CharacterDetailSideEffect.NavigateToCharactersListByStatus ->
+                    navigateToCharactersListByStatus(sideEffect.status)
+
+                is CharacterDetailSideEffect.NavigateToCharactersListBySpecies ->
+                    navigateToCharactersListBySpecies(sideEffect.species)
+
+                is CharacterDetailSideEffect.NavigateToCharactersListByGender ->
+                    navigateToCharactersListByGender(sideEffect.gender)
+
+                is CharacterDetailSideEffect.NavigateToCharactersListByType ->
+                    navigateToCharactersListByType(sideEffect.type)
+
+                is CharacterDetailSideEffect.NavigateToLocationDetail ->
+                    navigateToLocationDetail(sideEffect.locationId)
+
+                is CharacterDetailSideEffect.NavigateToEpisodeDetail ->
+                    navigateToEpisodeDetail(sideEffect.episodeId)
+
+                is CharacterDetailSideEffect.NavigateBack -> navigateBack()
+            }
         }
     }
 
     CharacterDetailView(
         id = viewModel.characterId,
         state = state,
-        onStatusFilterClick = onStatusFilterClick,
-        onSpeciesFilterClick = onSpeciesFilterClick,
-        onGenderFilterClick = onGenderFilterClick,
-        onTypeFilterClick = onTypeFilterClick,
+        onStatusFilterClick = { viewModel.sendIntent(CharacterDetailIntent.StatusFilterClick(it)) },
+        onSpeciesFilterClick = { viewModel.sendIntent(CharacterDetailIntent.SpeciesFilterClick(it)) },
+        onGenderFilterClick = { viewModel.sendIntent(CharacterDetailIntent.GenderFilterClick(it)) },
+        onTypeFilterClick = { viewModel.sendIntent(CharacterDetailIntent.TypeFilterClick(it)) },
         onOriginClick = { viewModel.sendIntent(CharacterDetailIntent.LocationItemClick(it)) },
         onLocationClick = { viewModel.sendIntent(CharacterDetailIntent.LocationItemClick(it)) },
         onEpisodeItemClick = { viewModel.sendIntent(CharacterDetailIntent.EpisodeItemClick(it)) },
-        onBackPress = { viewModel.sendIntent(CharacterDetailIntent.BackClick) },
-        onCharacterErrorClick = { viewModel.sendIntent(CharacterDetailIntent.LoadCharacter) },
+        onBackClick = { viewModel.sendIntent(CharacterDetailIntent.BackClick) },
+        onCharacterErrorClick = { viewModel.sendIntent(CharacterDetailIntent.LoadCharacterDetail) },
         onEpisodesErrorClick = { viewModel.sendIntent(CharacterDetailIntent.LoadEpisodes) },
         modifier = Modifier
             .fillMaxSize()
@@ -134,7 +150,7 @@ fun CharacterDetailView(
     onOriginClick: (Int) -> Unit,
     onLocationClick: (Int) -> Unit,
     onEpisodeItemClick: (Int) -> Unit,
-    onBackPress: () -> Unit,
+    onBackClick: () -> Unit,
     onCharacterErrorClick: () -> Unit,
     onEpisodesErrorClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -164,7 +180,7 @@ fun CharacterDetailView(
                         },
                         navigationIcon = {
                             SurfaceIconButton(
-                                onClick = onBackPress,
+                                onClick = onBackClick,
                                 imageVector = RnmIcons.CaretLeft,
                                 contentDescription = "Back button",
                                 iconSize = 20.dp,
@@ -604,7 +620,7 @@ fun CharacterDetailScreenPreview() {
                 onOriginClick = {},
                 onLocationClick = {},
                 onEpisodeItemClick = {},
-                onBackPress = {},
+                onBackClick = {},
                 onCharacterErrorClick = {},
                 onEpisodesErrorClick = {},
                 modifier = Modifier.fillMaxSize(),

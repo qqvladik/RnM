@@ -9,22 +9,30 @@ import pl.mankevich.model.Episode
 typealias EpisodeDetailStateWithEffects = StateWithEffects<EpisodeDetailState, EpisodeDetailSideEffect>
 typealias EpisodeDetailMviViewModel = MviViewModel<EpisodeDetailIntent, EpisodeDetailStateWithEffects>
 
-sealed class EpisodeDetailIntent {
+sealed interface EpisodeDetailIntent {
 
-    data object LoadEpisode : EpisodeDetailIntent(), UniqueIntent
+    data object LoadEpisodeDetail : EpisodeDetailIntent, UniqueIntent
 
-    data object LoadCharacters : EpisodeDetailIntent(), UniqueIntent
+    data object LoadCharacters : EpisodeDetailIntent, UniqueIntent
 
-    data class CharacterItemClick(val characterId: Int) : EpisodeDetailIntent()
+    data class SeasonFilterClick(val season: Int) : EpisodeDetailIntent
+
+    data class EpisodeFilterClick(val episode: Int) : EpisodeDetailIntent
+
+    data class CharacterItemClick(val characterId: Int) : EpisodeDetailIntent
+
+    data object BackClick : EpisodeDetailIntent
 }
 
 sealed interface EpisodeDetailSideEffect {
 
-    data object OnLoadEpisodeRequested : EpisodeDetailSideEffect
+    data class NavigateToEpisodesListBySeason(val season: Int) : EpisodeDetailSideEffect
 
-    data object OnLoadEpisodesRequested : EpisodeDetailSideEffect
+    data class NavigateToEpisodesListByEpisode(val episode: Int) : EpisodeDetailSideEffect
 
-    data class OnCharacterItemClicked(val characterId: Int) : EpisodeDetailSideEffect
+    data class NavigateToCharacterDetail(val characterId: Int) : EpisodeDetailSideEffect
+
+    data object NavigateBack : EpisodeDetailSideEffect
 }
 
 data class EpisodeDetailState(

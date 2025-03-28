@@ -38,7 +38,6 @@ import pl.mankevich.coreui.ui.EpisodeCard
 import pl.mankevich.coreui.ui.EpisodeCardPlaceholder
 import pl.mankevich.coreui.ui.SearchFilterAppBar
 import pl.mankevich.coreui.ui.filter.FilterGroup
-import pl.mankevich.coreui.ui.filter.FilterGroup.Companion.invoke
 import pl.mankevich.coreui.utils.episodeEpisodeIconResolver
 import pl.mankevich.coreui.utils.episodeSeasonIconResolver
 import pl.mankevich.designsystem.component.EmptyView
@@ -56,6 +55,7 @@ import pl.mankevich.designsystem.utils.WithAnimatedVisibilityScope
 import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListIntent
+import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListSideEffect
 import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListState
 import pl.mankevich.episodeslist.presentation.viewmodel.EpisodesListViewModel
 import pl.mankevich.model.Episode
@@ -64,7 +64,7 @@ import pl.mankevich.model.EpisodeFilter
 @Composable
 fun EpisodesListScreen(
     viewModel: EpisodesListViewModel,
-    onEpisodeItemClick: (Int) -> Unit,
+    navigateToEpisodeDetail: (Int) -> Unit,
     navigateBack: (() -> Unit)? = null,
 ) {
     val stateWithEffects by viewModel.stateWithEffects.collectAsStateWithLifecycle()
@@ -72,7 +72,13 @@ fun EpisodesListScreen(
 
     SideEffect {
         stateWithEffects.sideEffects.forEach { sideEffect ->
-            viewModel.handleSideEffect(sideEffect, onEpisodeItemClick)
+            when (sideEffect) {
+                is EpisodesListSideEffect.NavigateToEpisodeDetail ->
+                    navigateToEpisodeDetail(sideEffect.episodeId)
+
+                EpisodesListSideEffect.NavigateBack ->
+                    navigateBack?.invoke()
+            }
         }
     }
 
@@ -83,7 +89,7 @@ fun EpisodesListScreen(
         onSeasonSelected = { viewModel.sendIntent(EpisodesListIntent.SeasonChanged(it.toIntOrNull())) },
         onEpisodeSelected = { viewModel.sendIntent(EpisodesListIntent.EpisodeChanged(it.toIntOrNull())) },
         onEpisodeItemClick = { viewModel.sendIntent(EpisodesListIntent.EpisodeItemClick(it)) },
-        onBackPress = navigateBack,
+        onBackClick = navigateBack?.let { { viewModel.sendIntent(EpisodesListIntent.BackClick) } },
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
@@ -92,14 +98,14 @@ fun EpisodesListScreen(
 
 @Composable
 fun EpisodesListView(
+    modifier: Modifier = Modifier,
     state: EpisodesListState,
     onSearchChange: (String) -> Unit,
     onSearchClear: () -> Unit,
     onSeasonSelected: (String) -> Unit,
     onEpisodeSelected: (String) -> Unit,
     onEpisodeItemClick: (Int) -> Unit,
-    onBackPress: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    onBackClick: (() -> Unit)? = null,
 ) {
     val pagingEpisodeItems = state.episodes.collectAsLazyPagingItems()
 
@@ -139,7 +145,7 @@ fun EpisodesListView(
                                     onSelectedChanged = onEpisodeSelected,
                                 ),
                             ),
-                            onBackPress = onBackPress,
+                            onBackPress = onBackClick,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
@@ -312,7 +318,7 @@ fun EpisodesListViewPreview() {
             onEpisodeSelected = {},
             onSeasonSelected = {},
             onEpisodeItemClick = {},
-            onBackPress = {},
+            onBackClick = {},
             modifier = Modifier.fillMaxSize()
         )
     }

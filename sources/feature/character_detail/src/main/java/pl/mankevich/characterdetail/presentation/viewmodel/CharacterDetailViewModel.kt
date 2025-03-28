@@ -5,11 +5,13 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import pl.mankevich.characterdetail.getCharacterId
-import pl.mankevich.coreui.mvi.SideEffects
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadCharacterDetailUseCase
@@ -22,11 +24,7 @@ class CharacterDetailViewModel
     private val loadEpisodesByCharacterIdUseCase: LoadEpisodesByCharacterIdUseCase,
 ) : CharacterDetailMviViewModel(
     initialStateWithEffects = CharacterDetailStateWithEffects(
-        state = CharacterDetailState(),
-        sideEffects = SideEffects<CharacterDetailSideEffect>().add(
-            CharacterDetailSideEffect.OnLoadCharacterRequested,
-            CharacterDetailSideEffect.OnLoadEpisodesRequested
-        )
+        state = CharacterDetailState()
     )
 ) {
     @AssistedFactory
@@ -34,45 +32,31 @@ class CharacterDetailViewModel
 
     val characterId = savedStateHandle.getCharacterId()
 
+    override fun initialize() {
+        sendIntent(CharacterDetailIntent.LoadCharacterDetail)
+    }
+
     override fun executeIntent(intent: CharacterDetailIntent): Flow<Transform<CharacterDetailStateWithEffects>> =
         when (intent) {
-            is CharacterDetailIntent.LoadCharacter -> flowOf(
-                CharacterDetailTransforms.LoadCharacter(characterId)
-            ).flatMapMerge {
-                try {
-                    loadCharacterDetailUseCase(characterId = characterId)
-                        .map { CharacterDetailTransforms.LoadCharacterSuccess(it) }
-                } catch (e: Throwable) {
-                    flowOf(CharacterDetailTransforms.LoadCharacterError(e))
-                }
-            }
+            CharacterDetailIntent.LoadCharacterDetail -> merge(loadCharacter(), loadEpisodes())
 
-//            {
-//                val loadCharacterFlow = flowOf(
-//                    CharacterDetailTransforms.LoadCharacter(characterId),
-////                    CharacterDetailTransforms.LoadEpisodes(characterId)
-//                )
-//
-//                val loadCharacterDetailFlow = try {
-//                    loadCharacterDetailUseCase(characterId = characterId)
-//                        .map { CharacterDetailTransforms.LoadCharacterSuccess(it) }
-//                } catch (e: Throwable) {
-//                    flowOf(CharacterDetailTransforms.LoadCharacterError(e))
-//                }
-//
-//                flowOf(loadCharacterFlow, loadCharacterDetailFlow).flattenConcat()
-//            }
+            CharacterDetailIntent.LoadEpisodes -> loadEpisodes()
 
-            is CharacterDetailIntent.LoadEpisodes -> flowOf(
-                CharacterDetailTransforms.LoadEpisodes(characterId)
-            ).flatMapMerge {
-                try {
-                    loadEpisodesByCharacterIdUseCase(characterId = characterId)
-                        .map { CharacterDetailTransforms.LoadEpisodesSuccess(it) }
-                } catch (e: Throwable) {
-                    flowOf(CharacterDetailTransforms.LoadEpisodesError(e))
-                }
-            }
+            is CharacterDetailIntent.StatusFilterClick -> flowOf(
+                CharacterDetailTransforms.StatusFilterClick(intent.status)
+            )
+
+            is CharacterDetailIntent.SpeciesFilterClick -> flowOf(
+                CharacterDetailTransforms.SpeciesFilterClick(intent.species)
+            )
+
+            is CharacterDetailIntent.GenderFilterClick -> flowOf(
+                CharacterDetailTransforms.GenderFilterClick(intent.gender)
+            )
+
+            is CharacterDetailIntent.TypeFilterClick -> flowOf(
+                CharacterDetailTransforms.TypeFilterClick(intent.type)
+            )
 
             is CharacterDetailIntent.LocationItemClick -> flowOf(
                 CharacterDetailTransforms.LocationItemClick(intent.locationId)
@@ -87,27 +71,23 @@ class CharacterDetailViewModel
             )
         }
 
-    fun handleSideEffect(
-        sideEffect: CharacterDetailSideEffect,
-//        navigateToCharactersList: (String, String, String, String) -> Unit, //TODO
-        navigateToLocationDetail: (Int) -> Unit,
-        navigateToEpisodeDetail: (Int) -> Unit,
-        navigateBack: () -> Unit,
-    ) {
-        when (sideEffect) {
-            is CharacterDetailSideEffect.OnLoadCharacterRequested ->
-                sendIntent(CharacterDetailIntent.LoadCharacter)
-
-            is CharacterDetailSideEffect.OnLoadEpisodesRequested ->
-                sendIntent(CharacterDetailIntent.LoadEpisodes)
-
-            is CharacterDetailSideEffect.OnLocationItemClicked ->
-                navigateToLocationDetail(sideEffect.locationId)
-
-            is CharacterDetailSideEffect.OnEpisodeItemClicked ->
-                navigateToEpisodeDetail(sideEffect.episodeId)
-
-            is CharacterDetailSideEffect.OnBackClicked -> navigateBack()
+    private fun loadCharacter(): Flow<Transform<CharacterDetailStateWithEffects>> =
+        flow {
+            emit(CharacterDetailTransforms.LoadCharacter(characterId))
+            val result = loadCharacterDetailUseCase(characterId = characterId)
+                .map { CharacterDetailTransforms.LoadCharacterSuccess(it) }
+                .catch { emit(CharacterDetailTransforms.LoadCharacterError(it)) }
+            emitAll(result)
         }
-    }
+
+    private fun loadEpisodes(): Flow<Transform<CharacterDetailStateWithEffects>> =
+        flow {
+            emit(CharacterDetailTransforms.LoadEpisodes(characterId))
+            val result = loadEpisodesByCharacterIdUseCase(characterId = characterId)
+                .map { CharacterDetailTransforms.LoadEpisodesSuccess(it) }
+                .catch {
+                    emit(CharacterDetailTransforms.LoadEpisodesError(it))
+                }
+            emitAll(result)
+        }
 }

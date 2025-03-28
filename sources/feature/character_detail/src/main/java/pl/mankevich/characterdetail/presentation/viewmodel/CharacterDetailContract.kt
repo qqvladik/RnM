@@ -11,9 +11,17 @@ typealias CharacterDetailMviViewModel = MviViewModel<CharacterDetailIntent, Char
 
 sealed class CharacterDetailIntent {
 
-    data object LoadCharacter : CharacterDetailIntent(), UniqueIntent
+    data object LoadCharacterDetail : CharacterDetailIntent(), UniqueIntent
 
     data object LoadEpisodes : CharacterDetailIntent(), UniqueIntent
+
+    data class StatusFilterClick(val status: String) : CharacterDetailIntent()
+
+    data class SpeciesFilterClick(val species: String) : CharacterDetailIntent()
+
+    data class GenderFilterClick(val gender: String) : CharacterDetailIntent()
+
+    data class TypeFilterClick(val type: String) : CharacterDetailIntent()
 
     data class LocationItemClick(val locationId: Int) : CharacterDetailIntent()
 
@@ -24,15 +32,19 @@ sealed class CharacterDetailIntent {
 
 sealed interface CharacterDetailSideEffect {
 
-    data object OnLoadCharacterRequested : CharacterDetailSideEffect
+    data class NavigateToCharactersListByStatus(val status: String) : CharacterDetailSideEffect
 
-    data object OnLoadEpisodesRequested : CharacterDetailSideEffect
+    data class NavigateToCharactersListBySpecies(val species: String) : CharacterDetailSideEffect
 
-    data class OnLocationItemClicked(val locationId: Int) : CharacterDetailSideEffect
+    data class NavigateToCharactersListByGender(val gender: String) : CharacterDetailSideEffect
 
-    data class OnEpisodeItemClicked(val episodeId: Int) : CharacterDetailSideEffect
+    data class NavigateToCharactersListByType(val type: String) : CharacterDetailSideEffect
 
-    data object OnBackClicked : CharacterDetailSideEffect
+    data class NavigateToLocationDetail(val locationId: Int) : CharacterDetailSideEffect
+
+    data class NavigateToEpisodeDetail(val episodeId: Int) : CharacterDetailSideEffect
+
+    data object NavigateBack : CharacterDetailSideEffect
 }
 
 data class CharacterDetailState(

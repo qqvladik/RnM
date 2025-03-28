@@ -44,7 +44,7 @@ class CharactersListEntryImpl @Inject constructor() : CharactersListEntry() {
     }
 }
 
-fun SavedStateHandle.getCharacterFilterTypesafe(): CharacterFilter =
+fun SavedStateHandle.getCharacterFilter(): CharacterFilter =
     this.toRoute<CharactersListRoute>().toCharacterFilter()
 
 fun CharactersListRoute.toCharacterFilter() = CharacterFilter(

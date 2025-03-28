@@ -12,10 +12,10 @@ object CharacterDetailTransforms {
 
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
-                state = current.state.copy(character = null),
-                sideEffects = current.sideEffects.add(
-                    CharacterDetailSideEffect.OnLoadCharacterRequested
-                )
+                state = current.state.copy(
+                    character = null,
+                    characterError = null
+                ),
             )
         }
     }
@@ -48,10 +48,10 @@ object CharacterDetailTransforms {
 
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
-                state = current.state.copy(episodes = null),
-                sideEffects = current.sideEffects.add(
-                    CharacterDetailSideEffect.OnLoadEpisodesRequested
-                )
+                state = current.state.copy(
+                    episodes = null,
+                    episodesError = null
+                ),
             )
         }
     }
@@ -80,12 +80,56 @@ object CharacterDetailTransforms {
         }
     }
 
+    data class StatusFilterClick(val status: String) : CharacterDetailTransform {
+
+        override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    CharacterDetailSideEffect.NavigateToCharactersListByStatus(status)
+                )
+            )
+        }
+    }
+
+    data class SpeciesFilterClick(val species: String) : CharacterDetailTransform {
+
+        override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    CharacterDetailSideEffect.NavigateToCharactersListBySpecies(species)
+                )
+            )
+        }
+    }
+
+    data class GenderFilterClick(val gender: String) : CharacterDetailTransform {
+
+        override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    CharacterDetailSideEffect.NavigateToCharactersListByGender(gender)
+                )
+            )
+        }
+    }
+
+    data class TypeFilterClick(val type: String) : CharacterDetailTransform {
+
+        override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    CharacterDetailSideEffect.NavigateToCharactersListByType(type)
+                )
+            )
+        }
+    }
+
     data class LocationItemClick(val locationId: Int) : CharacterDetailTransform {
 
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
                 sideEffects = current.sideEffects.add(
-                    CharacterDetailSideEffect.OnLocationItemClicked(locationId)
+                    CharacterDetailSideEffect.NavigateToLocationDetail(locationId)
                 )
             )
         }
@@ -96,7 +140,7 @@ object CharacterDetailTransforms {
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
                 sideEffects = current.sideEffects.add(
-                    CharacterDetailSideEffect.OnEpisodeItemClicked(episodeId)
+                    CharacterDetailSideEffect.NavigateToEpisodeDetail(episodeId)
                 )
             )
         }
@@ -107,7 +151,7 @@ object CharacterDetailTransforms {
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
                 sideEffects = current.sideEffects.add(
-                    CharacterDetailSideEffect.OnBackClicked
+                    CharacterDetailSideEffect.NavigateBack
                 )
             )
         }

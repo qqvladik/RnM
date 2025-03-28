@@ -3,9 +3,9 @@ package pl.mankevich.locationslist.presentation.viewmodel
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import pl.mankevich.coreui.mvi.Transform
+import pl.mankevich.coreui.ui.filter.addLabelIfUnique
 import pl.mankevich.model.Location
 import pl.mankevich.model.LocationFilter
-import kotlin.collections.plus
 
 typealias LocationsListTransform = Transform<LocationsListStateWithEffects>
 
@@ -22,8 +22,6 @@ object LocationsListTransforms {
                     typeLabelList = current.state.typeLabelList.addLabelIfUnique(filter.type),
                     dimensionLabelList = current.state.dimensionLabelList.addLabelIfUnique(filter.dimension),
                 ),
-                sideEffects = current.sideEffects
-                    .add(LocationsListSideEffect.OnLoadLocationsRequested(filter))
             )
         }
     }
@@ -39,9 +37,6 @@ object LocationsListTransforms {
                 state = current.state.copy(
                     locationFilter = newFilter,
                 ),
-                sideEffects = current.sideEffects.add(
-                    LocationsListSideEffect.OnLoadLocationsRequested(newFilter)
-                )
             )
         }
     }
@@ -57,9 +52,6 @@ object LocationsListTransforms {
                     locationFilter = newFilter,
                     typeLabelList = current.state.typeLabelList.addLabelIfUnique(type),
                 ),
-                sideEffects = current.sideEffects.add(
-                    LocationsListSideEffect.OnLoadLocationsRequested(newFilter)
-                )
             )
         }
     }
@@ -75,9 +67,6 @@ object LocationsListTransforms {
                     locationFilter = newFilter,
                     dimensionLabelList = current.state.dimensionLabelList.addLabelIfUnique(dimension),
                 ),
-                sideEffects = current.sideEffects.add(
-                    LocationsListSideEffect.OnLoadLocationsRequested(newFilter)
-                )
             )
         }
     }
@@ -87,7 +76,18 @@ object LocationsListTransforms {
         override fun reduce(current: LocationsListStateWithEffects): LocationsListStateWithEffects {
             return current.copy(
                 sideEffects = current.sideEffects.add(
-                    LocationsListSideEffect.OnCharacterItemClicked(characterId)
+                    LocationsListSideEffect.NavigateToLocationDetail(characterId)
+                )
+            )
+        }
+    }
+
+    data object BackClick : LocationsListTransform {
+
+        override fun reduce(current: LocationsListStateWithEffects): LocationsListStateWithEffects {
+            return current.copy(
+                sideEffects = current.sideEffects.add(
+                    LocationsListSideEffect.NavigateBack
                 )
             )
         }
@@ -107,8 +107,3 @@ object LocationsListTransforms {
     }
 }
 
-private fun List<String>.addLabelIfUnique(filter: String): List<String> {
-    if (filter.isBlank()) return this
-    if (this.any { it.equals(filter, ignoreCase = true) }) return this
-    return this.plus(filter)
-}

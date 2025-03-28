@@ -13,33 +13,28 @@ import pl.mankevich.model.EpisodeFilter
 typealias EpisodesListStateWithEffects = StateWithEffects<EpisodesListState, EpisodesListSideEffect>
 typealias EpisodesListMviViewModel = MviViewModel<EpisodesListIntent, EpisodesListStateWithEffects>
 
-sealed class EpisodesListIntent {
+sealed interface EpisodesListIntent {
 
-    data class Init(val episodeFilter: EpisodeFilter) : EpisodesListIntent(), UniqueIntent
+    data class Init(val episodeFilter: EpisodeFilter) : EpisodesListIntent, UniqueIntent
 
-    data class LoadEpisodes(val episodeFilter: EpisodeFilter) : EpisodesListIntent(), UniqueIntent
+    data object Refresh : EpisodesListIntent, UniqueIntent
 
-    data class Refresh(val episodeFilter: EpisodeFilter) : EpisodesListIntent(), UniqueIntent
+    data class NameChanged(val name: String) : EpisodesListIntent, UniqueIntent
 
-    data class EpisodeItemClick(val characterId: Int) : EpisodesListIntent()
+    data class EpisodeChanged(val episode: Int?) : EpisodesListIntent, UniqueIntent
 
-    data class NameChanged(val name: String) : EpisodesListIntent()
+    data class SeasonChanged(val season: Int?) : EpisodesListIntent, UniqueIntent
 
-    data class EpisodeChanged(val episode: Int?) : EpisodesListIntent()
+    data class EpisodeItemClick(val episodeId: Int) : EpisodesListIntent
 
-    data class SeasonChanged(val season: Int?) : EpisodesListIntent()
+    data object BackClick : EpisodesListIntent
 }
 
 sealed interface EpisodesListSideEffect {
 
-    data class OnInitRequested(val episodeFilter: EpisodeFilter) : EpisodesListSideEffect
+    data class NavigateToEpisodeDetail(val episodeId: Int) : EpisodesListSideEffect
 
-    data class OnEpisodeItemClicked(val episodeId: Int) : EpisodesListSideEffect
-
-    data class OnLoadEpisodesRequested(val episodeFilter: EpisodeFilter) :
-        EpisodesListSideEffect
-
-    data class OnRefreshRequested(val episodeFilter: EpisodeFilter) : EpisodesListSideEffect
+    data object NavigateBack : EpisodesListSideEffect
 }
 
 @Immutable

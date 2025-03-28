@@ -34,7 +34,7 @@ class EpisodesListEntryImpl @Inject constructor() : EpisodesListEntry() {
         )
         EpisodesListScreen(
             viewModel = viewModel,
-            onEpisodeItemClick = { episodeId ->
+            navigateToEpisodeDetail = { episodeId ->
                 val destination =
                     featureEntries.find<EpisodeDetailEntry>().destination(episodeId)
                 navController.navigate(destination)

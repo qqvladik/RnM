@@ -62,6 +62,7 @@ import pl.mankevich.designsystem.utils.WithSharedTransitionScope
 import pl.mankevich.designsystem.utils.isLandscape
 import pl.mankevich.designsystem.utils.placeholderConnecting
 import pl.mankevich.episodedetail.presentation.viewmodel.EpisodeDetailIntent
+import pl.mankevich.episodedetail.presentation.viewmodel.EpisodeDetailSideEffect
 import pl.mankevich.episodedetail.presentation.viewmodel.EpisodeDetailState
 import pl.mankevich.episodedetail.presentation.viewmodel.EpisodeDetailViewModel
 import pl.mankevich.model.Character
@@ -70,8 +71,8 @@ import pl.mankevich.model.Episode
 @Composable
 fun EpisodeDetailScreen(
     viewModel: EpisodeDetailViewModel,
-    onEpisodeFilterClick: (Int) -> Unit,
-    onSeasonFilterClick: (Int) -> Unit,
+    navigateToEpisodesListBySeason: (Int) -> Unit,
+    navigateToEpisodesListByEpisode: (Int) -> Unit,
     navigateToCharacterDetail: (Int) -> Unit,
     navigateUp: () -> Unit,
 ) {
@@ -79,20 +80,32 @@ fun EpisodeDetailScreen(
     val state = stateWithEffects.state
 
     SideEffect {
-        stateWithEffects.sideEffects.forEach {
-            viewModel.handleSideEffect(it)
+        stateWithEffects.sideEffects.forEach { sideEffect ->
+            when (sideEffect) {
+                is EpisodeDetailSideEffect.NavigateToEpisodesListBySeason ->
+                    navigateToEpisodesListBySeason(sideEffect.season)
+
+                is EpisodeDetailSideEffect.NavigateToEpisodesListByEpisode ->
+                    navigateToEpisodesListByEpisode(sideEffect.episode)
+
+                is EpisodeDetailSideEffect.NavigateToCharacterDetail ->
+                    navigateToCharacterDetail(sideEffect.characterId)
+
+                is EpisodeDetailSideEffect.NavigateBack ->
+                    navigateUp()
+            }
         }
     }
 
     EpisodeDetailView(
         id = viewModel.episodeId,
         state = state,
-        onSeasonFilterClick = onSeasonFilterClick,
-        onEpisodeFilterClick = onEpisodeFilterClick,
-        onCharacterItemClick = navigateToCharacterDetail,
-        onEpisodeErrorClick = { viewModel.sendIntent(EpisodeDetailIntent.LoadEpisode) },
+        onSeasonFilterClick = { viewModel.sendIntent(EpisodeDetailIntent.SeasonFilterClick(it)) },
+        onEpisodeFilterClick = { viewModel.sendIntent(EpisodeDetailIntent.EpisodeFilterClick(it)) },
+        onCharacterItemClick = { viewModel.sendIntent(EpisodeDetailIntent.CharacterItemClick(it)) },
+        onEpisodeErrorClick = { viewModel.sendIntent(EpisodeDetailIntent.LoadEpisodeDetail) },
         onCharactersErrorClick = { viewModel.sendIntent(EpisodeDetailIntent.LoadCharacters) },
-        onBackPress = navigateUp,
+        onBackClick = { viewModel.sendIntent(EpisodeDetailIntent.BackClick) },
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
@@ -108,7 +121,7 @@ fun EpisodeDetailView(
     onCharacterItemClick: (Int) -> Unit,
     onEpisodeErrorClick: () -> Unit,
     onCharactersErrorClick: () -> Unit,
-    onBackPress: () -> Unit,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -136,7 +149,7 @@ fun EpisodeDetailView(
                         },
                         navigationIcon = {
                             SurfaceIconButton(
-                                onClick = onBackPress,
+                                onClick = onBackClick,
                                 imageVector = RnmIcons.CaretLeft,
                                 contentDescription = "Back button",
                                 iconSize = 20.dp,
@@ -420,7 +433,7 @@ fun EpisodeDetailScreenPreview() {
                 onCharacterItemClick = {},
                 onEpisodeErrorClick = {},
                 onCharactersErrorClick = {},
-                onBackPress = {},
+                onBackClick = {},
                 modifier = Modifier.fillMaxSize(),
             )
         }

@@ -13,33 +13,28 @@ import pl.mankevich.model.LocationFilter
 typealias LocationsListStateWithEffects = StateWithEffects<LocationsListState, LocationsListSideEffect>
 typealias LocationsListMviViewModel = MviViewModel<LocationsListIntent, LocationsListStateWithEffects>
 
-sealed class LocationsListIntent {
+sealed interface LocationsListIntent {
 
-    data class Init(val locationFilter: LocationFilter) : LocationsListIntent(), UniqueIntent
+    data class Init(val locationFilter: LocationFilter) : LocationsListIntent, UniqueIntent
 
-    data class LoadLocations(val locationFilter: LocationFilter) : LocationsListIntent(), UniqueIntent
+    data object Refresh : LocationsListIntent, UniqueIntent
 
-    data class Refresh(val locationFilter: LocationFilter) : LocationsListIntent(), UniqueIntent
+    data class NameChanged(val name: String) : LocationsListIntent, UniqueIntent
 
-    data class LocationItemClick(val locationId: Int) : LocationsListIntent()
+    data class TypeChanged(val type: String) : LocationsListIntent, UniqueIntent
 
-    data class NameChanged(val name: String) : LocationsListIntent()
+    data class DimensionChanged(val dimension: String) : LocationsListIntent, UniqueIntent
 
-    data class TypeChanged(val type: String) : LocationsListIntent()
+    data class LocationItemClick(val locationId: Int) : LocationsListIntent
 
-    data class DimensionChanged(val dimension: String) : LocationsListIntent()
+    data object BackClick : LocationsListIntent
 }
 
 sealed interface LocationsListSideEffect {
 
-    data class OnInitRequested(val locationFilter: LocationFilter) : LocationsListSideEffect
+    data class NavigateToLocationDetail(val locationId: Int) : LocationsListSideEffect
 
-    data class OnCharacterItemClicked(val characterId: Int) : LocationsListSideEffect
-
-    data class OnLoadLocationsRequested(val locationFilter: LocationFilter) :
-        LocationsListSideEffect
-
-    data class OnRefreshRequested(val locationFilter: LocationFilter) : LocationsListSideEffect
+    data object NavigateBack : LocationsListSideEffect
 }
 
 @Immutable

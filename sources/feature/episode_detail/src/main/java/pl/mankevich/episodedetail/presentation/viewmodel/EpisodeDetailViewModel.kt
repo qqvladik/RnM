@@ -5,11 +5,12 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import pl.mankevich.coreui.mvi.SideEffects
+import kotlinx.coroutines.flow.merge
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadCharactersByEpisodeIdUseCase
@@ -24,10 +25,6 @@ class EpisodeDetailViewModel
 ) : EpisodeDetailMviViewModel(
     initialStateWithEffects = EpisodeDetailStateWithEffects(
         state = EpisodeDetailState(),
-        sideEffects = SideEffects<EpisodeDetailSideEffect>().add(
-            EpisodeDetailSideEffect.OnLoadEpisodeRequested,
-            EpisodeDetailSideEffect.OnLoadEpisodesRequested
-        )
     )
 ) {
 
@@ -36,45 +33,52 @@ class EpisodeDetailViewModel
 
     val episodeId = savedStateHandle.getEpisodeId()
 
+    override fun initialize() {
+        sendIntent(EpisodeDetailIntent.LoadEpisodeDetail)
+    }
+
     override fun executeIntent(intent: EpisodeDetailIntent): Flow<Transform<EpisodeDetailStateWithEffects>> =
         when (intent) {
-            is EpisodeDetailIntent.LoadEpisode -> flowOf(
-                EpisodeDetailTransforms.LoadEpisode(episodeId)
-            ).flatMapMerge {
-                try {
-                    loadEpisodeDetailUseCase(episodeId = episodeId)
-                        .map { EpisodeDetailTransforms.LoadEpisodeSuccess(it) }
-                } catch (e: Throwable) {
-                    flowOf(EpisodeDetailTransforms.LoadEpisodeError(e))
-                }
-            }
+            is EpisodeDetailIntent.LoadEpisodeDetail -> merge(loadEpisode(), loadCharacters())
 
-            is EpisodeDetailIntent.LoadCharacters -> flowOf(
-                EpisodeDetailTransforms.LoadCharacters(episodeId)
-            ).flatMapMerge {
-                try {
-                    loadCharactersByEpisodeIdUseCase(episodeId = episodeId)
-                        .map { EpisodeDetailTransforms.LoadCharactersSuccess(it) }
-                } catch (e: Throwable) {
-                    flowOf(EpisodeDetailTransforms.LoadCharacterError(e))
-                }
-            }
+            is EpisodeDetailIntent.LoadCharacters -> loadCharacters()
 
-            is EpisodeDetailIntent.CharacterItemClick -> emptyFlow()
+            is EpisodeDetailIntent.SeasonFilterClick -> flowOf(
+                EpisodeDetailTransforms.SeasonFilterClick(intent.season)
+            )
+
+            is EpisodeDetailIntent.EpisodeFilterClick -> flowOf(
+                EpisodeDetailTransforms.EpisodeFilterClick(intent.episode)
+            )
+
+            is EpisodeDetailIntent.CharacterItemClick -> flowOf(
+                EpisodeDetailTransforms.CharacterItemClick(intent.characterId)
+            )
+
+            is EpisodeDetailIntent.BackClick -> flowOf(
+                EpisodeDetailTransforms.BackClick
+            )
+
         }
 
-    fun handleSideEffect(
-        sideEffect: EpisodeDetailSideEffect,
-    ) {
-        when (sideEffect) {
-            is EpisodeDetailSideEffect.OnCharacterItemClicked ->
-                sendIntent(EpisodeDetailIntent.CharacterItemClick(sideEffect.characterId))
 
-            is EpisodeDetailSideEffect.OnLoadEpisodeRequested ->
-                sendIntent(EpisodeDetailIntent.LoadEpisode)
-
-            is EpisodeDetailSideEffect.OnLoadEpisodesRequested ->
-                sendIntent(EpisodeDetailIntent.LoadCharacters)
+    private fun loadEpisode(): Flow<Transform<EpisodeDetailStateWithEffects>> =
+        flow {
+            emit(EpisodeDetailTransforms.LoadEpisode(episodeId))
+            val result = loadEpisodeDetailUseCase(episodeId = episodeId)
+                .map { EpisodeDetailTransforms.LoadEpisodeSuccess(it) }
+                .catch { emit(EpisodeDetailTransforms.LoadEpisodeError(it)) }
+            emitAll(result)
         }
-    }
+
+    private fun loadCharacters(): Flow<Transform<EpisodeDetailStateWithEffects>> =
+        flow {
+            emit(EpisodeDetailTransforms.LoadCharacters(episodeId))
+            val result = loadCharactersByEpisodeIdUseCase(episodeId = episodeId)
+                .map { EpisodeDetailTransforms.LoadCharactersSuccess(it) }
+                .catch {
+                    emit(EpisodeDetailTransforms.LoadCharacterError(it))
+                }
+            emitAll(result)
+        }
 }

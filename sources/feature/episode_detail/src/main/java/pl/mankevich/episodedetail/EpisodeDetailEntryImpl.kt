@@ -33,12 +33,12 @@ class EpisodeDetailEntryImpl @Inject constructor() : EpisodeDetailEntry() {
 
         EpisodeDetailScreen(
             viewModel = viewModel,
-            onEpisodeFilterClick = { episode ->
+            navigateToEpisodesListByEpisode = { episode ->
                 val destination =
                     featureEntries.find<EpisodesListEntry>().destination(episode = episode)
                 navController.navigate(destination)
             },
-            onSeasonFilterClick = { season ->
+            navigateToEpisodesListBySeason = { season ->
                 val destination =
                     featureEntries.find<EpisodesListEntry>().destination(season = season)
                 navController.navigate(destination)

@@ -9,22 +9,30 @@ import pl.mankevich.model.Location
 typealias LocationDetailStateWithEffects = StateWithEffects<LocationDetailState, LocationDetailSideEffect>
 typealias LocationDetailMviViewModel = MviViewModel<LocationDetailIntent, LocationDetailStateWithEffects>
 
-sealed class LocationDetailIntent {
+sealed interface LocationDetailIntent {
 
-    data object LoadLocation : LocationDetailIntent(), UniqueIntent
+    data object LoadLocationDetail : LocationDetailIntent, UniqueIntent
 
-    data object LoadCharacters : LocationDetailIntent(), UniqueIntent
+    data object LoadCharacters : LocationDetailIntent, UniqueIntent
 
-    data class CharacterItemClick(val characterId: Int) : LocationDetailIntent()
+    data class DimensionFilterClick(val dimension: String) : LocationDetailIntent
+
+    data class TypeFilterClick(val type: String) : LocationDetailIntent
+
+    data class CharacterItemClick(val characterId: Int) : LocationDetailIntent
+
+    data object BackClick : LocationDetailIntent
 }
 
 sealed interface LocationDetailSideEffect {
 
-    data object OnLoadLocationRequested : LocationDetailSideEffect
+    data class NavigateToLocationsListByDimension(val dimension: String) : LocationDetailSideEffect
 
-    data object OnLoadCharactersRequested : LocationDetailSideEffect
+    data class NavigateToLocationsListByType(val type: String) : LocationDetailSideEffect
 
-    data class OnCharacterItemClicked(val characterId: Int) : LocationDetailSideEffect
+    data class NavigateToCharacterDetail(val characterId: Int) : LocationDetailSideEffect
+
+    data object NavigateBack : LocationDetailSideEffect
 }
 
 data class LocationDetailState(

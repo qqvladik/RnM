@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
@@ -25,6 +26,7 @@ abstract class MviViewModel<in TIntent : Any, TStateWithEffects>(
 
     val stateWithEffects: StateFlow<TStateWithEffects> by lazy {
         transforms
+            .onSubscription { initialize() }
             .scan(initialStateWithEffects, this::reduce)
             .stateIn(viewModelScope, SharingStarted.Eagerly, initialStateWithEffects)
     }
@@ -70,4 +72,6 @@ abstract class MviViewModel<in TIntent : Any, TStateWithEffects>(
     }
 
     protected abstract fun executeIntent(intent: TIntent): Flow<Transform<TStateWithEffects>>
+
+    open fun initialize() {}
 }

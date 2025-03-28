@@ -33,21 +33,21 @@ class LocationDetailEntryImpl @Inject constructor() : LocationDetailEntry() {
 
         LocationDetailScreen(
             viewModel = viewModel,
-            onTypeFilterClick = { type ->
+            navigateToLocationsListByType = { type ->
                 val destination = featureEntries.find<LocationsListEntry>().destination(type = type)
                 navController.navigate(destination)
             },
-            onDimensionFilterClick = { dimension ->
+            navigateToLocationsListByDimension = { dimension ->
                 val destination = featureEntries.find<LocationsListEntry>()
                     .destination(dimension = dimension)
                 navController.navigate(destination)
             },
-            onCharacterItemClick = { characterId ->
+            navigateToCharacterDetail = { characterId ->
                 val destination = featureEntries.find<CharacterDetailEntry>()
                     .destination(characterId = characterId)
                 navController.navigate(destination)
             },
-            onBackPress = { navController.navigateUp() }
+            navigateUp = { navController.navigateUp() }
         )
     }
 }
