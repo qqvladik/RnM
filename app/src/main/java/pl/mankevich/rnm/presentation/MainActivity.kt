@@ -10,8 +10,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import pl.mankevich.dependencies.LocalDependenciesProvider
 import pl.mankevich.dependencies.dependenciesProvider
 import pl.mankevich.designsystem.theme.RnmTheme
@@ -21,6 +25,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        installSplashScreen().keepDoing(300)
+
         setContent {
             RnmTheme {
                 Surface(
@@ -44,5 +51,15 @@ class MainActivity : ComponentActivity() {
         if (intent.action == Intent.ACTION_VIEW && data is Uri) {
             navController.navigate(data)
         }
+    }
+}
+
+fun SplashScreen.keepDoing(timeMillis: Long) {
+    setKeepOnScreenCondition {
+        // I just want to show splash screen without loading in background, so i just stop main thread for some time. Better not to do that!
+        runBlocking {
+            delay(timeMillis)
+        }
+        false
     }
 }

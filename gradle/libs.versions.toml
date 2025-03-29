@@ -4,6 +4,7 @@ androidGradlePlugin = "8.8.2"
 atomicfu = "0.25.0"
 coil = "3.0.4"
 composeBom = "2025.03.00"
+coreSplashscreen = "1.0.1"
 coreKtx = "1.15.0"
 dagger = "2.53.1"
 kotlin = "2.1.10"
@@ -22,6 +23,7 @@ chucker = "4.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
 androidx-compose-animation = { group = "androidx.compose.animation", name = "animation" }

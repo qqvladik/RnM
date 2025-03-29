@@ -45,7 +45,6 @@ import kotlin.math.roundToInt
  *
  * Source: https://github.com/OyaCanli/tutorial_samples/blob/master/AppBarLayoutCompose/app/src/main/java/com/canlioya/appbarlayoutcompose/FlexibleTopBar.kt
  */
-@ExperimentalMaterial3Api
 @Composable
 fun FlexibleTopBar(
     modifier: Modifier = Modifier,
