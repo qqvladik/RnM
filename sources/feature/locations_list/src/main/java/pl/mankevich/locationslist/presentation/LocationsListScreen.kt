@@ -5,11 +5,18 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -22,8 +29,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
@@ -43,7 +50,6 @@ import pl.mankevich.coreui.utils.locationTypeIconResolver
 import pl.mankevich.designsystem.component.EmptyView
 import pl.mankevich.designsystem.component.ErrorView
 import pl.mankevich.designsystem.component.FlexibleTopBar
-import pl.mankevich.designsystem.component.FlexibleTopBarDefaults
 import pl.mankevich.designsystem.component.LoadingView
 import pl.mankevich.designsystem.component.expandAnimating
 import pl.mankevich.designsystem.theme.PADDING
@@ -113,39 +119,14 @@ fun LocationsListView(
         WithAnimatedVisibilityScope {
             val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
             Scaffold(
+                contentWindowInsets = WindowInsets.safeDrawing,
                 modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
                     FlexibleTopBar(
                         scrollBehavior = scrollBehavior,
-                        colors = FlexibleTopBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent
-                        ),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        SearchFilterAppBar(
-                            searchValue = state.locationFilter.name,
-                            onSearchChange = onSearchChange,
-                            onSearchClear = onSearchClear,
-                            filterName = "Locations filter",
-                            filterGroupList = listOf(
-                                FilterGroup(
-                                    name = "Type",
-                                    selected = state.locationFilter.type,
-                                    labelList = state.typeLabelList,
-                                    isListFinished = false,
-                                    resolveIcon = locationTypeIconResolver,
-                                    onSelectedChanged = onTypeSelected,
-                                ),
-                                FilterGroup(
-                                    name = "Dimension",
-                                    selected = state.locationFilter.dimension,
-                                    labelList = state.dimensionLabelList,
-                                    isListFinished = false,
-                                    resolveIcon = locationDimensionIconResolver,
-                                    onSelectedChanged = onDimensionSelected,
-                                ),
-                            ),
-                            onBackPress = onBackClick,
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
@@ -153,8 +134,39 @@ fun LocationsListView(
                                     enter = slideInVertically { -it },
                                     exit = slideOutVertically { -it }
                                 )
-                                .background(color = MaterialTheme.colorScheme.background) //must be after renderInSharedTransitionScopeOverlay()
-                        )
+                                .background(color = MaterialTheme.colorScheme.background)
+                        ) {
+                            SearchFilterAppBar(
+                                searchValue = state.locationFilter.name,
+                                onSearchChange = onSearchChange,
+                                onSearchClear = onSearchClear,
+                                filterName = "Locations filter",
+                                filterGroupList = listOf(
+                                    FilterGroup(
+                                        name = "Type",
+                                        selected = state.locationFilter.type,
+                                        labelList = state.typeLabelList,
+                                        isListFinished = false,
+                                        resolveIcon = locationTypeIconResolver,
+                                        onSelectedChanged = onTypeSelected,
+                                    ),
+                                    FilterGroup(
+                                        name = "Dimension",
+                                        selected = state.locationFilter.dimension,
+                                        labelList = state.dimensionLabelList,
+                                        isListFinished = false,
+                                        resolveIcon = locationDimensionIconResolver,
+                                        onSelectedChanged = onDimensionSelected,
+                                    ),
+                                ),
+                                onBackPress = onBackClick,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .windowInsetsPadding(
+                                        WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                                    )
+                            )
+                        }
                     }
                 },
                 content = { paddingValues ->
@@ -179,11 +191,11 @@ fun LocationsListView(
                         horizontalArrangement = Arrangement.spacedBy(PADDING),
                         contentPadding = PaddingValues(
                             top = paddingValues.calculateTopPadding(),
-                            bottom = PADDING
+                            bottom = paddingValues.calculateBottomPadding() + PADDING,
+                            start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + PADDING,
+                            end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + PADDING
                         ),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = PADDING)
+                        modifier = Modifier.fillMaxSize()
                     ) {
 
                         val itemModifier = Modifier

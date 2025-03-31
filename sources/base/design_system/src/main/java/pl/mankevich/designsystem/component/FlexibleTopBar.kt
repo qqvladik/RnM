@@ -106,7 +106,10 @@ fun FlexibleTopBar(
                 val placeable = measurables.first().measure(constraints.copy(minWidth = 0))
                 heightOffsetLimit = placeable.height.toFloat() * -1
                 val scrollOffset = scrollBehavior?.state?.heightOffset ?: 0f
-                val height = placeable.height.toFloat() + scrollOffset
+                // Add .coerceAtLeast(0f) below to prevent negative height when rotate device with notch
+                // using edgeToEdge. Because this notch can be bigger than statusbar size, so in different rotations
+                // height of appbar + padding(status bar height or notch height) will be different.
+                val height = (placeable.height.toFloat() + scrollOffset).coerceAtLeast(0f)
                 val layoutHeight = height.roundToInt()
                 layout(constraints.maxWidth, layoutHeight) {
                     placeable.place(0, scrollOffset.toInt())
@@ -179,6 +182,7 @@ suspend fun TopAppBarScrollBehavior.expandAnimating() {
             animationSpec = tween(durationMillis = 500)
         ) { this@expandAnimating.state.heightOffset = value }
 }
+
 @Stable
 class FlexibleTopBarColors internal constructor(
     val containerColor: Color,

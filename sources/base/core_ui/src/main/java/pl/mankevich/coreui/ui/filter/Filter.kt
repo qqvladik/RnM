@@ -1,10 +1,10 @@
 package pl.mankevich.coreui.ui.filter
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -26,7 +26,6 @@ import pl.mankevich.designsystem.icons.RnmIcons
 import pl.mankevich.designsystem.theme.RnmTheme
 import pl.mankevich.designsystem.theme.ThemePreviews
 import pl.mankevich.designsystem.utils.rememberSaveableMutableStateListOf
-import kotlin.collections.first
 
 data class FilterLabel(
     val groupName: String,
@@ -80,9 +79,9 @@ fun FilterView(
     filterGroupList: List<FilterGroup>,
     chipPadding: Dp = 4.dp,
     chipHeight: Dp = 32.dp,
-    scrollablePadding: Dp = 0.dp,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     withDialogue: Boolean = true,
-    modifier: Modifier = Modifier.height(32.dp)
+    modifier: Modifier = Modifier
 ) {
 
     var showDialog by rememberSaveable { mutableStateOf(false) }
@@ -120,6 +119,7 @@ fun FilterView(
 
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(chipPadding),
+            contentPadding = contentPadding,
             modifier = Modifier.weight(1f)
         ) {
             items(count = sortedLabelList.size) { index ->
@@ -128,17 +128,7 @@ fun FilterView(
                 FilterChip(
                     label = label,
                     filterGroup = filterGroup,
-                    modifier = Modifier
-                        .let { baseModifier ->
-                            if (index == 0) Modifier.padding(start = scrollablePadding)
-                            else baseModifier
-                        }
-                        .let { baseModifier ->
-                            if (!withDialogue && index == sortedLabelList.lastIndex) {
-                                Modifier.padding(end = scrollablePadding)
-                            } else baseModifier
-                        }
-                        .height(chipHeight)
+                    modifier = Modifier.height(chipHeight)
                 )
             }
         }
@@ -212,7 +202,8 @@ fun FilterViewPreview() {
                     resolveIcon = { text -> RnmIcons.GenderIntersex },
                     onSelectedChanged = {},
                 )
-            )
+            ),
+            contentPadding = PaddingValues(horizontal = 8.dp),
         )
     }
 }
@@ -252,7 +243,7 @@ fun FilterViewWithoutDialoguePreview() {
                 )
             ),
             withDialogue = false,
-            scrollablePadding = 8.dp
+            contentPadding = PaddingValues(8.dp),
         )
     }
 }

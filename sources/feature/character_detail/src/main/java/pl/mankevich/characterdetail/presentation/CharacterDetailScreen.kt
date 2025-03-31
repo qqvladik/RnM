@@ -9,13 +9,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
@@ -40,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
@@ -160,6 +168,7 @@ fun CharacterDetailView(
 
     WithSharedTransitionScope {
         Scaffold(
+            contentWindowInsets = WindowInsets.safeDrawing,
             modifier = Modifier
                 .fillMaxSize()
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -192,6 +201,7 @@ fun CharacterDetailView(
                             scrolledContainerColor = MaterialTheme.colorScheme.surface,
                         ),
                         scrollBehavior = scrollBehavior,
+                        windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
                         modifier = Modifier
                             .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
                             .animateEnterExit(
@@ -209,21 +219,21 @@ fun CharacterDetailView(
                 columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
                 verticalItemSpacing = PADDING,
                 horizontalArrangement = Arrangement.spacedBy(PADDING),
-                modifier = modifier
-                    .padding(
-                        top = paddingValues.calculateTopPadding(),
-                        start = PADDING,
-                        end = PADDING
-                    )
-                    .sharedBounds(
-                        sharedContentState = rememberSharedContentState(
-                            key = CharacterSharedElementKey(
-                                id = id,
-                                sharedType = CharacterSharedElementType.Background,
-                            )
-                        ),
-                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
-                    )
+                contentPadding = PaddingValues(
+                    top = paddingValues.calculateTopPadding(),
+                    bottom = paddingValues.calculateBottomPadding() + PADDING,
+                    start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + PADDING,
+                    end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + PADDING
+                ),
+                modifier = modifier.sharedBounds(
+                    sharedContentState = rememberSharedContentState(
+                        key = CharacterSharedElementKey(
+                            id = id,
+                            sharedType = CharacterSharedElementType.Background,
+                        )
+                    ),
+                    animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                )
             ) {
 
                 if (state.characterError != null) {
@@ -261,8 +271,6 @@ fun CharacterDetailView(
                         onEpisodeItemClick = onEpisodeItemClick,
                         infiniteTransition = infiniteTransition
                     )
-
-                    item(span = FullLine) {}
                 }
             }
         }

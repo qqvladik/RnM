@@ -1,6 +1,7 @@
 package pl.mankevich.coreui.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -44,7 +45,7 @@ fun SearchFilterAppBar(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .height(40.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
         ) {
             if (onBackPress != null) {
                 IconButton(
@@ -76,7 +77,9 @@ fun SearchFilterAppBar(
         FilterView(
             name = filterName,
             filterGroupList = filterGroupList,
-            scrollablePadding = padding,
+            contentPadding = PaddingValues(
+                start = padding
+            ),
             modifier = Modifier
                 .height(32.dp)
                 .padding(end = padding)
