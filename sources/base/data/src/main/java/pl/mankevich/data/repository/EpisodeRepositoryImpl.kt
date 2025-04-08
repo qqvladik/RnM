@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingSourceFactory
 import kotlinx.coroutines.CoroutineDispatcher
@@ -22,6 +21,7 @@ import pl.mankevich.data.mapper.mapToEpisode
 import pl.mankevich.data.mapper.mapToEpisodeDto
 import pl.mankevich.data.paging.episode.EpisodePagingSourceCreator
 import pl.mankevich.data.paging.episode.EpisodeRemoteMediatorCreator
+import pl.mankevich.dataapi.dto.EpisodesResultDto
 import pl.mankevich.dataapi.repository.EpisodeRepository
 import pl.mankevich.databaseapi.dao.EpisodeDao
 import pl.mankevich.databaseapi.dao.RelationsDao
@@ -46,7 +46,7 @@ class EpisodeRepositoryImpl
 
     private lateinit var onTableUpdateListener: () -> Unit
 
-    override suspend fun getEpisodesPageFlow(episodeFilter: EpisodeFilter): Flow<PagingData<Episode>> {
+    override suspend fun getEpisodesPageFlow(episodeFilter: EpisodeFilter): EpisodesResultDto {
         val isOnline = networkManager.isOnline()
         val episodePagingSourceFactory = createPagingSourceFactory {
             episodePagingSourceCreator.create(isOnline, episodeFilter)
@@ -62,7 +62,10 @@ class EpisodeRepositoryImpl
             pagingSourceFactory = episodePagingSourceFactory,
         )
 
-        return pager.flow.flowOn(dispatcher)
+        return EpisodesResultDto(
+            isOnline = isOnline,
+            episodes = pager.flow.flowOn(dispatcher)
+        )
     }
 
     override fun getEpisodeDetail(episodeId: Int): Flow<Episode> =

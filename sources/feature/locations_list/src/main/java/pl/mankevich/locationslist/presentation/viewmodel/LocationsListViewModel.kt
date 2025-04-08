@@ -81,9 +81,12 @@ class LocationsListViewModel
     ): Flow<Transform<LocationsListStateWithEffects>> =
         flow {
             if (!instantRefresh) delay(QUERY_INPUT_DELAY_MILLIS)
+
+            val result = loadLocationsListUseCase(locationFilter)
             emit(
                 LocationsListTransforms.LoadLocationsListSuccess(
-                    loadLocationsListUseCase(locationFilter).cachedIn(viewModelScope)
+                    isOnline = result.isOnline,
+                    locations = result.locations.cachedIn(viewModelScope)
                 )
             )
         }

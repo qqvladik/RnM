@@ -126,15 +126,18 @@ object CharactersListTransforms {
     }
 
     data class LoadCharactersListSuccess(
+        val isOnline: Boolean,
         val characters: Flow<PagingData<Character>>
     ) : CharactersListTransform {
 
         override fun reduce(current: CharactersListStateWithEffects): CharactersListStateWithEffects {
             return current.copy(
                 state = current.state.copy(
+                    isOnline = isOnline,
                     characters = characters
-                )
+                ),
             )
         }
     }
 }
+

@@ -106,12 +106,14 @@ object EpisodesListTransforms {
     }
 
     data class LoadEpisodesListSuccess(
+        val isOnline: Boolean,
         val episodes: Flow<PagingData<Episode>>
     ) : EpisodesListTransform {
 
         override fun reduce(current: EpisodesListStateWithEffects): EpisodesListStateWithEffects {
             return current.copy(
                 state = current.state.copy(
+                    isOnline = isOnline,
                     episodes = episodes
                 )
             )

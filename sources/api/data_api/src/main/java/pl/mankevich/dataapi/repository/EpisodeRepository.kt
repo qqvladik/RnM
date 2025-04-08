@@ -1,13 +1,13 @@
 package pl.mankevich.dataapi.repository
 
-import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
+import pl.mankevich.dataapi.dto.EpisodesResultDto
 import pl.mankevich.model.Episode
 import pl.mankevich.model.EpisodeFilter
 
 interface EpisodeRepository {
 
-    suspend fun getEpisodesPageFlow(episodeFilter: EpisodeFilter): Flow<PagingData<Episode>>
+    suspend fun getEpisodesPageFlow(episodeFilter: EpisodeFilter): EpisodesResultDto
 
     fun getEpisodeDetail(episodeId: Int): Flow<Episode>
 

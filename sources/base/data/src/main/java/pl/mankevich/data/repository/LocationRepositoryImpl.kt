@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingSourceFactory
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,6 +20,7 @@ import pl.mankevich.data.mapper.mapToLocation
 import pl.mankevich.data.mapper.mapToLocationDto
 import pl.mankevich.data.paging.location.LocationPagingSourceCreator
 import pl.mankevich.data.paging.location.LocationRemoteMediatorCreator
+import pl.mankevich.dataapi.dto.LocationsResultDto
 import pl.mankevich.dataapi.repository.LocationRepository
 import pl.mankevich.databaseapi.dao.LocationDao
 import pl.mankevich.databaseapi.dao.RelationsDao
@@ -43,7 +43,7 @@ class LocationRepositoryImpl
 
     private lateinit var onTableUpdateListener: () -> Unit
 
-    override suspend fun getLocationsPageFlow(locationFilter: LocationFilter): Flow<PagingData<Location>> {
+    override suspend fun getLocationsPageFlow(locationFilter: LocationFilter): LocationsResultDto {
         val isOnline = networkManager.isOnline()
         val locationPagingSourceFactory = createPagingSourceFactory {
             locationPagingSourceCreator.create(isOnline, locationFilter)
@@ -59,7 +59,10 @@ class LocationRepositoryImpl
             pagingSourceFactory = locationPagingSourceFactory,
         )
 
-        return pager.flow.flowOn(dispatcher)
+        return LocationsResultDto(
+            isOnline = isOnline,
+            locations = pager.flow.flowOn(dispatcher)
+        )
     }
 
     override fun getLocationDetail(locationId: Int): Flow<Location> =

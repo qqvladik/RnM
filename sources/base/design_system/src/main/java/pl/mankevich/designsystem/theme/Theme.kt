@@ -21,7 +21,13 @@ val DarkColorScheme = darkColorScheme(
     background = BlackB,         // Background of the app.
     onBackground = White,        // Text color on the background.
     surface = BlackA,            // Surface color for cards or panels.
-    onSurface = White            // Text color on surfaces.
+    onSurface = White,            // Text color on surfaces.,
+    inversePrimary = BlueA,       // Text color for action buttons in snackbar.
+    inverseSurface = LightGray,   // Color for contanier in snackbar.
+    inverseOnSurface = DarkGray,  // Text color for content in snackbar.
+    surfaceContainerHigh = BlackB,// Container color on pull to refresh Indicator
+    onSurfaceVariant = BlueA,     // Indicator color on pull to refresh Indicator
+
 )
 
 val LightColorScheme = lightColorScheme(
@@ -32,7 +38,12 @@ val LightColorScheme = lightColorScheme(
     background = White,          // Main background for the app.
     onBackground = DarkGray,     // Text color on the background.
     surface = LightGray,         // Surface color for cards or panels.
-    onSurface = DarkGray         // Text color on surfaces.
+    onSurface = DarkGray,         // Text color on surfaces.
+    inversePrimary = BlueA,       // Color for action buttons in snackbar. Same as in the dark theme, for consistency.
+    inverseSurface = BlackB,      // Color for contanier in snackbar.
+    inverseOnSurface = White,     // Text color for content in snackbar.
+    surfaceContainerHigh = LightGray,// Container color on pull to refresh Indicator
+    onSurfaceVariant = BlueA,     // Indicator color on pull to refresh Indicator
 )
 
 @Composable

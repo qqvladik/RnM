@@ -9,13 +9,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -24,10 +27,19 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Comp
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration.Indefinite
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -90,6 +102,7 @@ fun EpisodesListScreen(
 
     EpisodesListView(
         state = state,
+        onRefresh = { viewModel.sendIntent(EpisodesListIntent.Refresh) },
         onSearchChange = { viewModel.sendIntent(EpisodesListIntent.NameChanged(it)) },
         onSearchClear = { viewModel.sendIntent(EpisodesListIntent.NameChanged("")) },
         onSeasonSelected = { viewModel.sendIntent(EpisodesListIntent.SeasonChanged(it.toIntOrNull())) },
@@ -106,6 +119,7 @@ fun EpisodesListScreen(
 fun EpisodesListView(
     modifier: Modifier = Modifier,
     state: EpisodesListState,
+    onRefresh: () -> Unit,
     onSearchChange: (String) -> Unit,
     onSearchClear: () -> Unit,
     onSeasonSelected: (String) -> Unit,
@@ -114,12 +128,29 @@ fun EpisodesListView(
     onBackClick: (() -> Unit)? = null,
 ) {
     val pagingEpisodeItems = state.episodes.collectAsLazyPagingItems()
+    val isOffline = !state.isOnline
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(isOffline) {
+        if (isOffline) {
+            snackbarHostState.showSnackbar(
+                message = "No internet. Showing cached data. Refresh for updates.",
+                duration = Indefinite,
+            )
+        }
+    }
 
     WithSharedTransitionScope {
         WithAnimatedVisibilityScope {
             val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
             Scaffold(
-                contentWindowInsets = WindowInsets.safeDrawing,
+                snackbarHost = {
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                    )
+                },
+                contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
+                    .add(WindowInsets.systemBars.only(WindowInsetsSides.Bottom)), // For snackbar
                 modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
                     FlexibleTopBar(
@@ -184,45 +215,66 @@ fun EpisodesListView(
                         lazyStaggeredGridState = lazyStaggeredGridState,
                     )
 
-                    LazyVerticalStaggeredGrid(
-                        state = lazyStaggeredGridState,
-                        columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
-                        verticalItemSpacing = PADDING,
-                        horizontalArrangement = Arrangement.spacedBy(PADDING),
-                        contentPadding = PaddingValues(
-                            top = paddingValues.calculateTopPadding(),
-                            bottom = paddingValues.calculateBottomPadding() + PADDING,
-                            start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + PADDING,
-                            end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + PADDING
-                        ),
-                        modifier = Modifier.fillMaxSize()
+                    // Show refreshing indicator at the same time as items placeholder only when refresh is triggered by pull-to-refresh
+                    // Workaround to handle isRefreshing state in view layer, because Paging 3 doesn't lay good in MVI.
+                    var isRefreshing by rememberSaveable { mutableStateOf(false) }
+                    LaunchedEffect(pagingEpisodeItems.loadState.refresh) {
+                        if (pagingEpisodeItems.loadState.refresh is LoadState.NotLoading) {
+                            isRefreshing = false
+                        }
+                    }
+
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = {
+                            isRefreshing = true
+                            onRefresh()
+                        },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(scrollBehavior.nestedScrollConnection)
+                            .padding(top = paddingValues.calculateTopPadding()),
                     ) {
 
-                        val itemModifier = Modifier
-                            .height(80.dp)
-                            .fillMaxWidth()
-
-                        if (pagingEpisodeItems.loadState.refresh is LoadState.Loading
-                            || (pagingEpisodeItems.loadState.refresh is LoadState.NotLoading
-                                    && pagingEpisodeItems.itemCount == 0
-                                    && !pagingEpisodeItems.loadState.append.endOfPaginationReached)
+                        LazyVerticalStaggeredGrid(
+                            state = lazyStaggeredGridState,
+                            columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
+                            verticalItemSpacing = PADDING,
+                            horizontalArrangement = Arrangement.spacedBy(PADDING),
+                            contentPadding = PaddingValues(
+                                bottom = paddingValues.calculateBottomPadding() + PADDING,
+                                start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + PADDING,
+                                end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + PADDING
+                            ),
+                            modifier = Modifier.fillMaxSize()
                         ) {
-                            items(20) {
-                                EpisodeCardPlaceholder(
-                                    infiniteTransition = infiniteTransition,
-                                    modifier = itemModifier
+
+                            val itemModifier = Modifier
+                                .height(80.dp)
+                                .fillMaxWidth()
+
+                            if (pagingEpisodeItems.loadState.refresh is LoadState.Loading
+                                || (pagingEpisodeItems.loadState.refresh is LoadState.NotLoading
+                                        && pagingEpisodeItems.itemCount == 0
+                                        && !pagingEpisodeItems.loadState.append.endOfPaginationReached)
+                            ) {
+                                items(20) {
+                                    EpisodeCardPlaceholder(
+                                        infiniteTransition = infiniteTransition,
+                                        modifier = itemModifier
+                                    )
+                                }
+                            } else if (pagingEpisodeItems.itemCount == 0 && pagingEpisodeItems.loadState.append.endOfPaginationReached) {
+                                item(span = FullLine) {
+                                    EmptyView(modifier = Modifier.fillMaxSize())
+                                }
+                            } else {
+                                episodeListViewData(
+                                    pagingEpisodeItems = pagingEpisodeItems,
+                                    onEpisodeItemClick = onEpisodeItemClick,
+                                    itemModifier = itemModifier
                                 )
                             }
-                        } else if (pagingEpisodeItems.itemCount == 0 && pagingEpisodeItems.loadState.append.endOfPaginationReached) {
-                            item(span = FullLine) {
-                                EmptyView(modifier = Modifier.fillMaxSize())
-                            }
-                        } else {
-                            episodeListViewData(
-                                pagingEpisodeItems = pagingEpisodeItems,
-                                onEpisodeItemClick = onEpisodeItemClick,
-                                itemModifier = itemModifier
-                            )
                         }
                     }
                 }
@@ -325,6 +377,7 @@ fun EpisodesListViewPreview() {
                     )
                 )
             ),
+            onRefresh = {},
             onSearchChange = {},
             onSearchClear = {},
             onEpisodeSelected = {},

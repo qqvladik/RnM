@@ -93,9 +93,12 @@ class CharactersListViewModel
         instantRefresh: Boolean = false
     ): Flow<Transform<CharactersListStateWithEffects>> = flow {
         if (!instantRefresh) delay(QUERY_INPUT_DELAY_MILLIS)
+
+        val result = loadCharactersListUseCase(characterFilter)
         emit(
             CharactersListTransforms.LoadCharactersListSuccess(
-                loadCharactersListUseCase(characterFilter).cachedIn(viewModelScope)
+                isOnline = result.isOnline,
+                characters = result.characters.cachedIn(viewModelScope)
             )
         )
     }

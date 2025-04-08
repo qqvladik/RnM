@@ -94,12 +94,14 @@ object LocationsListTransforms {
     }
 
     data class LoadLocationsListSuccess(
+        val isOnline: Boolean,
         val locations: Flow<PagingData<Location>>
     ) : LocationsListTransform {
 
         override fun reduce(current: LocationsListStateWithEffects): LocationsListStateWithEffects {
             return current.copy(
                 state = current.state.copy(
+                    isOnline = isOnline,
                     locations = locations
                 )
             )

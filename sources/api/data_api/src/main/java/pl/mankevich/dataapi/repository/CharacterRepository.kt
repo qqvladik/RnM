@@ -1,13 +1,13 @@
 package pl.mankevich.dataapi.repository
 
-import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
+import pl.mankevich.dataapi.dto.CharactersResultDto
 import pl.mankevich.model.Character
 import pl.mankevich.model.CharacterFilter
 
 interface CharacterRepository {
 
-    suspend fun getCharactersPageFlow(characterFilter: CharacterFilter): Flow<PagingData<Character>>
+    suspend fun getCharactersPageFlow(characterFilter: CharacterFilter): CharactersResultDto
 
     fun getCharacterDetail(characterId: Int): Flow<Character>
 

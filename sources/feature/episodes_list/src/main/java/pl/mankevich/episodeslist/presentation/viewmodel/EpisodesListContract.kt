@@ -40,6 +40,7 @@ sealed interface EpisodesListSideEffect {
 @Immutable
 data class EpisodesListState(
     val episodeFilter: EpisodeFilter = EpisodeFilter(),
+    val isOnline: Boolean = false,
     // Flow is unstable, so it will always recompose https://issuetracker.google.com/issues/183495984
     // Currently there is no solution how to fit Paging in Unidirectional data flow (MVI)
     val episodes: Flow<PagingData<Episode>> = emptyFlow(),

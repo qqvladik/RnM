@@ -80,9 +80,12 @@ class EpisodesListViewModel
         instantRefresh: Boolean = false,
     ): Flow<Transform<EpisodesListStateWithEffects>> = flow {
         if (!instantRefresh) delay(QUERY_INPUT_DELAY_MILLIS)
+
+        val result = loadEpisodesListUseCase(episodeFilter)
         emit(
             EpisodesListTransforms.LoadEpisodesListSuccess(
-                loadEpisodesListUseCase(episodeFilter).cachedIn(viewModelScope)
+                isOnline = result.isOnline,
+                episodes = result.episodes.cachedIn(viewModelScope)
             )
         )
     }

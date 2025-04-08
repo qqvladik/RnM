@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingSourceFactory
 import kotlinx.coroutines.CoroutineDispatcher
@@ -22,6 +21,7 @@ import pl.mankevich.data.mapper.mapToCharacter
 import pl.mankevich.data.mapper.mapToCharacterDto
 import pl.mankevich.data.paging.character.CharacterPagingSourceCreator
 import pl.mankevich.data.paging.character.CharacterRemoteMediatorCreator
+import pl.mankevich.dataapi.dto.CharactersResultDto
 import pl.mankevich.dataapi.repository.CharacterRepository
 import pl.mankevich.databaseapi.dao.CharacterDao
 import pl.mankevich.databaseapi.dao.RelationsDao
@@ -31,7 +31,6 @@ import pl.mankevich.model.CharacterFilter
 import pl.mankevich.remoteapi.api.CharacterApi
 import java.net.UnknownHostException
 import javax.inject.Inject
-import kotlin.collections.map
 
 class CharacterRepositoryImpl
 @Inject constructor(
@@ -47,7 +46,7 @@ class CharacterRepositoryImpl
 
     private lateinit var onTableUpdateListener: () -> Unit
 
-    override suspend fun getCharactersPageFlow(characterFilter: CharacterFilter): Flow<PagingData<Character>> {
+    override suspend fun getCharactersPageFlow(characterFilter: CharacterFilter): CharactersResultDto {
         val isOnline = networkManager.isOnline()
         val characterPagingSourceFactory = createPagingSourceFactory {
             characterPagingSourceCreator.create(isOnline, characterFilter)
@@ -63,7 +62,10 @@ class CharacterRepositoryImpl
             pagingSourceFactory = characterPagingSourceFactory,
         )
 
-        return pager.flow.flowOn(dispatcher)
+        return CharactersResultDto(
+            isOnline = isOnline,
+            characters = pager.flow.flowOn(dispatcher)
+        )
     }
 
     override fun getCharacterDetail(characterId: Int): Flow<Character> =
