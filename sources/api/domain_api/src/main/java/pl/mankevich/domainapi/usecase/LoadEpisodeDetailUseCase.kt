@@ -1,9 +1,9 @@
 package pl.mankevich.domainapi.usecase
 
 import kotlinx.coroutines.flow.Flow
-import pl.mankevich.model.Episode
+import pl.mankevich.domainapi.result.EpisodeDetailResult
 
 interface LoadEpisodeDetailUseCase {
 
-    operator fun invoke(episodeId: Int): Flow<Episode>
+    operator fun invoke(episodeId: Int): Flow<EpisodeDetailResult>
 }

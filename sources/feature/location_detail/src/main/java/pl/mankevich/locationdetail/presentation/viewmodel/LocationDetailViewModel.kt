@@ -4,13 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadCharactersByLocationIdUseCase
@@ -39,7 +40,15 @@ class LocationDetailViewModel
 
     override fun executeIntent(intent: LocationDetailIntent): Flow<Transform<LocationDetailStateWithEffects>> =
         when (intent) {
-            LocationDetailIntent.LoadLocationDetail -> merge(loadLocation(), loadCharacters())
+            LocationDetailIntent.LoadLocationDetail ->
+                loadLocation().onEach { characterDetailTransform ->
+                    if (
+                        characterDetailTransform is LocationDetailTransforms.LoadLocationSuccess
+                        && characterDetailTransform.isOnline != null
+                    ) {
+                        sendIntent(LocationDetailIntent.LoadCharacters)
+                    }
+                }
 
             LocationDetailIntent.LoadCharacters -> loadCharacters()
 
@@ -63,9 +72,22 @@ class LocationDetailViewModel
     private fun loadLocation(): Flow<Transform<LocationDetailStateWithEffects>> =
         flow {
             emit(LocationDetailTransforms.LoadLocation(locationId))
+
+            // Workaround to give some time for indicator from pullToRefresh to consume all states
+            // during recompositions. Because otherwise pullToRefresh indicator doesn't hide when
+            // isLoading state updates very quickly (e.g. in offline mode)
+            delay(20)
+
             val result = loadLocationDetailUseCase(locationId = locationId)
-                .map { LocationDetailTransforms.LoadLocationSuccess(it) }
-                .catch { emit(LocationDetailTransforms.LoadLocationError(it)) }
+                .map {
+                    LocationDetailTransforms.LoadLocationSuccess(
+                        isOnline = it.isOnline,
+                        location = it.location
+                    )
+                }
+                .catch {
+                    emit(LocationDetailTransforms.LoadLocationError(it))
+                }
             emitAll(result)
         }
 

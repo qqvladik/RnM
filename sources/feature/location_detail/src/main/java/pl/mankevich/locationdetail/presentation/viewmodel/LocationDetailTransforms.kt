@@ -13,18 +13,22 @@ object LocationDetailTransforms {
         override fun reduce(current: LocationDetailStateWithEffects): LocationDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
-                    location = null,
+                    isOnline = null,
                     locationError = null
                 ),
             )
         }
     }
 
-    data class LoadLocationSuccess(val location: Location) : LocationDetailTransform {
+    data class LoadLocationSuccess(
+        val isOnline: Boolean?,
+        val location: Location?
+    ) : LocationDetailTransform {
 
         override fun reduce(current: LocationDetailStateWithEffects): LocationDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
+                    isOnline = isOnline,
                     location = location,
                     locationError = null
                 )

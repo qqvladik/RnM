@@ -48,6 +48,7 @@ sealed interface CharacterDetailSideEffect {
 }
 
 data class CharacterDetailState(
+    val isOnline: Boolean? = null,
     val characterError: Throwable? = null,
     val episodesError: Throwable? = null,
     val character: Character? = null,

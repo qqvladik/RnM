@@ -4,13 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
 import pl.mankevich.domainapi.usecase.LoadCharactersByEpisodeIdUseCase
@@ -39,7 +40,15 @@ class EpisodeDetailViewModel
 
     override fun executeIntent(intent: EpisodeDetailIntent): Flow<Transform<EpisodeDetailStateWithEffects>> =
         when (intent) {
-            is EpisodeDetailIntent.LoadEpisodeDetail -> merge(loadEpisode(), loadCharacters())
+            is EpisodeDetailIntent.LoadEpisodeDetail ->
+                loadEpisode().onEach { characterDetailTransform ->
+                    if (
+                        characterDetailTransform is EpisodeDetailTransforms.LoadEpisodeSuccess
+                        && characterDetailTransform.isOnline != null
+                    ) {
+                        sendIntent(EpisodeDetailIntent.LoadCharacters)
+                    }
+                }
 
             is EpisodeDetailIntent.LoadCharacters -> loadCharacters()
 
@@ -65,9 +74,21 @@ class EpisodeDetailViewModel
     private fun loadEpisode(): Flow<Transform<EpisodeDetailStateWithEffects>> =
         flow {
             emit(EpisodeDetailTransforms.LoadEpisode(episodeId))
+
+            // Workaround to give some time for indicator from pullToRefresh to consume all states
+            // during recompositions. Because otherwise pullToRefresh indicator doesn't hide
+            delay(20)
+
             val result = loadEpisodeDetailUseCase(episodeId = episodeId)
-                .map { EpisodeDetailTransforms.LoadEpisodeSuccess(it) }
-                .catch { emit(EpisodeDetailTransforms.LoadEpisodeError(it)) }
+                .map {
+                    EpisodeDetailTransforms.LoadEpisodeSuccess(
+                        isOnline = it.isOnline,
+                        episode = it.episode
+                    )
+                }
+                .catch {
+                    emit(EpisodeDetailTransforms.LoadEpisodeError(it))
+                }
             emitAll(result)
         }
 

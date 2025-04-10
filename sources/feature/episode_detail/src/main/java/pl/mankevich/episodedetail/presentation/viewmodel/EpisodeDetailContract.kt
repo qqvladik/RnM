@@ -36,6 +36,7 @@ sealed interface EpisodeDetailSideEffect {
 }
 
 data class EpisodeDetailState(
+    val isOnline: Boolean? = null,
     val episodeError: Throwable? = null,
     val charactersError: Throwable? = null,
     val episode: Episode? = null,

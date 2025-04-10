@@ -30,10 +30,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration.Indefinite
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -108,6 +113,7 @@ fun EpisodeDetailScreen(
     EpisodeDetailView(
         id = viewModel.episodeId,
         state = state,
+        onRefresh = { viewModel.sendIntent(EpisodeDetailIntent.LoadEpisodeDetail) },
         onSeasonFilterClick = { viewModel.sendIntent(EpisodeDetailIntent.SeasonFilterClick(it)) },
         onEpisodeFilterClick = { viewModel.sendIntent(EpisodeDetailIntent.EpisodeFilterClick(it)) },
         onCharacterItemClick = { viewModel.sendIntent(EpisodeDetailIntent.CharacterItemClick(it)) },
@@ -124,6 +130,7 @@ fun EpisodeDetailScreen(
 fun EpisodeDetailView(
     id: Int,
     state: EpisodeDetailState,
+    onRefresh: () -> Unit,
     onEpisodeFilterClick: (Int) -> Unit,
     onSeasonFilterClick: (Int) -> Unit,
     onCharacterItemClick: (Int) -> Unit,
@@ -132,11 +139,30 @@ fun EpisodeDetailView(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    val isCollapsed by remember { derivedStateOf { scrollBehavior.state.overlappedFraction > 0f } }
+    val isOffline = state.isOnline != null && !state.isOnline
+    val isLoading = state.isOnline == null && state.episodeError == null
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(isOffline, state.episodeError) {
+        if (isOffline && state.episodeError == null) {
+            snackbarHostState.showSnackbar(
+                message = "No internet. Showing cached data. Refresh for updates.",
+                duration = Indefinite,
+            )
+        }
+    }
 
     WithSharedTransitionScope {
+        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+        val isCollapsed by remember { derivedStateOf { scrollBehavior.state.overlappedFraction > 0f } }
+
         Scaffold(
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
+                )
+            },
             contentWindowInsets = WindowInsets.safeDrawing,
             modifier = Modifier
                 .fillMaxSize()
@@ -181,61 +207,75 @@ fun EpisodeDetailView(
                 }
             }
         ) { paddingValues ->
-            val infiniteTransition =
-                rememberInfiniteTransition(label = "EpisodeDetailScreen transition")
 
-            LazyVerticalStaggeredGrid(
-                columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
-                verticalItemSpacing = PADDING,
-                horizontalArrangement = Arrangement.spacedBy(PADDING),
-                contentPadding = PaddingValues(
-                    top = paddingValues.calculateTopPadding(),
-                    bottom = paddingValues.calculateBottomPadding() + PADDING,
-                    start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + PADDING,
-                    end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + PADDING
-                ),
-                modifier = modifier.sharedBounds(
-                    sharedContentState = rememberSharedContentState(
-                        key = EpisodeSharedElementKey(
-                            id = id,
-                            sharedType = EpisodeSharedElementType.Background,
-                        )
-                    ),
-                    animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
-                ),
+            PullToRefreshBox(
+                isRefreshing = isLoading,
+                onRefresh = onRefresh,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(scrollBehavior.nestedScrollConnection)
+                    .padding(top = paddingValues.calculateTopPadding()),
             ) {
 
-                if (state.episodeError != null) {
-                    item(span = FullLine) {
-                        ErrorView(
-                            error = state.episodeError,
-                            modifier = Modifier.fillMaxSize(),
-                            action = onEpisodeErrorClick
-                        )
-                    }
-                } else if (state.episode == null) {
-                    item(span = FullLine) {
-                        EpisodeDetailPlaceholder(
-                            infiniteTransition = infiniteTransition,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                } else {
-                    item(span = FullLine) {
-                        EpisodeDetail(
-                            episode = state.episode,
-                            onSeasonFilterClick = onSeasonFilterClick,
-                            onEpisodeFilterClick = onEpisodeFilterClick,
-                        )
-                    }
+                val infiniteTransition =
+                    rememberInfiniteTransition(label = "EpisodeDetailScreen transition")
 
-                    episodeCharactersItems(
-                        characters = state.characters,
-                        characterError = state.charactersError,
-                        onCharacterErrorClick = onCharactersErrorClick,
-                        onCharacterItemClick = onCharacterItemClick,
-                        infiniteTransition = infiniteTransition
-                    )
+                LazyVerticalStaggeredGrid(
+                    columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
+                    verticalItemSpacing = PADDING,
+                    horizontalArrangement = Arrangement.spacedBy(PADDING),
+                    contentPadding = PaddingValues(
+                        bottom = paddingValues.calculateBottomPadding() + PADDING,
+                        start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + PADDING,
+                        end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + PADDING
+                    ),
+                    modifier = modifier.sharedBounds(
+                        sharedContentState = rememberSharedContentState(
+                            key = EpisodeSharedElementKey(
+                                id = id,
+                                sharedType = EpisodeSharedElementType.Background,
+                            )
+                        ),
+                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
+                    ),
+                ) {
+
+                    if (state.episodeError != null) {
+                        item(span = FullLine) {
+                            ErrorView(
+                                error = state.episodeError,
+                                modifier = Modifier.fillMaxSize(),
+                                action = onEpisodeErrorClick
+                            )
+                        }
+                    } else if (state.episode == null) {
+                        item(span = FullLine) {
+                            if (isLoading) {
+                                EpisodeDetailPlaceholder(
+                                    infiniteTransition = infiniteTransition,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                EmptyView(modifier = Modifier.fillMaxSize())
+                            }
+                        }
+                    } else {
+                        item(span = FullLine) {
+                            EpisodeDetail(
+                                episode = state.episode,
+                                onSeasonFilterClick = onSeasonFilterClick,
+                                onEpisodeFilterClick = onEpisodeFilterClick,
+                            )
+                        }
+
+                        episodeCharactersItems(
+                            characters = state.characters,
+                            characterError = state.charactersError,
+                            onCharacterErrorClick = onCharactersErrorClick,
+                            onCharacterItemClick = onCharacterItemClick,
+                            infiniteTransition = infiniteTransition
+                        )
+                    }
                 }
             }
         }
@@ -413,7 +453,7 @@ fun LazyStaggeredGridScope.episodeCharactersItems(
                 isFavorite = false,
                 onFavoriteClick = {},
                 onCardClick = { onCharacterItemClick(character.id) },
-                modifier = itemModifier
+                modifier = itemModifier.animateItem()
             )
         }
     }
@@ -436,6 +476,7 @@ fun EpisodeDetailScreenPreview() {
                     ),
                     characters = emptyList(),
                 ),
+                onRefresh = {},
                 onEpisodeFilterClick = {},
                 onSeasonFilterClick = {},
                 onCharacterItemClick = {},

@@ -30,10 +30,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration.Indefinite
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -106,6 +111,7 @@ fun LocationDetailScreen(
     LocationDetailView(
         id = viewModel.locationId,
         state = state,
+        onRefresh = { viewModel.sendIntent(LocationDetailIntent.LoadLocationDetail) },
         onDimensionFilterClick = { viewModel.sendIntent(LocationDetailIntent.DimensionFilterClick(it)) },
         onTypeFilterClick = { viewModel.sendIntent(LocationDetailIntent.TypeFilterClick(it)) },
         onCharacterItemClick = { viewModel.sendIntent(LocationDetailIntent.CharacterItemClick(it)) },
@@ -122,6 +128,7 @@ fun LocationDetailScreen(
 fun LocationDetailView(
     id: Int,
     state: LocationDetailState,
+    onRefresh: () -> Unit,
     onTypeFilterClick: (String) -> Unit,
     onDimensionFilterClick: (String) -> Unit,
     onCharacterItemClick: (Int) -> Unit,
@@ -130,11 +137,30 @@ fun LocationDetailView(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    val isCollapsed by remember { derivedStateOf { scrollBehavior.state.overlappedFraction > 0f } }
+    val isOffline = state.isOnline != null && !state.isOnline
+    val isLoading = state.isOnline == null && state.locationError == null
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(isOffline, state.locationError) {
+        if (isOffline && state.locationError == null) {
+            snackbarHostState.showSnackbar(
+                message = "No internet. Showing cached data. Refresh for updates.",
+                duration = Indefinite,
+            )
+        }
+    }
 
     WithSharedTransitionScope {
+        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+        val isCollapsed by remember { derivedStateOf { scrollBehavior.state.overlappedFraction > 0f } }
+
         Scaffold(
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
+                )
+            },
             contentWindowInsets = WindowInsets.safeDrawing,
             modifier = Modifier
                 .fillMaxSize()
@@ -179,61 +205,75 @@ fun LocationDetailView(
                 }
             }
         ) { paddingValues ->
-            val infiniteTransition =
-                rememberInfiniteTransition(label = "LocationDetailScreen transition")
 
-            LazyVerticalStaggeredGrid(
-                columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
-                verticalItemSpacing = PADDING,
-                horizontalArrangement = Arrangement.spacedBy(PADDING),
-                contentPadding = PaddingValues(
-                    top = paddingValues.calculateTopPadding(),
-                    bottom = paddingValues.calculateBottomPadding() + PADDING,
-                    start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + PADDING,
-                    end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + PADDING
-                ),
-                modifier = modifier.sharedBounds(
-                    sharedContentState = rememberSharedContentState(
-                        key = LocationSharedElementKey(
-                            id = id,
-                            sharedType = LocationSharedElementType.Background,
-                        )
-                    ),
-                    animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
-                )
+            PullToRefreshBox(
+                isRefreshing = isLoading,
+                onRefresh = onRefresh,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(scrollBehavior.nestedScrollConnection)
+                    .padding(top = paddingValues.calculateTopPadding()),
             ) {
 
-                if (state.locationError != null) {
-                    item(span = FullLine) {
-                        ErrorView(
-                            error = state.locationError,
-                            modifier = Modifier.fillMaxSize(),
-                            action = onLocationErrorClick
-                        )
-                    }
-                } else if (state.location == null) {
-                    item(span = FullLine) {
-                        LocationDetailPlaceholder(
-                            infiniteTransition = infiniteTransition,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                } else {
-                    item(span = FullLine) {
-                        LocationDetail(
-                            location = state.location,
-                            onTypeFilterClick = onTypeFilterClick,
-                            onDimensionFilterClick = onDimensionFilterClick,
-                        )
-                    }
+                val infiniteTransition =
+                    rememberInfiniteTransition(label = "LocationDetailScreen transition")
 
-                    locationCharactersItems(
-                        characters = state.characters,
-                        characterError = state.charactersError,
-                        onCharacterErrorClick = onCharactersErrorClick,
-                        onCharacterItemClick = onCharacterItemClick,
-                        infiniteTransition = infiniteTransition
+                LazyVerticalStaggeredGrid(
+                    columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
+                    verticalItemSpacing = PADDING,
+                    horizontalArrangement = Arrangement.spacedBy(PADDING),
+                    contentPadding = PaddingValues(
+                        bottom = paddingValues.calculateBottomPadding() + PADDING,
+                        start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + PADDING,
+                        end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + PADDING
+                    ),
+                    modifier = modifier.sharedBounds(
+                        sharedContentState = rememberSharedContentState(
+                            key = LocationSharedElementKey(
+                                id = id,
+                                sharedType = LocationSharedElementType.Background,
+                            )
+                        ),
+                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
                     )
+                ) {
+
+                    if (state.locationError != null) {
+                        item(span = FullLine) {
+                            ErrorView(
+                                error = state.locationError,
+                                modifier = Modifier.fillMaxSize(),
+                                action = onLocationErrorClick
+                            )
+                        }
+                    } else if (state.location == null) {
+                        item(span = FullLine) {
+                            if (isLoading) {
+                                LocationDetailPlaceholder(
+                                    infiniteTransition = infiniteTransition,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                EmptyView(modifier = Modifier.fillMaxSize())
+                            }
+                        }
+                    } else {
+                        item(span = FullLine) {
+                            LocationDetail(
+                                location = state.location,
+                                onTypeFilterClick = onTypeFilterClick,
+                                onDimensionFilterClick = onDimensionFilterClick,
+                            )
+                        }
+
+                        locationCharactersItems(
+                            characters = state.characters,
+                            characterError = state.charactersError,
+                            onCharacterErrorClick = onCharactersErrorClick,
+                            onCharacterItemClick = onCharacterItemClick,
+                            infiniteTransition = infiniteTransition
+                        )
+                    }
                 }
             }
         }
@@ -412,6 +452,7 @@ fun LocationDetailScreenPreview() {
                     ),
                     characters = emptyList()
                 ),
+                onRefresh = {},
                 onTypeFilterClick = {},
                 onDimensionFilterClick = {},
                 onCharacterItemClick = {},

@@ -1,6 +1,5 @@
 package pl.mankevich.characterdetail.presentation
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.slideInVertically
@@ -34,10 +33,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration.Indefinite
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -130,6 +134,7 @@ fun CharacterDetailScreen(
     CharacterDetailView(
         id = viewModel.characterId,
         state = state,
+        onRefresh = { viewModel.sendIntent(CharacterDetailIntent.LoadCharacterDetail) },
         onStatusFilterClick = { viewModel.sendIntent(CharacterDetailIntent.StatusFilterClick(it)) },
         onSpeciesFilterClick = { viewModel.sendIntent(CharacterDetailIntent.SpeciesFilterClick(it)) },
         onGenderFilterClick = { viewModel.sendIntent(CharacterDetailIntent.GenderFilterClick(it)) },
@@ -146,11 +151,11 @@ fun CharacterDetailScreen(
     )
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CharacterDetailView(
     id: Int,
     state: CharacterDetailState,
+    onRefresh: () -> Unit,
     onStatusFilterClick: (String) -> Unit,
     onSpeciesFilterClick: (String) -> Unit,
     onGenderFilterClick: (String) -> Unit,
@@ -163,11 +168,30 @@ fun CharacterDetailView(
     onEpisodesErrorClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    val isCollapsed by remember { derivedStateOf { scrollBehavior.state.overlappedFraction > 0f } }
+    val isOffline = state.isOnline != null && !state.isOnline
+    val isLoading = state.isOnline == null && state.characterError == null
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(isOffline, state.characterError) {
+        if (isOffline && state.characterError == null) {
+            snackbarHostState.showSnackbar(
+                message = "No internet. Showing cached data. Refresh for updates.",
+                duration = Indefinite,
+            )
+        }
+    }
 
     WithSharedTransitionScope {
+        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+        val isCollapsed by remember { derivedStateOf { scrollBehavior.state.overlappedFraction > 0f } }
+
         Scaffold(
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
+                )
+            },
             contentWindowInsets = WindowInsets.safeDrawing,
             modifier = Modifier
                 .fillMaxSize()
@@ -212,65 +236,79 @@ fun CharacterDetailView(
                 }
             }
         ) { paddingValues ->
-            val infiniteTransition =
-                rememberInfiniteTransition(label = "CharacterDetailScreen transition")
 
-            LazyVerticalStaggeredGrid(
-                columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
-                verticalItemSpacing = PADDING,
-                horizontalArrangement = Arrangement.spacedBy(PADDING),
-                contentPadding = PaddingValues(
-                    top = paddingValues.calculateTopPadding(),
-                    bottom = paddingValues.calculateBottomPadding() + PADDING,
-                    start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + PADDING,
-                    end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + PADDING
-                ),
-                modifier = modifier.sharedBounds(
-                    sharedContentState = rememberSharedContentState(
-                        key = CharacterSharedElementKey(
-                            id = id,
-                            sharedType = CharacterSharedElementType.Background,
-                        )
-                    ),
-                    animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
-                )
+            PullToRefreshBox(
+                isRefreshing = isLoading,
+                onRefresh = onRefresh,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(scrollBehavior.nestedScrollConnection)
+                    .padding(top = paddingValues.calculateTopPadding()),
             ) {
 
-                if (state.characterError != null) {
-                    item(span = FullLine) {
-                        ErrorView(
-                            error = state.characterError,
-                            modifier = Modifier.fillMaxSize(),
-                            action = onCharacterErrorClick
-                        )
-                    }
-                } else if (state.character == null) {
-                    item(span = FullLine) {
-                        CharacterDetailPlaceholder(
-                            infiniteTransition = infiniteTransition,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                } else {
-                    item(span = FullLine) {
-                        CharacterDetail(
-                            character = state.character,
-                            onStatusFilterClick = onStatusFilterClick,
-                            onSpeciesFilterClick = onSpeciesFilterClick,
-                            onGenderFilterClick = onGenderFilterClick,
-                            onTypeFilterClick = onTypeFilterClick,
-                            onOriginClick = onOriginClick,
-                            onLocationClick = onLocationClick,
-                        )
-                    }
+                val infiniteTransition =
+                    rememberInfiniteTransition(label = "CharacterDetailScreen transition")
 
-                    characterEpisodesItems(
-                        episodes = state.episodes,
-                        episodesError = state.episodesError,
-                        onEpisodesErrorClick = onEpisodesErrorClick,
-                        onEpisodeItemClick = onEpisodeItemClick,
-                        infiniteTransition = infiniteTransition
+                LazyVerticalStaggeredGrid(
+                    columns = StaggeredGridCells.Fixed(if (isLandscape()) 3 else 2),
+                    verticalItemSpacing = PADDING,
+                    horizontalArrangement = Arrangement.spacedBy(PADDING),
+                    contentPadding = PaddingValues(
+                        bottom = paddingValues.calculateBottomPadding() + PADDING,
+                        start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + PADDING,
+                        end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + PADDING
+                    ),
+                    modifier = modifier.sharedBounds(
+                        sharedContentState = rememberSharedContentState(
+                            key = CharacterSharedElementKey(
+                                id = id,
+                                sharedType = CharacterSharedElementType.Background,
+                            )
+                        ),
+                        animatedVisibilityScope = LocalAnimatedVisibilityScope.current,
                     )
+                ) {
+
+                    if (state.characterError != null) {
+                        item(span = FullLine) {
+                            ErrorView(
+                                error = state.characterError,
+                                modifier = Modifier.fillMaxSize(),
+                                action = onCharacterErrorClick
+                            )
+                        }
+                    } else if (state.character == null) {
+                        item(span = FullLine) {
+                            if (isLoading) {
+                                CharacterDetailPlaceholder(
+                                    infiniteTransition = infiniteTransition,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                EmptyView(modifier = Modifier.fillMaxSize())
+                            }
+                        }
+                    } else {
+                        item(span = FullLine) {
+                            CharacterDetail(
+                                character = state.character,
+                                onStatusFilterClick = onStatusFilterClick,
+                                onSpeciesFilterClick = onSpeciesFilterClick,
+                                onGenderFilterClick = onGenderFilterClick,
+                                onTypeFilterClick = onTypeFilterClick,
+                                onOriginClick = onOriginClick,
+                                onLocationClick = onLocationClick,
+                            )
+                        }
+
+                        characterEpisodesItems(
+                            episodes = state.episodes,
+                            episodesError = state.episodesError,
+                            onEpisodesErrorClick = onEpisodesErrorClick,
+                            onEpisodeItemClick = onEpisodeItemClick,
+                            infiniteTransition = infiniteTransition
+                        )
+                    }
                 }
             }
         }
@@ -571,7 +609,7 @@ fun LazyStaggeredGridScope.characterEpisodesItems(
                 isFavorite = false,
                 onFavoriteClick = {},
                 onCardClick = { onEpisodeItemClick(episode.id) },
-                modifier = itemModifier
+                modifier = itemModifier.animateItem()
             )
         }
     }
@@ -621,6 +659,7 @@ fun CharacterDetailScreenPreview() {
                         )
                     ),
                 ),
+                onRefresh = {},
                 onStatusFilterClick = {},
                 onSpeciesFilterClick = {},
                 onGenderFilterClick = {},

@@ -8,9 +8,8 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingSourceFactory
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -21,6 +20,7 @@ import pl.mankevich.data.mapper.mapToEpisode
 import pl.mankevich.data.mapper.mapToEpisodeDto
 import pl.mankevich.data.paging.episode.EpisodePagingSourceCreator
 import pl.mankevich.data.paging.episode.EpisodeRemoteMediatorCreator
+import pl.mankevich.dataapi.dto.EpisodeDetailResultDto
 import pl.mankevich.dataapi.dto.EpisodesResultDto
 import pl.mankevich.dataapi.repository.EpisodeRepository
 import pl.mankevich.databaseapi.dao.EpisodeDao
@@ -68,25 +68,33 @@ class EpisodeRepositoryImpl
         )
     }
 
-    override fun getEpisodeDetail(episodeId: Int): Flow<Episode> =
-        flow {
-            emit(Unit)
+    override fun getEpisodeDetail(episodeId: Int): Flow<EpisodeDetailResultDto> {
+        val fetchFlow = flow {
+            emit(null)
 
-            try {
+            val isOnline = networkManager.isOnline()
+            if (isOnline) {
                 val episodeResponse = episodeApi.fetchEpisodeById(episodeId)
                 episodeDao.insertEpisode(episodeResponse.mapToEpisodeDto())
                 relationsDao.insertEpisodeCharacters(episodeId, episodeResponse.characterIds)
-            } catch (e: UnknownHostException) {
-                Log.w("EpisodeRepositoryImpl", "getEpisodeDetail: $e")
             }
-        }.flatMapLatest {
-            episodeDao.getEpisodeById(episodeId)
-                .distinctUntilChanged()
-                .filterNotNull()
-                .map {
-                    it.mapToEpisode()
-                }
+
+            emit(isOnline)
+        }
+
+        val loadFlow = episodeDao.getEpisodeById(episodeId)
+            .distinctUntilChanged()
+            .map {
+                it?.mapToEpisode()
+            }
+
+        return loadFlow.combine(fetchFlow) { episode, isOnline ->
+            EpisodeDetailResultDto(
+                isOnline = isOnline,
+                episode = episode,
+            )
         }.flowOn(dispatcher)
+    }
 
     private fun createPagingSourceFactory(
         pagingSourceFactory: () -> PagingSource<Int, Episode>
@@ -104,7 +112,6 @@ class EpisodeRepositoryImpl
         val episodeIdsFlow = relationsDao.getEpisodeIdsByCharacterId(characterId)
         return episodeIdsFlow
             .distinctUntilChanged()
-            .debounce(QUERY_DELAY_MILLIS)
             .flatMapLatest { episodeIds ->
                 if (episodeIds.isNotEmpty()) {
                     try {

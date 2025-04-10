@@ -1,6 +1,5 @@
 package pl.mankevich.data.repository
 
-import android.util.Log
 import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -8,9 +7,8 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingSourceFactory
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -20,6 +18,7 @@ import pl.mankevich.data.mapper.mapToLocation
 import pl.mankevich.data.mapper.mapToLocationDto
 import pl.mankevich.data.paging.location.LocationPagingSourceCreator
 import pl.mankevich.data.paging.location.LocationRemoteMediatorCreator
+import pl.mankevich.dataapi.dto.LocationDetailResultDto
 import pl.mankevich.dataapi.dto.LocationsResultDto
 import pl.mankevich.dataapi.repository.LocationRepository
 import pl.mankevich.databaseapi.dao.LocationDao
@@ -27,7 +26,6 @@ import pl.mankevich.databaseapi.dao.RelationsDao
 import pl.mankevich.model.Location
 import pl.mankevich.model.LocationFilter
 import pl.mankevich.remoteapi.api.LocationApi
-import java.net.UnknownHostException
 import javax.inject.Inject
 
 class LocationRepositoryImpl
@@ -65,25 +63,33 @@ class LocationRepositoryImpl
         )
     }
 
-    override fun getLocationDetail(locationId: Int): Flow<Location> =
-        flow {
-            emit(Unit)
+    override fun getLocationDetail(locationId: Int): Flow<LocationDetailResultDto> {
+        val fetchFlow = flow {
+            emit(null)
 
-            try {
+            val isOnline = networkManager.isOnline()
+            if (isOnline) {
                 val locationResponse = locationApi.fetchLocationById(locationId)
                 locationDao.insertLocation(locationResponse.mapToLocationDto())
                 relationsDao.insertLocationCharacters(locationId, locationResponse.residentIds)
-            } catch (e: UnknownHostException) {
-                Log.w("LocationRepositoryImpl", "getLocationDetail: $e")
             }
-        }.flatMapLatest {
-            locationDao.getLocationById(locationId)
-                .distinctUntilChanged()
-                .filterNotNull()
-                .map {
-                    it.mapToLocation()
-                }
+
+            emit(isOnline)
+        }
+
+        val loadFlow = locationDao.getLocationById(locationId)
+            .distinctUntilChanged()
+            .map {
+                it?.mapToLocation()
+            }
+
+        return loadFlow.combine(fetchFlow) { location, isOnline ->
+            LocationDetailResultDto(
+                isOnline = isOnline,
+                location = location,
+            )
         }.flowOn(dispatcher)
+    }
 
     private fun createPagingSourceFactory(
         pagingSourceFactory: () -> PagingSource<Int, Location>

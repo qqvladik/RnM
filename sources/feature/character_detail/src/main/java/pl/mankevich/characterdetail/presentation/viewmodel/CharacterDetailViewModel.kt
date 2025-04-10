@@ -4,13 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import pl.mankevich.characterdetail.getCharacterId
 import pl.mankevich.coreui.mvi.Transform
 import pl.mankevich.coreui.viewmodel.ViewModelAssistedFactory
@@ -38,7 +39,15 @@ class CharacterDetailViewModel
 
     override fun executeIntent(intent: CharacterDetailIntent): Flow<Transform<CharacterDetailStateWithEffects>> =
         when (intent) {
-            CharacterDetailIntent.LoadCharacterDetail -> merge(loadCharacter(), loadEpisodes())
+            CharacterDetailIntent.LoadCharacterDetail ->
+                loadCharacter().onEach { characterDetailTransform ->
+                    if (
+                        characterDetailTransform is CharacterDetailTransforms.LoadCharacterSuccess
+                        && characterDetailTransform.isOnline != null
+                    ) {
+                        sendIntent(CharacterDetailIntent.LoadEpisodes)
+                    }
+                }
 
             CharacterDetailIntent.LoadEpisodes -> loadEpisodes()
 
@@ -74,9 +83,21 @@ class CharacterDetailViewModel
     private fun loadCharacter(): Flow<Transform<CharacterDetailStateWithEffects>> =
         flow {
             emit(CharacterDetailTransforms.LoadCharacter(characterId))
+
+            // Workaround to give some time for indicator from pullToRefresh to consume all states
+            // during recompositions. Because otherwise pullToRefresh indicator doesn't hide
+            delay(20)
+
             val result = loadCharacterDetailUseCase(characterId = characterId)
-                .map { CharacterDetailTransforms.LoadCharacterSuccess(it) }
-                .catch { emit(CharacterDetailTransforms.LoadCharacterError(it)) }
+                .map {
+                    CharacterDetailTransforms.LoadCharacterSuccess(
+                        isOnline = it.isOnline,
+                        character = it.character
+                    )
+                }
+                .catch {
+                    emit(CharacterDetailTransforms.LoadCharacterError(it))
+                }
             emitAll(result)
         }
 

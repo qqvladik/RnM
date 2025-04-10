@@ -36,6 +36,7 @@ sealed interface LocationDetailSideEffect {
 }
 
 data class LocationDetailState(
+    val isOnline: Boolean? = null,
     val locationError: Throwable? = null,
     val charactersError: Throwable? = null,
     val location: Location? = null,

@@ -13,18 +13,22 @@ object EpisodeDetailTransforms {
         override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
-                    episode = null,
+                    isOnline = null,
                     episodeError = null
                 ),
             )
         }
     }
 
-    data class LoadEpisodeSuccess(val episode: Episode) : EpisodeDetailTransform {
+    data class LoadEpisodeSuccess(
+        val isOnline: Boolean?,
+        val episode: Episode?
+    ) : EpisodeDetailTransform {
 
         override fun reduce(current: EpisodeDetailStateWithEffects): EpisodeDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
+                    isOnline = isOnline,
                     episode = episode,
                     episodeError = null
                 )

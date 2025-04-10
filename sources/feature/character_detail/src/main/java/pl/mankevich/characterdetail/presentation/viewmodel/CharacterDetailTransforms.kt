@@ -13,18 +13,22 @@ object CharacterDetailTransforms {
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
-                    character = null,
+                    isOnline = null,
                     characterError = null
                 ),
             )
         }
     }
 
-    data class LoadCharacterSuccess(val character: Character) : CharacterDetailTransform {
+    data class LoadCharacterSuccess(
+        val isOnline: Boolean?,
+        val character: Character?
+    ) : CharacterDetailTransform {
 
         override fun reduce(current: CharacterDetailStateWithEffects): CharacterDetailStateWithEffects {
             return current.copy(
                 state = current.state.copy(
+                    isOnline = isOnline,
                     character = character,
                     characterError = null
                 )
