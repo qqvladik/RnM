@@ -157,7 +157,7 @@ fun EpisodeDetailView(
 
     WithSharedTransitionScope {
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-        val isCollapsed by remember { derivedStateOf { scrollBehavior.state.overlappedFraction > 0f } }
+        val isOverlapped by remember { derivedStateOf { scrollBehavior.state.overlappedFraction > 0f } }
 
         Scaffold(
             snackbarHost = {
@@ -174,7 +174,7 @@ fun EpisodeDetailView(
                 WithAnimatedVisibilityScope {
                     TopAppBar(
                         title = {
-                            if (isCollapsed) {
+                            if (isOverlapped) {
                                 Text(
                                     text = state.episode?.name ?: "",
                                     textAlign = TextAlign.Center,

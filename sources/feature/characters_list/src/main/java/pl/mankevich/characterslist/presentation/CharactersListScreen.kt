@@ -259,15 +259,6 @@ fun CharactersListView(
 
                     val lazyStaggeredGridState = rememberLazyStaggeredGridState()
 
-                    CurrentTabClickHandler {
-                        lazyStaggeredGridState.animateScrollToItem(0)
-                        scrollBehavior.expandAnimating()
-                    }
-
-                    ObserveGridStateToClearFocus(
-                        lazyStaggeredGridState = lazyStaggeredGridState,
-                    )
-
                     // Show refreshing indicator at the same time as items placeholder only when refresh is triggered by pull-to-refresh
                     // Workaround to handle isRefreshing state in view layer, because Paging 3 doesn't lay good in MVI.
                     var isRefreshing by rememberSaveable { mutableStateOf(false) }
@@ -276,6 +267,25 @@ fun CharactersListView(
                             isRefreshing = false
                         }
                     }
+
+                    CurrentTabClickHandler {
+                        val isAppBarExpanded = scrollBehavior.state.collapsedFraction == 0f
+                        val isGridScrolledToTop = lazyStaggeredGridState.firstVisibleItemIndex == 0 &&
+                                lazyStaggeredGridState.firstVisibleItemScrollOffset == 0
+
+                        val isAtTopWithAppBarVisible = isAppBarExpanded && isGridScrolledToTop
+                        if (!isAtTopWithAppBarVisible) {
+                            lazyStaggeredGridState.animateScrollToItem(0)
+                            scrollBehavior.expandAnimating()
+                        } else {
+                            isRefreshing = true
+                            onRefresh()
+                        }
+                    }
+
+                    ObserveGridStateToClearFocus(
+                        lazyStaggeredGridState = lazyStaggeredGridState,
+                    )
 
                     PullToRefreshBox(
                         isRefreshing = isRefreshing,
