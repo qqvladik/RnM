@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
@@ -62,6 +63,7 @@ import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailIntent
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailSideEffect
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailState
 import pl.mankevich.characterdetail.presentation.viewmodel.CharacterDetailViewModel
+import pl.mankevich.coreui.R
 import pl.mankevich.coreui.ui.CharacterSharedElementKey
 import pl.mankevich.coreui.ui.CharacterSharedElementType
 import pl.mankevich.coreui.ui.Detail
@@ -172,10 +174,11 @@ fun CharacterDetailView(
     val isLoading = state.isOnline == null && state.characterError == null
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val offlineModeWarning = stringResource(id = R.string.offline_mode_warning)
     LaunchedEffect(isOffline, state.characterError) {
         if (isOffline && state.characterError == null) {
             snackbarHostState.showSnackbar(
-                message = "No internet. Showing cached data. Refresh for updates.",
+                message = offlineModeWarning,
                 duration = Indefinite,
             )
         }

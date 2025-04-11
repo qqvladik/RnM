@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -56,6 +57,7 @@ import pl.mankevich.characterslist.presentation.viewmodel.CharactersListSideEffe
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListState
 import pl.mankevich.characterslist.presentation.viewmodel.CharactersListViewModel
 import pl.mankevich.core.util.cast
+import pl.mankevich.coreui.R
 import pl.mankevich.coreui.ui.CharacterCard
 import pl.mankevich.coreui.ui.CharacterCardPlaceholder
 import pl.mankevich.coreui.ui.SearchFilterAppBar
@@ -165,10 +167,11 @@ fun CharactersListView(
     val isOffline = !state.isOnline
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val offlineModeWarning = stringResource(id = R.string.offline_mode_warning)
     LaunchedEffect(isOffline, isSuccess) {
         if (isOffline && isSuccess) {
             snackbarHostState.showSnackbar(
-                message = "No internet. Showing cached data. Refresh for updates.",
+                message = offlineModeWarning,
                 duration = Indefinite,
             )
         }

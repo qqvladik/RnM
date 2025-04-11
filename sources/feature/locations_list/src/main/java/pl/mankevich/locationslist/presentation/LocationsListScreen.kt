@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
@@ -53,6 +54,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import kotlinx.coroutines.flow.flowOf
 import pl.mankevich.core.util.cast
+import pl.mankevich.coreui.R
 import pl.mankevich.coreui.ui.LocationCard
 import pl.mankevich.coreui.ui.LocationCardPlaceholder
 import pl.mankevich.coreui.ui.SearchFilterAppBar
@@ -141,10 +143,11 @@ fun LocationsListView(
     val isOffline = !state.isOnline
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val offlineModeWarning = stringResource(id = R.string.offline_mode_warning)
     LaunchedEffect(isOffline, isSuccess) {
         if (isOffline && isSuccess) {
             snackbarHostState.showSnackbar(
-                message = "No internet. Showing cached data. Refresh for updates.",
+                message = offlineModeWarning,
                 duration = Indefinite,
             )
         }

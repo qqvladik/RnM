@@ -47,11 +47,13 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import pl.mankevich.coreui.R
 import pl.mankevich.coreui.ui.CharacterCard
 import pl.mankevich.coreui.ui.CharacterCardPlaceholder
 import pl.mankevich.coreui.ui.Detail
@@ -141,10 +143,11 @@ fun LocationDetailView(
     val isLoading = state.isOnline == null && state.locationError == null
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val offlineModeWarning = stringResource(id = R.string.offline_mode_warning)
     LaunchedEffect(isOffline, state.locationError) {
         if (isOffline && state.locationError == null) {
             snackbarHostState.showSnackbar(
-                message = "No internet. Showing cached data. Refresh for updates.",
+                message = offlineModeWarning,
                 duration = Indefinite,
             )
         }
