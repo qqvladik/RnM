@@ -217,7 +217,11 @@ fun EpisodeDetailView(
                 modifier = Modifier
                     .fillMaxSize()
                     .nestedScroll(scrollBehavior.nestedScrollConnection)
-                    .padding(top = paddingValues.calculateTopPadding()),
+                    .padding(
+                        top = paddingValues.calculateTopPadding(),
+                        start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
+                        end = paddingValues.calculateEndPadding(LocalLayoutDirection.current)
+                    ),
             ) {
 
                 val infiniteTransition =
@@ -228,9 +232,9 @@ fun EpisodeDetailView(
                     verticalItemSpacing = PADDING,
                     horizontalArrangement = Arrangement.spacedBy(PADDING),
                     contentPadding = PaddingValues(
+                        start = PADDING,
+                        end = PADDING,
                         bottom = paddingValues.calculateBottomPadding() + PADDING,
-                        start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + PADDING,
-                        end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + PADDING
                     ),
                     modifier = modifier.sharedBounds(
                         sharedContentState = rememberSharedContentState(

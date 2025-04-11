@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -162,8 +160,7 @@ fun EpisodesListView(
                         hostState = snackbarHostState,
                     )
                 },
-                contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
-                    .add(WindowInsets.systemBars.only(WindowInsetsSides.Bottom)), // For snackbar
+                contentWindowInsets = WindowInsets.safeDrawing,
                 modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
                     FlexibleTopBar(
@@ -173,6 +170,9 @@ fun EpisodesListView(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .windowInsetsPadding(
+                                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                                )
                                 .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
                                 .animateEnterExit(
                                     enter = slideInVertically { -it },
@@ -204,11 +204,7 @@ fun EpisodesListView(
                                     ),
                                 ),
                                 onBackPress = onBackClick,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .windowInsetsPadding(
-                                        WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
-                                    )
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }
@@ -230,8 +226,9 @@ fun EpisodesListView(
 
                     CurrentTabClickHandler {
                         val isAppBarExpanded = scrollBehavior.state.collapsedFraction == 0f
-                        val isGridScrolledToTop = lazyStaggeredGridState.firstVisibleItemIndex == 0 &&
-                                lazyStaggeredGridState.firstVisibleItemScrollOffset == 0
+                        val isGridScrolledToTop =
+                            lazyStaggeredGridState.firstVisibleItemIndex == 0 &&
+                                    lazyStaggeredGridState.firstVisibleItemScrollOffset == 0
 
                         val isAtTopWithAppBarVisible = isAppBarExpanded && isGridScrolledToTop
                         if (!isAtTopWithAppBarVisible) {
@@ -256,7 +253,11 @@ fun EpisodesListView(
                         modifier = Modifier
                             .fillMaxSize()
                             .nestedScroll(scrollBehavior.nestedScrollConnection)
-                            .padding(top = paddingValues.calculateTopPadding()),
+                            .padding(
+                                top = paddingValues.calculateTopPadding(),
+                                start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
+                                end = paddingValues.calculateEndPadding(LocalLayoutDirection.current)
+                            ),
                     ) {
 
                         LazyVerticalStaggeredGrid(
@@ -265,9 +266,9 @@ fun EpisodesListView(
                             verticalItemSpacing = PADDING,
                             horizontalArrangement = Arrangement.spacedBy(PADDING),
                             contentPadding = PaddingValues(
+                                start = PADDING,
+                                end = PADDING,
                                 bottom = paddingValues.calculateBottomPadding() + PADDING,
-                                start = paddingValues.calculateStartPadding(LocalLayoutDirection.current) + PADDING,
-                                end = paddingValues.calculateEndPadding(LocalLayoutDirection.current) + PADDING
                             ),
                             modifier = Modifier.fillMaxSize()
                         ) {
