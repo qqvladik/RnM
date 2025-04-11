@@ -128,11 +128,21 @@ fun LocationsListView(
     onBackClick: (() -> Unit)? = null,
 ) {
     val pagingLocationItems = state.locations.collectAsLazyPagingItems()
+
+    val isLoading = pagingLocationItems.loadState.refresh is LoadState.Loading
+            || (pagingLocationItems.loadState.refresh is LoadState.NotLoading
+            && pagingLocationItems.itemCount == 0
+            && !pagingLocationItems.loadState.append.endOfPaginationReached)
+    val isSuccess = !isLoading && pagingLocationItems.loadState.refresh is LoadState.NotLoading
+    val isEmpty = isSuccess
+            && pagingLocationItems.itemCount == 0
+            && pagingLocationItems.loadState.append.endOfPaginationReached
+
     val isOffline = !state.isOnline
 
     val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(isOffline) {
-        if (isOffline) {
+    LaunchedEffect(isOffline, isSuccess) {
+        if (isOffline && isSuccess) {
             snackbarHostState.showSnackbar(
                 message = "No internet. Showing cached data. Refresh for updates.",
                 duration = Indefinite,
@@ -218,8 +228,8 @@ fun LocationsListView(
                     // Show refreshing indicator at the same time as items placeholder only when refresh is triggered by pull-to-refresh
                     // Workaround to handle isRefreshing state in view layer, because Paging 3 doesn't lay good in MVI.
                     var isRefreshing by rememberSaveable { mutableStateOf(false) }
-                    LaunchedEffect(pagingLocationItems.loadState.refresh) {
-                        if (pagingLocationItems.loadState.refresh is LoadState.NotLoading) {
+                    LaunchedEffect(isLoading) {
+                        if (!isLoading) {
                             isRefreshing = false
                         }
                     }
@@ -253,27 +263,25 @@ fun LocationsListView(
                                 .height(135.dp)
                                 .fillMaxWidth()
 
-                            if (pagingLocationItems.loadState.refresh is LoadState.Loading
-                                || (pagingLocationItems.loadState.refresh is LoadState.NotLoading
-                                        && pagingLocationItems.itemCount == 0
-                                        && !pagingLocationItems.loadState.append.endOfPaginationReached)
-                            ) {
+                            if (isLoading) {
                                 items(20) {
                                     LocationCardPlaceholder(
                                         infiniteTransition = infiniteTransition,
                                         modifier = itemModifier
                                     )
                                 }
-                            } else if (pagingLocationItems.itemCount == 0 && pagingLocationItems.loadState.append.endOfPaginationReached) {
-                                item(span = FullLine) {
-                                    EmptyView(modifier = Modifier.fillMaxSize())
-                                }
                             } else {
-                                locationsListViewData(
-                                    pagingLocationItems = pagingLocationItems,
-                                    onLocationItemClick = onLocationItemClick,
-                                    itemModifier = itemModifier
-                                )
+                                if (isEmpty) {
+                                    item(span = FullLine) {
+                                        EmptyView(modifier = Modifier.fillMaxSize())
+                                    }
+                                } else {
+                                    locationsListViewData(
+                                        pagingLocationItems = pagingLocationItems,
+                                        onLocationItemClick = onLocationItemClick,
+                                        itemModifier = itemModifier
+                                    )
+                                }
                             }
                         }
                     }

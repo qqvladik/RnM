@@ -128,11 +128,21 @@ fun EpisodesListView(
     onBackClick: (() -> Unit)? = null,
 ) {
     val pagingEpisodeItems = state.episodes.collectAsLazyPagingItems()
+
+    val isLoading = pagingEpisodeItems.loadState.refresh is LoadState.Loading
+            || (pagingEpisodeItems.loadState.refresh is LoadState.NotLoading
+            && pagingEpisodeItems.itemCount == 0
+            && !pagingEpisodeItems.loadState.append.endOfPaginationReached)
+    val isSuccess = !isLoading && pagingEpisodeItems.loadState.refresh is LoadState.NotLoading
+    val isEmpty = isSuccess
+            && pagingEpisodeItems.itemCount == 0
+            && pagingEpisodeItems.loadState.append.endOfPaginationReached
+
     val isOffline = !state.isOnline
 
     val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(isOffline) {
-        if (isOffline) {
+    LaunchedEffect(isOffline, isSuccess) {
+        if (isOffline && isSuccess) {
             snackbarHostState.showSnackbar(
                 message = "No internet. Showing cached data. Refresh for updates.",
                 duration = Indefinite,
@@ -218,8 +228,8 @@ fun EpisodesListView(
                     // Show refreshing indicator at the same time as items placeholder only when refresh is triggered by pull-to-refresh
                     // Workaround to handle isRefreshing state in view layer, because Paging 3 doesn't lay good in MVI.
                     var isRefreshing by rememberSaveable { mutableStateOf(false) }
-                    LaunchedEffect(pagingEpisodeItems.loadState.refresh) {
-                        if (pagingEpisodeItems.loadState.refresh is LoadState.NotLoading) {
+                    LaunchedEffect(isLoading) {
+                        if (!isLoading) {
                             isRefreshing = false
                         }
                     }
@@ -253,27 +263,25 @@ fun EpisodesListView(
                                 .height(80.dp)
                                 .fillMaxWidth()
 
-                            if (pagingEpisodeItems.loadState.refresh is LoadState.Loading
-                                || (pagingEpisodeItems.loadState.refresh is LoadState.NotLoading
-                                        && pagingEpisodeItems.itemCount == 0
-                                        && !pagingEpisodeItems.loadState.append.endOfPaginationReached)
-                            ) {
+                            if (isLoading) {
                                 items(20) {
                                     EpisodeCardPlaceholder(
                                         infiniteTransition = infiniteTransition,
                                         modifier = itemModifier
                                     )
                                 }
-                            } else if (pagingEpisodeItems.itemCount == 0 && pagingEpisodeItems.loadState.append.endOfPaginationReached) {
-                                item(span = FullLine) {
-                                    EmptyView(modifier = Modifier.fillMaxSize())
-                                }
                             } else {
-                                episodeListViewData(
-                                    pagingEpisodeItems = pagingEpisodeItems,
-                                    onEpisodeItemClick = onEpisodeItemClick,
-                                    itemModifier = itemModifier
-                                )
+                                if (isEmpty) {
+                                    item(span = FullLine) {
+                                        EmptyView(modifier = Modifier.fillMaxSize())
+                                    }
+                                } else {
+                                    episodeListViewData(
+                                        pagingEpisodeItems = pagingEpisodeItems,
+                                        onEpisodeItemClick = onEpisodeItemClick,
+                                        itemModifier = itemModifier
+                                    )
+                                }
                             }
                         }
                     }

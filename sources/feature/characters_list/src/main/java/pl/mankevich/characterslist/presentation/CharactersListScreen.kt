@@ -134,11 +134,39 @@ fun CharactersListView(
     onBackClick: (() -> Unit)? = null,
 ) {
     val pagingCharacterItems = state.characters.collectAsLazyPagingItems()
+
+    /*When use pager with remoteMediator there are strange loadStates when launch app(1->2->3):
+        1. loadState.refresh = Loading
+        loadState.mediator = null
+        loadState.source.refresh = Loading
+
+        2. loadState.refresh = NotLoading
+        loadState.mediator.refresh = NotLoading
+        loadState.source.refresh = Loading
+
+        3. loadState.refresh = Loading
+        loadState.mediator = Loading
+        loadState.source.refresh = Loading
+
+        That 2 loadState brings flicking of progressbar. I found the issue: https://issuetracker.google.com/issues/288023763
+        There is no such behavior when use pager without remoteMediator.
+
+        That's why pagingCharacterItems.loadState.append.endOfPaginationReached check was added.
+    */
+    val isLoading = pagingCharacterItems.loadState.refresh is LoadState.Loading
+            || (pagingCharacterItems.loadState.refresh is LoadState.NotLoading
+            && pagingCharacterItems.itemCount == 0
+            && !pagingCharacterItems.loadState.append.endOfPaginationReached)
+    val isSuccess = !isLoading && pagingCharacterItems.loadState.refresh is LoadState.NotLoading
+    val isEmpty = isSuccess
+            && pagingCharacterItems.itemCount == 0
+            && pagingCharacterItems.loadState.append.endOfPaginationReached
+
     val isOffline = !state.isOnline
 
     val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(isOffline) {
-        if (isOffline) {
+    LaunchedEffect(isOffline, isSuccess) {
+        if (isOffline && isSuccess) {
             snackbarHostState.showSnackbar(
                 message = "No internet. Showing cached data. Refresh for updates.",
                 duration = Indefinite,
@@ -240,8 +268,8 @@ fun CharactersListView(
                     // Show refreshing indicator at the same time as items placeholder only when refresh is triggered by pull-to-refresh
                     // Workaround to handle isRefreshing state in view layer, because Paging 3 doesn't lay good in MVI.
                     var isRefreshing by rememberSaveable { mutableStateOf(false) }
-                    LaunchedEffect(pagingCharacterItems.loadState.refresh) {
-                        if (pagingCharacterItems.loadState.refresh is LoadState.NotLoading) {
+                    LaunchedEffect(isLoading) {
+                        if (!isLoading) {
                             isRefreshing = false
                         }
                     }
@@ -275,45 +303,25 @@ fun CharactersListView(
                                 .fillMaxWidth()
                                 .aspectRatio(0.75f)
 
-                            /*When use pager with remoteMediator there are strange loadStates when launch app(1->2->3):
-                            1. loadState.refresh = Loading
-                            loadState.mediator = null
-                            loadState.source.refresh = Loading
-
-                            2. loadState.refresh = NotLoading
-                            loadState.mediator.refresh = NotLoading
-                            loadState.source.refresh = Loading
-
-                            3. loadState.refresh = Loading
-                            loadState.mediator = Loading
-                            loadState.source.refresh = Loading
-
-                            That 2 loadState brings flicking of progressbar. I found the issue: https://issuetracker.google.com/issues/288023763
-                            There is no such behavior when use pager without remoteMediator.
-
-                            That's why pagingCharacterItems.loadState.append.endOfPaginationReached check was added.
-                            */
-                            if (pagingCharacterItems.loadState.refresh is LoadState.Loading
-                                || (pagingCharacterItems.loadState.refresh is LoadState.NotLoading
-                                        && pagingCharacterItems.itemCount == 0
-                                        && !pagingCharacterItems.loadState.append.endOfPaginationReached)
-                            ) {
+                            if (isLoading) {
                                 items(20) {
                                     CharacterCardPlaceholder(
                                         infiniteTransition = infiniteTransition,
                                         modifier = itemModifier
                                     )
                                 }
-                            } else if (pagingCharacterItems.itemCount == 0 && pagingCharacterItems.loadState.append.endOfPaginationReached) {
-                                item(span = FullLine) {
-                                    EmptyView(modifier = Modifier.fillMaxSize())
-                                }
                             } else {
-                                charactersListViewData(
-                                    pagingCharacterItems = pagingCharacterItems,
-                                    onCharacterItemClick = onCharacterItemClick,
-                                    itemModifier = itemModifier
-                                )
+                                if (isEmpty) {
+                                    item(span = FullLine) {
+                                        EmptyView(modifier = Modifier.fillMaxSize())
+                                    }
+                                } else {
+                                    charactersListViewData(
+                                        pagingCharacterItems = pagingCharacterItems,
+                                        onCharacterItemClick = onCharacterItemClick,
+                                        itemModifier = itemModifier
+                                    )
+                                }
                             }
                         }
                     }
