@@ -71,6 +71,7 @@ A modern Android application for exploring the Rick and Morty universe, built wi
 <pre lang="markdown"> 
 RnM
 ├── app/
+├── build-logic/
 └── sources/
     ├── api/
     │   ├── character_detail_api/
