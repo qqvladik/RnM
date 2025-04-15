@@ -1,4 +1,10 @@
+<div align="center">
+  <img style='width: 500px' src="assets/images/full_logo.png" alt="Rick and Morty full logo"/>
+</div>
+
 A modern Android application for exploring the Rick and Morty universe, built with Jetpack Compose and cutting-edge Android technologies. API https://rickandmortyapi.com/
+
+<img src="assets/images/rnm_demo_gif.gif" height="1000">	<img src="assets/images/characters_list_offline_dark.PNG" height="1000">
 
 ## Features
 
@@ -51,7 +57,7 @@ A modern Android application for exploring the Rick and Morty universe, built wi
 🏗️ Architecture
 - MVI (Model-View-Intent)
 - Clean Architecture
-- Modular design (features, core, data layers)
+- Modular design (api, base, feature layers)
 - Type-safe navigation system
 
 🛠️ Build System
@@ -59,4 +65,40 @@ A modern Android application for exploring the Rick and Morty universe, built wi
 - KSP for compile-time processing
 - Included build-logic for common build configurations
 - Custom convention gradle precompiled script plugins
+
+## Architecture Overview
+
+<pre lang="markdown"> 
+RnM
+├── app/
+└── sources/
+    ├── api/
+    │   ├── character_detail_api/
+    │   ├── characters_list_api/
+    │   ├── data_api/
+    │   ├── database_api/
+    │   ├── domain_api/
+    │   ├── episode_detail_api/
+    │   ├── episodes_list_api/
+    │   ├── location_detail_api/
+    │   ├── locations_list_api/
+    │   ├── model/
+    │   └── remote_api/
+    ├── base/
+    │   ├── core/
+    │   ├── core_ui/
+    │   ├── data/
+    │   ├── database_room/
+    │   ├── dependencies/
+    │   ├── design_system/
+    │   ├── domain/
+    │   └── remote_retrofit/
+    └── features/
+        ├── character_detail/
+        ├── characters_list/
+        ├── episode_detail/
+        ├── episodes_list/
+        ├── location_detail/
+        └── locations_list/  
+ </pre>
 
