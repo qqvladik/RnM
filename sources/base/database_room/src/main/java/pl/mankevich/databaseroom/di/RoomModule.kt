@@ -26,7 +26,7 @@ class RoomModule {
             RnmDatabase::class.java,
             RnmDatabase.DATABASE_NAME
         )
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(true)
             .build()
     }
 

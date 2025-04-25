@@ -35,10 +35,10 @@ import pl.mankevich.designsystem.utils.keyboardAsState
 @Composable
 fun SearchField(
     value: String,
+    modifier: Modifier = Modifier,
     onValueChange: (String) -> Unit,
     placeholder: String = "Search...",
     onClearClick: () -> Unit = {},
-    modifier: Modifier = Modifier,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
