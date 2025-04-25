@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main ]
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 jobs:
   build:
 
@@ -31,11 +34,24 @@ jobs:
       - name: Run tests
         run: ./gradlew app:test
 
-      - name: Assemble APK
+      # Create APK
+
+      - name: Assemble APK release
         run: ./gradlew app:assembleRelease
 
-      - name: Upload APK artifact
+      - name: Assemble APK debug
+        run: ./gradlew app:assembleDebug
+
+      # Upload Artifact Build
+
+      - name: Upload APK release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: rnm-app-apk
+          name: rnm-release-apk
           path: app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload APK debug artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rnm-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk

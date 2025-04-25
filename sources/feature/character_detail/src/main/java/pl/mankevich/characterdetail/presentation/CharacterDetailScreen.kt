@@ -424,7 +424,7 @@ fun CharacterDetail(
                     .clip(shape)
 //                .background(Red) //For preview purposes
                     .sharedElement(
-                        state = rememberSharedContentState(
+                        sharedContentState = rememberSharedContentState(
                             key = CharacterSharedElementKey(
                                 id = character.id,
                                 sharedType = CharacterSharedElementType.Image,

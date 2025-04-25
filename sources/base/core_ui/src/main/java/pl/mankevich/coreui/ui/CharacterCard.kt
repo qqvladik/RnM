@@ -83,7 +83,7 @@ fun CharacterCard(
                         .weight(1f)
                         .clip(imageShape)
                         .sharedElement(
-                            state = rememberSharedContentState(
+                            sharedContentState = rememberSharedContentState(
                                 key = CharacterSharedElementKey(
                                     id = id,
                                     sharedType = CharacterSharedElementType.Image,

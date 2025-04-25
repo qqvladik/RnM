@@ -1,5 +1,6 @@
 package pl.mankevich.designsystem.utils
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -16,21 +17,20 @@ import pl.mankevich.designsystem.utils.placeholder.PlaceholderHighlight
 import pl.mankevich.designsystem.utils.placeholder.placeholder
 import pl.mankevich.designsystem.utils.placeholder.shimmer
 
+@SuppressLint("UnnecessaryComposedModifier")
 fun Modifier.placeholderConnecting(
     shape: Shape = RectangleShape,
     visible: Boolean = true,
     infiniteTransition: InfiniteTransition? = null,
 ) = composed {
-    this.then(
-        placeholder(
-            visible = visible,
-            shape = shape,
-            color = MaterialTheme.colorScheme.surface,
-            highlight = PlaceholderHighlight.shimmer(
-                highlightColor = MaterialTheme.colorScheme.onSurface.copy(0.3f),
-            ),
-            infiniteTransition = infiniteTransition,
-        )
+    placeholder(
+        visible = visible,
+        shape = shape,
+        color = MaterialTheme.colorScheme.surface,
+        highlight = PlaceholderHighlight.shimmer(
+            highlightColor = MaterialTheme.colorScheme.onSurface.copy(0.3f),
+        ),
+        infiniteTransition = infiniteTransition,
     )
 }
 

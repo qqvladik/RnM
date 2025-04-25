@@ -49,7 +49,7 @@ fun IconText(
                     .let { baseModifier ->
                         if (iconSharedElementKey != null) {
                             baseModifier.sharedElement(
-                                state = rememberSharedContentState(key = iconSharedElementKey),
+                                sharedContentState = rememberSharedContentState(key = iconSharedElementKey),
                                 animatedVisibilityScope = LocalAnimatedVisibilityScope.current
                             )
                         } else {

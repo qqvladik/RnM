@@ -41,12 +41,13 @@ fun LocationCard(
     type: String,
     name: String,
     icon: ImageVector,
+    modifier: Modifier = Modifier,
     isLikeable: Boolean = true,
     isClickable: Boolean = true,
     isFavorite: Boolean = false,
     onFavoriteClick: () -> Unit = {},
     onLocationClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+
 ) {
     WithSharedTransitionScope {
         Box(
@@ -145,7 +146,7 @@ fun LocationCard(
                         .renderInSharedTransitionScopeOverlay()
                         .animateEnterExit()
                         .sharedElement(
-                            state = rememberSharedContentState(
+                            sharedContentState = rememberSharedContentState(
                                 key = LocationSharedElementKey(
                                     id = id,
                                     sharedType = LocationSharedElementType.Icon,
@@ -161,8 +162,8 @@ fun LocationCard(
 
 @Composable
 fun LocationCardPlaceholder(
+    modifier: Modifier = Modifier, //likeable wrapContentHeight with data = ~135.dp, notLikeable = ~105.dp
     infiniteTransition: InfiniteTransition? = null,
-    modifier: Modifier = Modifier //likeable wrapContentHeight with data = ~135.dp, notLikeable = ~105.dp
 ) {
     Box(
         modifier = modifier
