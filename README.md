@@ -4,7 +4,8 @@
 
 A modern Android application for exploring the Rick and Morty universe, built with Jetpack Compose and cutting-edge Android technologies. API https://rickandmortyapi.com/
 
-<img src="assets/images/rnm_demo_gif.gif" height="1000">	<img src="assets/images/characters_list_offline_dark.PNG" height="1000">
+<img src="assets/images/rnm_demo_gif.gif" height="800">	<img src="assets/images/rnm_demo2_gif.gif" height="800">
+<img src="assets/images/characters_list_offline_dark.PNG" height="800"> <img src="assets/images/charaters_list_filter_dialog.PNG" height="800">
 
 ## Features
 
@@ -15,10 +16,10 @@ A modern Android application for exploring the Rick and Morty universe, built wi
 - Deep linking support for sharing content
 - Predictive back gestures for smooth navigation
 - Min SDK 21
- 
+
 🎨 UI/UX Highlights
 - Dark/Light theme support
-- Design System (based on: https://www.figma.com/community/file/1225458908057208058)
+- Design System (custom, based on: https://www.figma.com/community/file/1225458908057208058)
 - Full edge-to-edge support
 - Beautiful shared element transitions between screens
 - Collapsible app bars with custom scroll behaviors
@@ -30,7 +31,7 @@ A modern Android application for exploring the Rick and Morty universe, built wi
 - Pull to refresh
 
 ⚙️ Technical Highlights
-- MVI architecture with clean state management (based on: https://github.com/adidas/mvi)
+- MVI architecture with loading initial data started on first subscribe (custom, based on: https://github.com/adidas/mvi)
 - Modular design with feature, api, base modules
 - Type-safe navigation system
 - Multiple NavHosts: Nested navigation graphs (for bottom navigation and deeplinks)
@@ -42,7 +43,7 @@ A modern Android application for exploring the Rick and Morty universe, built wi
 
 📱 Android Components
 - 100% Kotlin with Coroutines & Flow
-- Jetpack Compose with Material 3 for UI 
+- Jetpack Compose with Material 3 for UI
 - ViewModel
 - Navigation Compose with custom feature entries (with usage of NEW type-safe **non-reified** methods)
 - Room for local database
@@ -102,4 +103,3 @@ RnM
         ├── location_detail/
         └── locations_list/  
  </pre>
-

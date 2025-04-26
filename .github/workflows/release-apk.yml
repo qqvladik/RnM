@@ -7,14 +7,17 @@ on:
         description: 'Release title'
         required: true
         type: string
+        default: 'RnM Release'
       release_description:
         description: 'Release description'
         required: true
         type: string
+        default: 'Initial release of the RnM app.'
       release_tag:
           description: 'Release tag (example: v1.0.0)'
           required: true
           type: string
+          default: 'v1.0.0'
 
 jobs:
   release:
