@@ -1,0 +1,43 @@
+name: Release APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_title:
+        description: 'Release title'
+        required: true
+        type: string
+      release_description:
+        description: 'Release description'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+          cache: gradle
+
+      - name: Grant execute permission to gradlew
+        run: chmod +x ./gradlew
+
+      - name: Assemble Release APK
+        run: ./gradlew app:assembleRelease
+
+      - name: Upload Release APK to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ inputs.release_title }}
+          body: ${{ inputs.release_description }}
+          files: app/build/outputs/apk/release/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
